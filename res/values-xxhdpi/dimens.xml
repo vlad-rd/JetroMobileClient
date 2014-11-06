@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- XXHDPI -->
+
+
+    <!-- header activity -->
+    <dimen name="header_text">23sp</dimen>
+
+    <!-- desktop activity -->
+    <dimen name="grid_item_image">80dp</dimen>
+    <dimen name="application_list_title">19sp</dimen>
+
+    <!-- connection activity -->
+    <dimen name="edittext_lalble">18sp</dimen>
+
+    <!-- connection list activtiy -->
+    <dimen name="connection_list_item_name">18sp</dimen>
+    <dimen name="connection_list_item_ip">16sp</dimen>
+    <dimen name="add_new_aconnection_btn">21sp</dimen>
+    <dimen name="button_lable">20sp</dimen>
+
+</resources>

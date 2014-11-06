@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="myPopupMenuStyle" parent="@android:style/Widget.Holo.PopupWindow">
+        <item name="android:popupBackground">@drawable/background_selector</item>
+        <item name="android:textColor">#FF0000</item>
+    </style>
+
+    <style name="GrayBorderEditText" parent="@android:style/Widget.Holo.Light.EditText">
+        <item name="android:background">@drawable/gray_border_square</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:layout_marginTop">5dp</item>
+    </style>
+
+    <style name="DefaultButtonState" parent="@android:style/Widget.Holo.TextView">
+        <item name="android:popupBackground">@android:color/white</item>
+        <item name="android:background">@color/disable_gray</item>
+        <item name="android:gravity">center</item>
+        <item name="android:padding">15dp</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="MySpinner" parent="@android:style/Widget.Holo.Spinner">
+        <item name="android:background">@drawable/spinner_item_selector</item>
+        <item name="android:dropDownSelector">@drawable/spinner_item_selector</item>
+        <item name="android:popupBackground">@drawable/spinner_item_selector</item>
+    </style>
+
+  
+
+ 
+
+</resources>

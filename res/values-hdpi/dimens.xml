@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- HDPI -->
+
+
+    <!-- header activity -->
+    <dimen name="header_text">20sp</dimen>
+    <dimen name="star_image_right">5dp</dimen>
+    <!-- desktop activity -->
+    <dimen name="grid_item_image">35dp</dimen>
+    <!-- connection activity -->
+    <dimen name="edittext_lalble">20sp</dimen>
+    <!-- connection list activtiy -->
+    <dimen name="connection_list_item_ip">14sp</dimen>
+    <dimen name="add_new_aconnection_btn">22sp</dimen>
+    <dimen name="connection_list_item_name">16sp</dimen>
+    <dimen name="button_lable">16sp</dimen>
+</resources>

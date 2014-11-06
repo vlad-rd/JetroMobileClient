@@ -1,0 +1,127 @@
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <!-- The main content view -->
+
+    <RelativeLayout
+        android:id="@+id/content_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_h" >
+
+        <!-- Header -->
+
+        <ImageView
+            android:id="@+id/headerImg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/drawerDoorUp"
+            android:scaleType="fitXY"
+            android:src="@drawable/desktop_header" />
+
+        <!-- Applications grid -->
+
+        <GridView
+            android:id="@+id/applicationsGrid"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/headerImg"
+            android:layout_toRightOf="@+id/drawerDoorUp"
+            android:numColumns="5"
+            android:verticalSpacing="5dp" >
+        </GridView>
+
+        <!-- Footer -->
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:scaleType="fitXY"
+            android:src="@drawable/desktop_footer" />
+
+        <!-- Side drawer -->
+
+        <ImageView
+            android:id="@+id/drawerDoorUp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:scaleType="fitXY"
+            android:src="@drawable/door" />
+
+        <!-- Refresh button -->
+
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:src="@drawable/refresh" />
+    </RelativeLayout>
+
+    <!-- The navigation drawer -->
+
+    <RelativeLayout
+        android:layout_width="340dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="left"
+        android:background="@color/light_blue" >
+
+        <ImageView
+            android:id="@+id/drawerDoor"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:scaleType="fitXY"
+            android:src="@drawable/door" />
+
+        <RelativeLayout
+            android:id="@+id/drawerHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="7.55dp" >
+
+            <ImageView
+                android:id="@+id/homeBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/home" />
+
+            <TextView
+                android:id="@+id/openApplicationsTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignBottom="@+id/disconnectBtn"
+                android:layout_alignTop="@+id/disconnectBtn"
+                android:layout_toLeftOf="@+id/disconnectBtn"
+                android:layout_toRightOf="@+id/homeBtn"
+                android:gravity="center"
+                android:text="@string/open_applications_title"
+                android:textColor="@color/theme_orange"
+                android:textSize="18sp" />
+
+            <ImageView
+                android:id="@+id/disconnectBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/disconnect" />
+        </RelativeLayout>
+
+        <ListView
+            android:id="@+id/leftDrawer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/drawerHeader"
+            android:layout_gravity="start"
+            android:layout_toLeftOf="@+id/drawerDoor"
+            android:background="#111"
+            android:choiceMode="singleChoice"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="0dp" />
+    </RelativeLayout>
+
+</android.support.v4.widget.DrawerLayout>

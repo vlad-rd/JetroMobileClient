@@ -1,0 +1,48 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/content_frame"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_h" >
+
+    <!-- Header -->
+
+    <ImageView
+        android:id="@+id/headerImg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/drawerDoorUp"
+        android:scaleType="fitXY"
+        android:src="@drawable/desktop_header" />
+
+    <!-- Applications grid -->
+
+    <GridView
+        android:id="@+id/applicationsGrid"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/headerImg"
+        android:layout_toRightOf="@+id/drawerDoorUp"
+        android:numColumns="5"
+        android:verticalSpacing="5dp" >
+    </GridView>
+
+    <!-- Footer -->
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:scaleType="fitXY"
+        android:src="@drawable/desktop_footer" />
+
+    <!-- Refresh button -->
+
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:src="@drawable/refresh" />
+
+</RelativeLayout>

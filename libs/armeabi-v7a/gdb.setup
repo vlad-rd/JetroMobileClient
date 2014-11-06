@@ -1,0 +1,2 @@
+set solib-search-path ./obj/local/armeabi-v7a
+directory /Users/avi/Desktop/e4dandroid/ndk/platforms/android-9/arch-arm/usr/include /Users/avi/Desktop/help/FreeRDP-master/client/Android/FreeRDPCore/jni /Users/avi/Desktop/e4dandroid/ndk/sources/cxx-stl/system

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<resources>
+
+    <string name="app_title">Cockpit5</string>
+    <!-- Search strings -->
+    <string name="search_label">Jetro Mobile Client</string>
+    <string name="search_settings_description">Secure Remote Applications</string>
+
+    <!-- screens headers -->
+    <string name="AddConnection_header">NEW CONNECTION</string>
+    <string name="ResetPassword_header">RESET PASSWORD</string>
+    <string name="ViewConnection_header"></string>
+    <string name="Login_header">LOGIN</string>
+    <string name="Connections_header">CONNECTIONS</string>
+    <string name="open_applications_title">OPEN APPLICATIONS</string>
+
+    <string-array name="connection_mode_options">
+        <item>Direct</item>
+        <item>SSL</item>
+        <item>TLS</item>
+    </string-array>
+    <string-array name="connection_types_options">
+        <item>I\'m in the office</item>
+        <item>I\'m away from the office</item>
+    </string-array>
+    <string-array name="connection_actions_options">
+        <item>Connect</item>
+        <item>Details</item>
+        <item>Delete</item>
+    </string-array>
+
+    <!-- lables -->
+    <string name="host_lbl">Host</string>
+    <string name="host_name_lbl">Host Name</string>
+    <string name="port_lbl">Port</string>
+    <string name="connect_lbl">CONNECT</string>
+    <string name="reset_lbl">RESET</string>
+    <string name="login_lbl">LOGIN</string>
+    <string name="cancle_lbl">CANCEL</string>
+    <string name="old_passwd_lbl">Old password</string>
+    <string name="new_passwd_lbl">New password</string>
+    <string name="confirm_passwd_lbl">Confirm new pasword</string>
+    <string name="user_name_lbl">User name</string>
+    <string name="passwd_lbl">Password</string>
+    <string name="domain_lbl">Domain</string>
+    <string name="add_new_connection_lbl">ADD NEW CONNECTION</string>
+    <string name="loading_str">Loading.... please wait.</string>
+
+</resources>

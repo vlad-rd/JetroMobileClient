@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <!-- Desktop fragment -->
+
+    <fragment
+        android:id="@+id/desktop_fragment"
+        android:name="com.jetro.mobileclient.ui.DesktopFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Task fragment -->
+
+    <fragment
+        android:id="@+id/task_fragment"
+        android:name="com.jetro.mobileclient.ui.TaskFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <!-- The navigation drawer -->
+
+    <RelativeLayout
+        android:layout_width="340dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="left"
+        android:background="@color/light_blue" >
+
+        <ImageView
+            android:id="@+id/drawerDoor"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:scaleType="fitXY"
+            android:src="@drawable/door" />
+
+        <RelativeLayout
+            android:id="@+id/drawerHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="7.55dp" >
+
+            <ImageView
+                android:id="@+id/homeBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/home" />
+
+            <TextView
+                android:id="@+id/openApplicationsTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignBottom="@+id/disconnectBtn"
+                android:layout_alignTop="@+id/disconnectBtn"
+                android:layout_toLeftOf="@+id/disconnectBtn"
+                android:layout_toRightOf="@+id/homeBtn"
+                android:gravity="center"
+                android:text="@string/open_applications_title"
+                android:textColor="@color/theme_orange"
+                android:textSize="18sp" />
+
+            <ImageView
+                android:id="@+id/disconnectBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/disconnect" />
+        </RelativeLayout>
+
+        <ListView
+            android:id="@+id/leftDrawer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/drawerHeader"
+            android:layout_gravity="start"
+            android:layout_toLeftOf="@+id/drawerDoor"
+            android:background="#111"
+            android:choiceMode="singleChoice"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="0dp" />
+    </RelativeLayout>
+
+</android.support.v4.widget.DrawerLayout>
