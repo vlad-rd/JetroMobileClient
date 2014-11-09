@@ -137,6 +137,7 @@ public class JetroSessionActivity extends SessionActivity implements ISocketList
 			} else {
 				showKeyboard(false, false);
 			}
+			break;
 		case MessagesValues.ClassID.Error:
 			ErrCodeMsgResponse errCodeMsgResponse = (ErrCodeMsgResponse) msg.getJsonResponse();
 			break;

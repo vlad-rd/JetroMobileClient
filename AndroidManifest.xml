@@ -55,17 +55,9 @@
             android:name="com.jetro.mobileclient.ui.DesktopActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="adjustNothing|stateHidden" >
-
-            <!-- <intent-filter android:label="@string/app_title" > -->
-            <!-- <action android:name="android.intent.action.MAIN" /> -->
-
-
-            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-            <!-- </intent-filter> -->
-
         </activity>
         <activity
-            android:name="com.jetro.mobileclient.ui.SessionFragmentActivity"
+            android:name="com.jetro.mobileclient.ui.NewDesktopActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="adjustNothing|stateHidden" >
         </activity>
