@@ -2,44 +2,119 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <!-- The main content view -->
+    <!-- Main Content Layout -->
 
     <RelativeLayout
         android:id="@+id/content_frame"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/bg_h" >
+        android:layout_height="match_parent" >
 
-        <!-- Header -->
+        <!-- Desktop layout -->
 
-        <ImageView
-            android:id="@+id/headerImg"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/drawerDoorUp"
-            android:scaleType="fitXY"
-            android:src="@drawable/desktop_header" />
-
-        <!-- Applications grid -->
-
-        <GridView
-            android:id="@+id/applicationsGrid"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/headerImg"
-            android:layout_toRightOf="@+id/drawerDoorUp"
-            android:numColumns="5"
-            android:verticalSpacing="5dp" >
-        </GridView>
+            android:background="@drawable/bg_h" >
 
-        <!-- Footer -->
+            <!-- Header -->
 
-        <ImageView
+            <ImageView
+                android:id="@+id/headerImg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scaleType="fitXY"
+                android:src="@drawable/desktop_header" />
+
+            <!-- Applications grid -->
+
+            <GridView
+                android:id="@+id/applicationsGrid"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/headerImg"
+                android:numColumns="5"
+                android:verticalSpacing="5dp" >
+            </GridView>
+
+            <!-- Footer -->
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:scaleType="fitXY"
+                android:src="@drawable/desktop_footer" />
+
+            <!-- Refresh button -->
+
+            <ImageView
+                android:id="@+id/imageView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:src="@drawable/refresh" />
+        </RelativeLayout>
+
+        <!-- Window (Session) Layout -->
+
+        <RelativeLayout
+            android:id="@+id/session_root_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:scaleType="fitXY"
-            android:src="@drawable/desktop_footer" />
+            android:layout_height="match_parent"
+            android:visibility="invisible" >
+
+            <!-- childs are specified bottom-up so that we have a correct z-order in our final layout -->
+
+            <android.inputmethodservice.KeyboardView
+                android:id="@+id/extended_keyboard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:visibility="gone" />
+
+            <com.freerdp.freerdpcore.presentation.ScrollView2D
+                android:id="@+id/sessionScrollView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_above="@id/extended_keyboard"
+                android:layout_alignParentTop="true"
+                android:drawingCacheQuality="low"
+                android:fillViewport="true"
+                android:isScrollContainer="true"
+                android:scrollbars="horizontal|vertical" >
+
+                <com.freerdp.freerdpcore.presentation.SessionView
+                    android:id="@+id/sessionView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawingCacheQuality="low"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true" />
+            </com.freerdp.freerdpcore.presentation.ScrollView2D>
+
+            <com.freerdp.freerdpcore.presentation.TouchPointerView
+                android:id="@+id/touchPointerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/touch_pointer_default"
+                android:visibility="invisible" />
+
+            <android.widget.ZoomControls
+                android:id="@+id/zoomControls"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@id/sessionScrollView"
+                android:layout_centerHorizontal="true" />
+
+            <android.inputmethodservice.KeyboardView
+                android:id="@+id/extended_keyboard_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:visibility="gone" />
+        </RelativeLayout>
 
         <!-- Side drawer -->
 
@@ -50,16 +125,6 @@
             android:layout_alignParentLeft="true"
             android:scaleType="fitXY"
             android:src="@drawable/door" />
-
-        <!-- Refresh button -->
-
-        <ImageView
-            android:id="@+id/imageView1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:src="@drawable/refresh" />
     </RelativeLayout>
 
     <!-- The navigation drawer -->

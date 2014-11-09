@@ -702,7 +702,7 @@ public class ConnectionActivity extends HeaderActivtiy implements
 				switch (loginResponse.getReturnCode()) {
 				
 				case MessagesValues.LoginReturnCode.LoginSuccess:
-					Intent intent = new Intent(ConnectionActivity.this, DesktopActivity.class);
+					Intent intent = new Intent(ConnectionActivity.this, NewDesktopActivity.class);
 					intent.putExtra(Constants.TICKET, MessagesValues.ClassID.MyApplicationsMsg);
 					startActivity(intent);
 					stopLoadingScreen();

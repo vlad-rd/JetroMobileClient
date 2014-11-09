@@ -45,36 +45,31 @@ import com.freerdp.freerdpcore.sharedobjects.utils.Constants;
 import com.jetro.mobileclient.R;
 import com.jetro.mobileclient.application.GlobalApp;
 
-public class NewDesktopActivity extends BaseActivity implements ISocketListener {
+public class NewDesktopActivity extends SessionActivity implements ISocketListener {
 
 	private static final String TAG = NewDesktopActivity.class.getSimpleName();
-	
+
 	private SocketManager socketManager;
-	private String ticket;
+	
 	private ApplicationsGridAdapter appsAdapter;
 	private GridView appsGrid;
 	private ImageView _off;
 	private ImageView _home;
 	private boolean isChecked = false;
-	
+
 	private String selectedAppId;
-	
+
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {
 		Log.d(TAG, "onCreate(...) ENTER");
 		super.onCreate(savedInstanceState);
-		
+
 		setContentView(R.layout.new_desktop_activity_layout);
-		
+
 		socketManager = GlobalApp.getSocketManager(this);
 
 		appsGrid = (GridView) findViewById(R.id.applicationsGrid);
-
 		_off = (ImageView) findViewById(R.id.disconnectBtn);
-
-		_home = (ImageView) findViewById(R.id.homeBtn);
-
-		// exit from the app
 		_off.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -85,17 +80,16 @@ public class NewDesktopActivity extends BaseActivity implements ISocketListener 
 				}
 			}
 		});
-
+		_home = (ImageView) findViewById(R.id.homeBtn);
 		_home.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				showPopupExit(Constants.ARE_YOU_SURE, Constants.CANCEL, Constants.EXIT);
+				showPopupExit(Constants.ARE_YOU_SURE, Constants.CANCEL,
+						Constants.EXIT);
 			}
 		});
-		
-		ticket = GlobalApp.getSessionTicket();
-		
-		sendMyApplicationsMsg(ticket);
+
+		sendMyApplicationsMsg(GlobalApp.getSessionTicket());
 	}
 
 	@Override
@@ -103,18 +97,19 @@ public class NewDesktopActivity extends BaseActivity implements ISocketListener 
 		Log.d(TAG, "onResume(...) ENTER");
 		super.onResume();
 	}
-	
+
 	@Override
 	public void onBackPressed() {
 		Log.d(TAG, "onBackPressed(...) ENTER");
-		
-		showPopupExit(Constants.POPUP_EXIT_MESSAGE, Constants.YES_MESSAGE, Constants.NO_MESSAGE);
+
+		showPopupExit(Constants.POPUP_EXIT_MESSAGE, Constants.YES_MESSAGE,
+				Constants.NO_MESSAGE);
 	}
-	
+
 	@Override
 	protected void onDestroy() {
 		Log.d(TAG, "onDestroy(...) ENTER");
-		
+
 		super.onDestroy();
 		socketManager.closeSocket();
 	}
@@ -127,7 +122,7 @@ public class NewDesktopActivity extends BaseActivity implements ISocketListener 
 	@Override
 	public void OnMessageReceived(BaseMsg msg) {
 		Log.d(TAG, "OnMessageReceived(...) ENTER");
-		
+
 		if (msg == null || msg.getJsonResponse() == null) {
 			OnIOError("Message is null");
 			return;
@@ -135,32 +130,38 @@ public class NewDesktopActivity extends BaseActivity implements ISocketListener 
 
 		if (msg.getJsonResponse().getDescription() != null) {
 		}
-		
+
 		switch (msg.extraHeader.MsgClassID) {
 		case MessagesValues.ClassID.MyApplicationsMsg:
-			MyAppsResponse myAppsResponse = (MyAppsResponse) msg.getJsonResponse();
-			appsAdapter = new ApplicationsGridAdapter(myAppsResponse.getApplications());
+			MyAppsResponse myAppsResponse = (MyAppsResponse) msg
+					.getJsonResponse();
+			appsAdapter = new ApplicationsGridAdapter(
+					myAppsResponse.getApplications());
 			appsGrid.setAdapter(appsAdapter);
 			appsGrid.setOnItemClickListener(new OnItemClickListener() {
 				@Override
-				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-					Application selectedApp = (Application) appsAdapter.getItem(position);
+				public void onItemClick(AdapterView<?> parent, View view,
+						int position, long id) {
+					Application selectedApp = (Application) appsAdapter
+							.getItem(position);
 					selectedAppId = selectedApp.getID();
 					Log.w(TAG, "Selected App Name: " + selectedApp.getName());
 					Log.w(TAG, "Selected App Id: " + selectedAppId);
-					sendGetTsMsg(ticket);
+					sendGetTsMsg(GlobalApp.getSessionTicket());
 				}
 			});
 			break;
 		case MessagesValues.ClassID.ShowTaskListMsg:
-			ShowTaskListMsgResponse showTaskListMsgResponse = (ShowTaskListMsgResponse) msg.getJsonResponse();
+			ShowTaskListMsgResponse showTaskListMsgResponse = (ShowTaskListMsgResponse) msg
+					.getJsonResponse();
 			Task[] tasks = showTaskListMsgResponse.getTasks();
 		case MessagesValues.ClassID.GetTsMsg:
 			GetTsMsgResponse getTsResponse = (GetTsMsgResponse) msg.getJsonResponse();
 			startJetroSessionActivity(getTsResponse.getAddress(), getTsResponse.getPort(), selectedAppId);
 			break;
 		case MessagesValues.ClassID.LogoutMsg:
-			LogoutMsgResponse logoutMsgRespons = (LogoutMsgResponse) msg.getJsonResponse();
+			LogoutMsgResponse logoutMsgRespons = (LogoutMsgResponse) msg
+					.getJsonResponse();
 			break;
 		case MessagesValues.ClassID.Error:
 			BaseResponse baseResponse = (BaseResponse) msg.getJsonResponse();
@@ -171,24 +172,24 @@ public class NewDesktopActivity extends BaseActivity implements ISocketListener 
 	@Override
 	public void OnIOError(String exception) {
 		Log.d(TAG, "OnIOError(...) ENTER");
-		
+
 		finish();
 	}
-	
+
 	private void sendMyApplicationsMsg(String ticket) {
 		Log.d(TAG, "sendMyApplicationsMsg(...) ENTER");
-		
+
 		MyApplicationsMsg msg = new MyApplicationsMsg(ticket);
 		Log.i(TAG, "Message: " + msg);
 		socketManager.sendMessage(msg);
 	}
-	
+
 	private void sendGetTsMsg(String ticket) {
 		Log.d(TAG, "NewDesktopActivity#sendGetTsMsg(...) ENTER");
-		
+
 		socketManager.sendMessage(new GetTsMsg(ticket));
 	}
-	
+
 	private class ApplicationsGridAdapter extends BaseAdapter {
 
 		Application[] apps;
@@ -215,26 +216,30 @@ public class NewDesktopActivity extends BaseActivity implements ISocketListener 
 		}
 
 		@Override
-		public View getView(final int position, View convertView, ViewGroup parent) {
+		public View getView(final int position, View convertView,
+				ViewGroup parent) {
 			convertView = inflater.inflate(R.layout.grid_item_layout, null);
 
-			((TextView) convertView.findViewById(R.id.applicationName)).setText(apps[position].getName());
+			((TextView) convertView.findViewById(R.id.applicationName))
+					.setText(apps[position].getName());
 
 			proccessApplicationIcon(
 					((ImageView) convertView.findViewById(R.id.applicationIcon)),
 					apps[position].getIcon());
-			
+
 			return convertView;
 		}
-		
-		private void proccessApplicationIcon(final ImageView iv, final byte[] iconAsBytes) {
+
+		private void proccessApplicationIcon(final ImageView iv,
+				final byte[] iconAsBytes) {
 			new AsyncTask<Void, Void, Bitmap>() {
 
 				@Override
 				protected Bitmap doInBackground(Void... params) {
 					Bitmap result = null;
 					try {
-						result = BitmapFactory.decodeByteArray(iconAsBytes, 0, iconAsBytes.length);
+						result = BitmapFactory.decodeByteArray(iconAsBytes, 0,
+								iconAsBytes.length);
 					} catch (Exception e) {
 						Log.e(TAG, "ERROR: ", e);
 					}
@@ -248,17 +253,17 @@ public class NewDesktopActivity extends BaseActivity implements ISocketListener 
 			}.execute();
 		}
 	}
-	
+
 	private void startJetroSessionActivity(String host, int port, String selectedAppId) {
 		Intent intent = new Intent(NewDesktopActivity.this, JetroSessionActivity.class);
-		
+
 		ScreenSettings screen_settings = new ScreenSettings();
 		screen_settings.setResolution(ScreenSettings.FITSCREEN);
 		ManualBookmark bookmark = new ManualBookmark();
 		bookmark.setHostname(host);
 		bookmark.setPort(port);
 		bookmark.setScreenSettings(screen_settings);
-		
+
 		Bundle extras = new Bundle();
 		extras.putParcelable(SessionActivity.PARAM_JETRO_REFERENCE, bookmark);
 		extras.putString("applicationId", selectedAppId);
@@ -268,17 +273,13 @@ public class NewDesktopActivity extends BaseActivity implements ISocketListener 
 
 	private void showPopupExit(String st, String but1, String but2) {
 		Log.d(TAG, "showPopupExit(...) ENTER");
-		
-		new AlertDialog.Builder(this)
-			.setMessage(st)
-			.setCancelable(false)
-			.setPositiveButton(but1, new DialogInterface.OnClickListener() {
+
+		new AlertDialog.Builder(this).setMessage(st).setCancelable(false)
+				.setPositiveButton(but1, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
 						NewDesktopActivity.this.finish();
 					}
-				})
-			.setNegativeButton(but2, null)
-			.show();
+				}).setNegativeButton(but2, null).show();
 	}
 
 	/**
@@ -286,23 +287,27 @@ public class NewDesktopActivity extends BaseActivity implements ISocketListener 
 	 */
 	private void initExitDialog() {
 		Log.d(TAG, "initExitDialog(...) ENTER");
-		
+
 		String MyPREFERENCES = "ExitPopup";
 		SharedPreferences sharedpreferences;
 
 		ConnectivityManager manager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-		sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+		sharedpreferences = getSharedPreferences(MyPREFERENCES,
+				Context.MODE_PRIVATE);
 		final Editor editor = sharedpreferences.edit();
 
 		LayoutInflater inflater = LayoutInflater.from(NewDesktopActivity.this);
-		final View dialogView = inflater.inflate(R.layout.home_screen_exit_dialog, null);
+		final View dialogView = inflater.inflate(
+				R.layout.home_screen_exit_dialog, null);
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(NewDesktopActivity.this);
+		AlertDialog.Builder builder = new AlertDialog.Builder(
+				NewDesktopActivity.this);
 		builder.setView(dialogView);
 		final AlertDialog alertDialog = builder.create();
 		alertDialog.show();
 
-		final CheckBox check = (CheckBox) dialogView.findViewById(R.id.checkBox1);
+		final CheckBox check = (CheckBox) dialogView
+				.findViewById(R.id.checkBox1);
 		check.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
@@ -312,7 +317,8 @@ public class NewDesktopActivity extends BaseActivity implements ISocketListener 
 			}
 		});
 
-		Button cancelButton = (Button) dialogView.findViewById(R.id.cancel_button);
+		Button cancelButton = (Button) dialogView
+				.findViewById(R.id.cancel_button);
 		// if decline button is clicked, close the custom dialog
 		cancelButton.setOnClickListener(new OnClickListener() {
 			@Override
@@ -320,7 +326,8 @@ public class NewDesktopActivity extends BaseActivity implements ISocketListener 
 				alertDialog.cancel();
 			}
 		});
-		Button exit = (Button) dialogView.findViewById(R.id.exit_dialog_button_home_screen);
+		Button exit = (Button) dialogView
+				.findViewById(R.id.exit_dialog_button_home_screen);
 		// add listener to button
 		exit.setOnClickListener(new OnClickListener() {
 			@Override
@@ -328,7 +335,8 @@ public class NewDesktopActivity extends BaseActivity implements ISocketListener 
 				if (isChecked) {
 					saveStatusDontShowDialog();
 				}
-				Intent intent = new Intent(NewDesktopActivity.this, ConnectionsListActivity.class);
+				Intent intent = new Intent(NewDesktopActivity.this,
+						ConnectionsListActivity.class);
 				startActivity(intent);
 				finish();
 			}
@@ -337,8 +345,9 @@ public class NewDesktopActivity extends BaseActivity implements ISocketListener 
 
 	private void saveStatusDontShowDialog() {
 		Log.d(TAG, "saveStatusDontShowDialog(...) ENTER");
-		
-		SharedPreferences pref = getApplicationContext().getSharedPreferences("status", MODE_PRIVATE);
+
+		SharedPreferences pref = getApplicationContext().getSharedPreferences(
+				"status", MODE_PRIVATE);
 		Editor editor = pref.edit();
 		editor.putBoolean("status", isChecked);
 		editor.commit();
@@ -346,8 +355,9 @@ public class NewDesktopActivity extends BaseActivity implements ISocketListener 
 
 	private boolean getStatusDontShowDialog() {
 		Log.d(TAG, "getStatusDontShowDialog(...) ENTER");
-		
-		SharedPreferences pref = getApplicationContext().getSharedPreferences("status", MODE_PRIVATE);
+
+		SharedPreferences pref = getApplicationContext().getSharedPreferences(
+				"status", MODE_PRIVATE);
 		return pref.getBoolean("status", false);
 	}
 
