@@ -116,6 +116,11 @@ public class JetroSessionActivity extends SessionActivity implements ISocketList
 			StartApplicationMsgResponse startApplicationMsgResponse = (StartApplicationMsgResponse) msg.getJsonResponse();
 			processId = startApplicationMsgResponse.getPID();
 			break;
+		case MessagesValues.ClassID.ShowTaskListMsg:
+			ShowTaskListMsgResponse showTaskListMsgResponse = (ShowTaskListMsgResponse) msg.getJsonResponse();
+			int activeHWND = showTaskListMsgResponse.getActiveHWND();
+			Task[] tasks = showTaskListMsgResponse.getTasks();
+			break;
 		case MessagesValues.ClassID.WindowCreatedMsg:
 			WindowCreatedMsgResponse windowCreatedMsgResponse = (WindowCreatedMsgResponse) msg.getJsonResponse();
 			task = windowCreatedMsgResponse.getTask();
@@ -124,11 +129,6 @@ public class JetroSessionActivity extends SessionActivity implements ISocketList
 			ShowWindowMsgResponse showWindowMsgResponse = (ShowWindowMsgResponse) msg.getJsonResponse();
 			hwnd = showWindowMsgResponse.getHWND();
 			processId = showWindowMsgResponse.getPID();
-			break;
-		case MessagesValues.ClassID.ShowTaskListMsg:
-			ShowTaskListMsgResponse showTaskListMsgResponse = (ShowTaskListMsgResponse) msg.getJsonResponse();
-			int activeHWND = showTaskListMsgResponse.getActiveHWND();
-			Task[] tasks = showTaskListMsgResponse.getTasks();
 			break;
 		case MessagesValues.ClassID.ShowKeyBoardMsg:
 			ShowKeyBoardMsgResponse showKeyBoardMsgResponse = (ShowKeyBoardMsgResponse) msg.getJsonResponse();

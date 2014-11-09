@@ -57,7 +57,7 @@
             android:windowSoftInputMode="adjustNothing|stateHidden" >
         </activity>
         <activity
-            android:name="com.jetro.mobileclient.ui.NewDesktopActivity"
+            android:name="com.jetro.mobileclient.ui.SessionActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="adjustNothing|stateHidden" >
         </activity>

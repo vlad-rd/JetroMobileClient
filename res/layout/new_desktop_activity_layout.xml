@@ -84,7 +84,7 @@
                 android:isScrollContainer="true"
                 android:scrollbars="horizontal|vertical" >
 
-                <com.freerdp.freerdpcore.presentation.SessionView
+                <com.jetro.mobileclient.ui.SessionView
                     android:id="@+id/sessionView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

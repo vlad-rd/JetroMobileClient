@@ -702,7 +702,7 @@ public class ConnectionActivity extends HeaderActivtiy implements
 				switch (loginResponse.getReturnCode()) {
 				
 				case MessagesValues.LoginReturnCode.LoginSuccess:
-					Intent intent = new Intent(ConnectionActivity.this, NewDesktopActivity.class);
+					Intent intent = new Intent(ConnectionActivity.this, SessionActivity.class);
 					intent.putExtra(Constants.TICKET, MessagesValues.ClassID.MyApplicationsMsg);
 					startActivity(intent);
 					stopLoadingScreen();
@@ -1254,10 +1254,6 @@ public class ConnectionActivity extends HeaderActivtiy implements
 		public void onReceive(Context context, Intent intent) {
 			Log.d(TAG, "ConnectionActivity.NetworkChangeReceiver#onReceive(...) ENTER");
 			
-			String input = getIntent().getExtras().getString("type");
-
-			Log.i(TAG, "ConnectionActivity.NetworkChangeReceiver#onReceive(...) network type: " + input);
-
 			if (!isConnectedTo3G(context)) {
 				if ((!SHOW_DIALOG)) {
 					SHOW_DIALOG = true;
@@ -1267,10 +1263,6 @@ public class ConnectionActivity extends HeaderActivtiy implements
 					showDialogChooseNoInternetConnection();
 				}
 			}
-		}
-
-		public boolean isConnected(Context context, Intent intent) {
-			return isConnectedTo3G(context);
 		}
 	}
 }
