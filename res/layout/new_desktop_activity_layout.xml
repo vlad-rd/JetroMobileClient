@@ -116,7 +116,7 @@
                 android:visibility="gone" />
         </RelativeLayout>
 
-        <!-- Side drawer -->
+        <!-- Tasks Drawer drawer handle -->
 
         <ImageView
             android:id="@+id/drawerDoorUp"
@@ -127,13 +127,15 @@
             android:src="@drawable/door" />
     </RelativeLayout>
 
-    <!-- The navigation drawer -->
+    <!-- Tasks Drawer drawer -->
 
     <RelativeLayout
         android:layout_width="340dp"
         android:layout_height="match_parent"
         android:layout_gravity="left"
         android:background="@color/light_blue" >
+        
+        <!-- Drawer Handle -->
 
         <ImageView
             android:id="@+id/drawerDoor"
@@ -142,6 +144,8 @@
             android:layout_alignParentRight="true"
             android:scaleType="fitXY"
             android:src="@drawable/door" />
+        
+        <!-- Drawer Header -->
 
         <RelativeLayout
             android:id="@+id/drawerHeader"
@@ -175,9 +179,11 @@
                 android:layout_alignParentRight="true"
                 android:src="@drawable/disconnect" />
         </RelativeLayout>
+        
+        <!-- Tasks List View -->
 
         <ListView
-            android:id="@+id/leftDrawer"
+            android:id="@+id/list_tasks"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@+id/drawerHeader"

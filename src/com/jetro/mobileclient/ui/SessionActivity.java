@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -56,6 +57,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ZoomControls;
@@ -82,6 +84,7 @@ import com.freerdp.freerdpcore.sharedobjects.controller_messages.MyApplicationsM
 import com.freerdp.freerdpcore.sharedobjects.controller_messages.SessionReadyMsg.SessionReadyMsgResponse;
 import com.freerdp.freerdpcore.sharedobjects.controller_messages.ShowKeyBoardMsg.ShowKeyBoardMsgResponse;
 import com.freerdp.freerdpcore.sharedobjects.controller_messages.ShowTaskListMsg.ShowTaskListMsgResponse;
+import com.freerdp.freerdpcore.sharedobjects.controller_messages.ShowWindowMsg;
 import com.freerdp.freerdpcore.sharedobjects.controller_messages.ShowWindowMsg.ShowWindowMsgResponse;
 import com.freerdp.freerdpcore.sharedobjects.controller_messages.StartApplicationMsg;
 import com.freerdp.freerdpcore.sharedobjects.controller_messages.StartApplicationMsg.StartApplicationMsgResponse;
@@ -93,6 +96,7 @@ import com.freerdp.freerdpcore.utils.ClipboardManagerProxy;
 import com.freerdp.freerdpcore.utils.KeyboardMapper;
 import com.freerdp.freerdpcore.utils.Mouse;
 import com.jetro.mobileclient.R;
+import com.jetro.mobileclient.ui.adapters.TasksAdapter;
 
 
 public class SessionActivity extends Activity
@@ -451,6 +455,10 @@ public class SessionActivity extends Activity
 	private boolean isChecked = false;
 	private String selectedAppId;
 	
+	// Tasks drawer
+	private TasksAdapter tasksAdapter;
+	private ListView tasks;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{				
@@ -546,7 +554,10 @@ public class SessionActivity extends Activity
 		mClipboardManager = ClipboardManagerProxy.getClipboardManager(this);
         mClipboardManager.addClipboardChangedListener(this);
         
+        // initialize the Desktop widgets
         appsGrid = (GridView) findViewById(R.id.applicationsGrid);
+        
+        // initialize the Tasks Drawer widgets
         dissconnectSessionButton = (ImageView) findViewById(R.id.disconnectBtn);
 		dissconnectSessionButton.setOnClickListener(new OnClickListener() {
 			@Override
@@ -562,6 +573,16 @@ public class SessionActivity extends Activity
 					activityRootView.setVisibility(View.INVISIBLE);
 					homeButton.setVisibility(View.INVISIBLE);
 				}
+			}
+		});
+		tasksAdapter = new TasksAdapter(SessionActivity.this, R.layout.list_item_task, new ArrayList<Task>());
+		tasks = (ListView) findViewById(R.id.list_tasks);
+		tasks.setAdapter(tasksAdapter);
+		tasks.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				Task task = tasksAdapter.getItem(position);
+				sendShowWindowMsg(task.getPID(), task.getHWND());
 			}
 		});
         
@@ -1398,6 +1419,9 @@ public class SessionActivity extends Activity
 			break;
 		case MessagesValues.ClassID.WindowCreatedMsg:
 			WindowCreatedMsgResponse windowCreatedMsgResponse = (WindowCreatedMsgResponse) msg.getJsonResponse();
+			Task task = windowCreatedMsgResponse.getTask();
+			tasksAdapter.add(task);
+			tasksAdapter.notifyDataSetChanged();
 			break;
 		case MessagesValues.ClassID.ShowWindowMsg:
 			ShowWindowMsgResponse showWindowMsgResponse = (ShowWindowMsgResponse) msg.getJsonResponse();
@@ -1447,5 +1471,11 @@ public class SessionActivity extends Activity
 		Log.d(TAG, "JetroSessionActivity#sendStartApplicationMsg(...) ENTER");
 		
 		socketManager.sendMessage(new StartApplicationMsg(appToStartId));
+	}
+	
+	private void sendShowWindowMsg(int pId, int hwnd) {
+		Log.d(TAG, "SessionActivity#sendShowWindowMsg(...) ENTER");
+		
+		socketManager.sendMessage(new ShowWindowMsg(pId, hwnd));
 	}
 }
