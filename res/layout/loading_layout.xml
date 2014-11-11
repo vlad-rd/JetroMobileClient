@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/progress_bar_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/trans_bg"
@@ -10,16 +11,17 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/progressBarImage"
+        android:layout_above="@+id/progress_bar_image"
         android:layout_centerHorizontal="true"
-        android:text="@string/loading_str"
+        android:text="@string/loading_text"
         android:textColor="@color/theme_orange"
         android:textSize="21sp" />
 
     <ImageView
-        android:id="@+id/progressBarImage"
+        android:id="@+id/progress_bar_image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true" />
+        android:layout_centerInParent="true"
+        android:background="@anim/progress_bar" />
 
 </RelativeLayout>

@@ -44,6 +44,22 @@
     <string name="passwd_lbl">Password</string>
     <string name="domain_lbl">Domain</string>
     <string name="add_new_connection_lbl">ADD NEW CONNECTION</string>
-    <string name="loading_str">Loading.... please wait.</string>
+    <string name="loading_text">Loading.... please wait.</string>
+    
+    
+    
+    
+    
+    <!-- Header Activity -->
+    <string name="header_menu_item_about">About</string>
+    <string name="header_menu_item_help">Help</string>
+    <string name="header_menu_item_exit">Exit</string>
+    
+    <!-- Dialogs -->
+    <string name="dialog_no_internet_connection_message">There is no internet connection!</string>
+    <string name="dialog_no_internet_connection_negative_btn">Done</string>
+    <string name="dialog_exit_message">Are you sure you want to exit?</string>
+    <string name="dialog_exit_positive_btn">YES</string>
+    <string name="dialog_exit_negative_btn">NO</string>
 
 </resources>

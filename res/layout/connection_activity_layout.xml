@@ -3,22 +3,23 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    android:paddingBottom="10dp"
-    android:paddingLeft="10dp"
-    android:paddingRight="10dp"
-    android:paddingTop="5dp" >
+    android:padding="10dp" >
+
+    <!-- Connection Form - Wrapper -->
 
     <ScrollView
-        android:id="@+id/mainScroll"
+        android:id="@+id/scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/buttonsContainer" >
+        android:layout_above="@+id/buttons_container" >
 
         <LinearLayout
             android:id="@+id/wrapper"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical" >
+
+            <!-- Host Name - Label -->
 
             <LinearLayout
                 android:id="@+id/wrapper_vertical"
@@ -27,7 +28,7 @@
                 android:orientation="horizontal" >
 
                 <ImageView
-                    android:id="@+id/first_star"
+                    android:id="@+id/host_name_star"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
@@ -36,7 +37,7 @@
                     android:src="@drawable/star" />
 
                 <TextView
-                    android:id="@+id/lable1"
+                    android:id="@+id/host_name_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
@@ -45,8 +46,10 @@
                     android:textSize="@dimen/edittext_lalble" />
             </LinearLayout>
 
+            <!-- Host Name - Edit Text -->
+
             <EditText
-                android:id="@+id/firstInput"
+                android:id="@+id/host_name_input"
                 style="@style/GrayBorderEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -56,13 +59,15 @@
                 android:textCursorDrawable="@null"
                 android:textSize="@dimen/edittext_lalble" />
 
+            <!-- Host - Label -->
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal" >
 
                 <ImageView
-                    android:id="@+id/second_star"
+                    android:id="@+id/host_star"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
@@ -71,7 +76,7 @@
                     android:background="@drawable/star" />
 
                 <TextView
-                    android:id="@+id/lable2"
+                    android:id="@+id/host_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
@@ -81,8 +86,10 @@
                     android:textSize="@dimen/edittext_lalble" />
             </LinearLayout>
 
+            <!-- Host - Edit Text -->
+
             <EditText
-                android:id="@+id/secondInput"
+                android:id="@+id/host_input"
                 style="@style/GrayBorderEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -92,13 +99,15 @@
                 android:textCursorDrawable="@null"
                 android:textSize="@dimen/edittext_lalble" />
 
+            <!-- Port - Label -->
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal" >
 
                 <ImageView
-                    android:id="@+id/third_star"
+                    android:id="@+id/port_star"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
@@ -107,7 +116,7 @@
                     android:background="@drawable/star" />
 
                 <TextView
-                    android:id="@+id/lable3"
+                    android:id="@+id/port_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
@@ -117,8 +126,10 @@
                     android:textSize="@dimen/edittext_lalble" />
             </LinearLayout>
 
+            <!-- Port - Edit Text -->
+
             <EditText
-                android:id="@+id/thirdInput"
+                android:id="@+id/port_input"
                 style="@style/GrayBorderEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -129,6 +140,8 @@
                 android:textCursorDrawable="@null"
                 android:textSize="@dimen/edittext_lalble" />
 
+            <!-- Connection Mode - ComboBox -->
+
             <RelativeLayout
                 android:id="@+id/spinnerWrapper"
                 android:layout_width="match_parent"
@@ -136,7 +149,7 @@
                 android:animateLayoutChanges="true" >
 
                 <Spinner
-                    android:id="@+id/connectionModeSpinner"
+                    android:id="@+id/connection_mode_spinner"
                     style="@style/MySpinner"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -157,15 +170,10 @@
                     android:background="@drawable/down" />
             </RelativeLayout>
 
-            <ImageView
-                android:id="@+id/loginScreenImage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:src="@drawable/icon_jetro_launcher" />
+            <!-- Connection Mode - Text -->
 
             <TextView
-                android:id="@+id/connectionMode"
+                android:id="@+id/connection_mode_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
@@ -174,8 +182,10 @@
                 android:textColor="@color/black"
                 android:textSize="@dimen/edittext_lalble" />
 
+            <!-- Connection Mode - Edit Text -->
+
             <EditText
-                android:id="@+id/connectionModeEditText"
+                android:id="@+id/connection_mode_input"
                 style="@style/GrayBorderEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -184,11 +194,22 @@
                 android:singleLine="true"
                 android:textCursorDrawable="@null"
                 android:textSize="@dimen/edittext_lalble" />
+
+            <!-- Login Screen Image -->
+
+            <ImageView
+                android:id="@+id/login_screen_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/icon_jetro_launcher" />
         </LinearLayout>
     </ScrollView>
 
+    <!-- Connect - Button -->
+
     <LinearLayout
-        android:id="@+id/buttonsContainer"
+        android:id="@+id/buttons_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -196,7 +217,7 @@
         android:weightSum="2" >
 
         <TextView
-            android:id="@+id/leftBtn"
+            android:id="@+id/left_button"
             style="@style/DefaultButtonState"
             android:layout_width="0dip"
             android:layout_height="wrap_content"
@@ -210,7 +231,7 @@
             android:layout_weight="0.02" />
 
         <TextView
-            android:id="@+id/rightBtn"
+            android:id="@+id/right_button"
             style="@style/DefaultButtonState"
             android:layout_width="0dip"
             android:layout_height="wrap_content"

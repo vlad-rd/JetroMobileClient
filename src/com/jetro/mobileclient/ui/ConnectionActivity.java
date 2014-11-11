@@ -3,6 +3,11 @@ package com.jetro.mobileclient.ui;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import JProtocol.Core.BaseMsg;
+import JProtocol.Core.Net.ClientChannel;
+import JProtocol.Protocols.Controller.CockpitSiteInfoMsg;
+import JProtocol.Protocols.Controller.LoginMsg;
+import JProtocol.Protocols.Controller.LoginScreenImageMsg;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -42,18 +47,6 @@ import android.widget.TextView.OnEditorActionListener;
 
 import com.freerdp.freerdpcore.application.NetworkStateReceiver;
 import com.freerdp.freerdpcore.sharedobjects.ConnectionPoint;
-import com.freerdp.freerdpcore.sharedobjects.ISocketListener;
-import com.freerdp.freerdpcore.sharedobjects.SocketManager;
-import com.freerdp.freerdpcore.sharedobjects.controller_messages.CockpitSiteInfoMsg;
-import com.freerdp.freerdpcore.sharedobjects.controller_messages.CockpitSiteInfoMsg.CPTInfoResponse;
-import com.freerdp.freerdpcore.sharedobjects.controller_messages.ErrorMsg.ErrCodeMsgResponse;
-import com.freerdp.freerdpcore.sharedobjects.controller_messages.LoginMsg;
-import com.freerdp.freerdpcore.sharedobjects.controller_messages.LoginMsg.LoginMsgResponse;
-import com.freerdp.freerdpcore.sharedobjects.controller_messages.LoginScreenImageMsg;
-import com.freerdp.freerdpcore.sharedobjects.controller_messages.LoginScreenImageMsg.ScreenImageResponse;
-import com.freerdp.freerdpcore.sharedobjects.controller_messages.ResetPasswordMsg;
-import com.freerdp.freerdpcore.sharedobjects.protocol.BaseMsg;
-import com.freerdp.freerdpcore.sharedobjects.protocol.MessagesValues;
 import com.freerdp.freerdpcore.sharedobjects.utils.Constants;
 import com.freerdp.freerdpcore.sharedobjects.utils.FileSystemManagerServices;
 import com.freerdp.freerdpcore.sharedobjects.utils.Logger;
@@ -61,21 +54,20 @@ import com.freerdp.freerdpcore.sharedobjects.utils.Logger.LogLevel;
 import com.jetro.mobileclient.R;
 import com.jetro.mobileclient.application.GlobalApp;
 import com.jetro.mobileclient.repository.ConnectionsDB;
+import com.jetro.mobileclient.utils.Config;
 
-public class ConnectionActivity extends HeaderActivtiy implements
-		ISocketListener, TextWatcher {
+public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 
 	private static final String TAG = ConnectionActivity.class.getSimpleName();
 	
+	private ClientChannel mClientChannel;
+	
+	private ConnectionActivityMode mActivityMode;
+	
 	private View layout;
-	private SocketManager socketManager;
 	private EditText firstInput, secondInput, thirdInput, connectionMode;
-	private ConnectionActivityMode mode;
-	private ArrayList<ConnectionPoint> connectionsPoints;
-	private boolean ConnectedTo3G = false;
+	private ArrayList<ConnectionPoint> mConnectionsPoints;
 	private String spinner_choose = "";
-
-	private boolean PRESS_BACK_BUTTON = false;
 
 	private static boolean SHOW_DIALOG = false;
 
@@ -95,63 +87,61 @@ public class ConnectionActivity extends HeaderActivtiy implements
 		Log.d(TAG, "onCreate(...) ENTER");
 		super.onCreate(savedInstanceState);
 		
-		try {
-			mode = ConnectionActivityMode.values()[getIntent().getIntExtra(Constants.MODE, 0)];
-			Log.i(TAG, "ConnectionActivity#onCreate(...) MODE: " + mode);
-			// get the connection point object from connections list activity
-			connectionsPoints = getIntent().getParcelableArrayListExtra(Constants.CONNECTIONS_POINTS);
-			layout = addActivityLayoutInBaseContainer(R.layout.connection_activity_layout);
-			firstInput = (EditText) layout.findViewById(R.id.firstInput);
-			secondInput = (EditText) layout.findViewById(R.id.secondInput);
-			thirdInput = (EditText) layout.findViewById(R.id.thirdInput);
-			fs = new FileSystemManagerServices(this, true, true);
-			backBtn = (ImageView) findViewById(R.id.backBtn);
-			backBtn.setVisibility(View.VISIBLE);
-			hidenConnectionModeDetails();
-			backBtn.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					PRESS_BACK_BUTTON = true;
-					onBackPressed();
-				}
-			});
-
-			socketManager = GlobalApp.getSocketManager(this);
-			if (connectionsPoints != null && !connectionsPoints.isEmpty()
-					&& mode == ConnectionActivityMode.Login) {
-				backBtn = (ImageView) findViewById(R.id.backBtn);
-				firstInput.setText(connectionsPoints.get(0).getName());
-				secondInput.setText(connectionsPoints.get(0).getIP());
-				thirdInput.setText(String.valueOf(connectionsPoints.get(0).getPort()));
-				openSocket();
-			} else {
-				switch (mode) {
-				case AddConnection:
-					if (ConnectionsDB.getAllSavedConnections().size() != 0) {
-						backBtn.setVisibility(View.VISIBLE);
-					} else {
-						backBtn.setVisibility(View.INVISIBLE);
-					}
-					setAddConnectionMode();
-					break;
-				case Login:
-					backBtn = (ImageView) findViewById(R.id.backBtn);
-					backBtn.setVisibility(View.VISIBLE);
-					setLoginMode();
-					break;
-				case ResetPassword:
-					backBtn = (ImageView) findViewById(R.id.backBtn);
-					setResetPasswdMode();
-					break;
-				case ViewConnection:
-					setViewConnectionMode();
-					break;
-				case About:
-					break;
-				}
+		mClientChannel = ClientChannel.getInstance();
+		
+		mActivityMode = ConnectionActivityMode.values()[getIntent().getIntExtra(Constants.MODE, 0)];
+		Log.i(TAG, TAG + "#onCreate(...) ACTIVITY MODE: " + mActivityMode);
+		
+		// get the connection point object from connections list activity
+		mConnectionsPoints = getIntent().getParcelableArrayListExtra(Constants.CONNECTIONS_POINTS);
+		
+		layout = setContentView(R.layout.connection_activity_layout);
+		firstInput = (EditText) layout.findViewById(R.id.host_name_input);
+		secondInput = (EditText) layout.findViewById(R.id.host_input);
+		thirdInput = (EditText) layout.findViewById(R.id.port_input);
+		fs = new FileSystemManagerServices(this, true, true);
+		mHeaderBackButton = (ImageView) findViewById(R.id.header_back_button);
+		mHeaderBackButton.setVisibility(View.VISIBLE);
+		hidenConnectionModeDetails();
+		mHeaderBackButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onBackPressed();
 			}
-		} catch (Exception e) {
-			Log.e(TAG, "ERROR: ", e);
+		});
+
+		if (mConnectionsPoints != null && !mConnectionsPoints.isEmpty()
+				&& mActivityMode == ConnectionActivityMode.Login) {
+			mHeaderBackButton = (ImageView) findViewById(R.id.header_back_button);
+			firstInput.setText(mConnectionsPoints.get(0).getName());
+			secondInput.setText(mConnectionsPoints.get(0).getIP());
+			thirdInput.setText(String.valueOf(mConnectionsPoints.get(0).getPort()));
+			openSocket();
+		} else {
+			switch (mActivityMode) {
+			case AddConnection:
+				if (ConnectionsDB.getAllSavedConnections().size() != 0) {
+					mHeaderBackButton.setVisibility(View.VISIBLE);
+				} else {
+					mHeaderBackButton.setVisibility(View.INVISIBLE);
+				}
+				setAddConnectionMode();
+				break;
+			case Login:
+				mHeaderBackButton = (ImageView) findViewById(R.id.header_back_button);
+				mHeaderBackButton.setVisibility(View.VISIBLE);
+				setLoginMode();
+				break;
+			case ResetPassword:
+				mHeaderBackButton = (ImageView) findViewById(R.id.header_back_button);
+				setResetPasswdMode();
+				break;
+			case ViewConnection:
+				setViewConnectionMode();
+				break;
+			case About:
+				break;
+			}
 		}
 	}
 
@@ -176,19 +166,19 @@ public class ConnectionActivity extends HeaderActivtiy implements
 
 	private void setHeaderTextByMode() {
 		try {
-			int rId = getResources().getIdentifier(mode.toString() + "_header",
+			int rId = getResources().getIdentifier(mActivityMode.toString() + "_header",
 					"string", getPackageName());
-			setHeaderText(getString(rId));
+			setHeaderTitleText(getString(rId));
 		} catch (Exception e) {
-			setHeaderText("Jetro");
+			setHeaderTitleText("Jetro");
 		}
 	}
 
 	private void hidenConnectionModeDetails() {
-		EditText connectionModeEditText = (EditText) findViewById(R.id.connectionModeEditText);
+		EditText connectionModeEditText = (EditText) findViewById(R.id.connection_mode_input);
 		connectionModeEditText.setVisibility(View.GONE);
 
-		TextView connectionModeText = (TextView) findViewById(R.id.connectionMode);
+		TextView connectionModeText = (TextView) findViewById(R.id.connection_mode_text);
 		connectionModeText.setVisibility(View.GONE);
 	}
 
@@ -198,17 +188,17 @@ public class ConnectionActivity extends HeaderActivtiy implements
 	private void setAddConnectionMode() {
 		ArrayList<HashMap<String, ArrayList<ConnectionPoint>>> itemsFromDB = new ArrayList<HashMap<String, ArrayList<ConnectionPoint>>>();
 
-		backBtn = (ImageView) findViewById(R.id.backBtn);
+		mHeaderBackButton = (ImageView) findViewById(R.id.header_back_button);
 		Logger.log(LogLevel.INFO,
 				"Zacky: ConnectionAvtivity::setAddConnectionMode");
 
-		mode = ConnectionActivityMode.AddConnection;
+		mActivityMode = ConnectionActivityMode.AddConnection;
 
-		((TextView) layout.findViewById(R.id.lable1))
+		((TextView) layout.findViewById(R.id.host_name_label))
 				.setText(getString(R.string.host_name_lbl));
-		((TextView) layout.findViewById(R.id.lable2))
+		((TextView) layout.findViewById(R.id.host_label))
 				.setText(getString(R.string.host_lbl));
-		((TextView) layout.findViewById(R.id.lable3))
+		((TextView) layout.findViewById(R.id.port_label))
 				.setText(getString(R.string.port_lbl));
 
 		setActivityButtons(R.string.connect_lbl, 0, 0, 0);
@@ -221,7 +211,7 @@ public class ConnectionActivity extends HeaderActivtiy implements
 		secondInput.setHint("Host details here");
 		thirdInput.setHint("Port details here");
 
-		Spinner spinnerConnectionMode = (Spinner) findViewById(R.id.connectionModeSpinner);
+		Spinner spinnerConnectionMode = (Spinner) findViewById(R.id.connection_mode_spinner);
 
 		spinnerConnectionMode.setAdapter(new MyAdapter(ConnectionActivity.this,
 				R.layout.spinner_iten, strings));
@@ -262,13 +252,13 @@ public class ConnectionActivity extends HeaderActivtiy implements
 		
 		Logger.log(LogLevel.INFO, "Zacky: ConnectionAvtivity::setLoginMode");
 
-		mode = ConnectionActivityMode.Login;
+		mActivityMode = ConnectionActivityMode.Login;
 
-		((TextView) layout.findViewById(R.id.lable1))
+		((TextView) layout.findViewById(R.id.host_name_label))
 				.setText(getString(R.string.user_name_lbl));
-		((TextView) layout.findViewById(R.id.lable2))
+		((TextView) layout.findViewById(R.id.host_label))
 				.setText(getString(R.string.passwd_lbl));
-		((TextView) layout.findViewById(R.id.lable3))
+		((TextView) layout.findViewById(R.id.port_label))
 				.setText(getString(R.string.domain_lbl));
 		// getProfileDetails();
 
@@ -290,7 +280,7 @@ public class ConnectionActivity extends HeaderActivtiy implements
 
 		setActivityButtons(R.string.cancle_lbl,
 				R.drawable.orange_button_selector, R.string.login_lbl, 0);
-		backBtn.setVisibility(View.VISIBLE);
+		mHeaderBackButton.setVisibility(View.VISIBLE);
 		getProfileDetails();
 
 		thirdInput.setOnEditorActionListener(new OnEditorActionListener() {
@@ -325,13 +315,13 @@ public class ConnectionActivity extends HeaderActivtiy implements
 		Logger.log(LogLevel.INFO,
 				"Zacky: ConnectionAvtivity::setResetPasswdModeResetPossible");
 
-		mode = ConnectionActivityMode.ResetPassword;
+		mActivityMode = ConnectionActivityMode.ResetPassword;
 
-		((TextView) layout.findViewById(R.id.lable1))
+		((TextView) layout.findViewById(R.id.host_name_label))
 				.setText(getString(R.string.old_passwd_lbl));
-		((TextView) layout.findViewById(R.id.lable2))
+		((TextView) layout.findViewById(R.id.host_label))
 				.setText(getString(R.string.new_passwd_lbl));
-		((TextView) layout.findViewById(R.id.lable3))
+		((TextView) layout.findViewById(R.id.port_label))
 				.setText(getString(R.string.confirm_passwd_lbl));
 		layout.findViewById(R.id.spinnerWrapper).setVisibility(View.GONE);
 
@@ -367,25 +357,25 @@ public class ConnectionActivity extends HeaderActivtiy implements
 	private void setViewConnectionMode() {
 		Log.d(TAG, "setViewConnectionMode(...) ENTER");
 		
-		mode = ConnectionActivityMode.ViewConnection;
+		mActivityMode = ConnectionActivityMode.ViewConnection;
 
-		((TextView) layout.findViewById(R.id.lable1))
+		((TextView) layout.findViewById(R.id.host_name_label))
 				.setText(getString(R.string.host_name_lbl));
-		((TextView) layout.findViewById(R.id.lable2))
+		((TextView) layout.findViewById(R.id.host_label))
 				.setText(getString(R.string.host_lbl));
-		((TextView) layout.findViewById(R.id.lable3))
+		((TextView) layout.findViewById(R.id.port_label))
 				.setText(getString(R.string.port_lbl));
 		layout.findViewById(R.id.spinnerWrapper).setVisibility(View.GONE);
 
-		TextView connectionModeText = (TextView) findViewById(R.id.connectionMode);
+		TextView connectionModeText = (TextView) findViewById(R.id.connection_mode_text);
 		connectionModeText.setVisibility(View.VISIBLE);
-		EditText edit = ((EditText) findViewById(R.id.connectionModeEditText));
+		EditText edit = ((EditText) findViewById(R.id.connection_mode_input));
 		edit.setVisibility(View.VISIBLE);
-		edit.setText(connectionsPoints.get(0).getConnectionMode());
+		edit.setText(mConnectionsPoints.get(0).getConnectionMode());
 
-		firstInput.setText(connectionsPoints.get(0).getName());
-		secondInput.setText(connectionsPoints.get(0).getIP());
-		thirdInput.setText(String.valueOf(connectionsPoints.get(0).getPort()));
+		firstInput.setText(mConnectionsPoints.get(0).getName());
+		secondInput.setText(mConnectionsPoints.get(0).getIP());
+		thirdInput.setText(String.valueOf(mConnectionsPoints.get(0).getPort()));
 
 		firstInput.setEnabled(false);
 		secondInput.setEnabled(false);
@@ -400,12 +390,12 @@ public class ConnectionActivity extends HeaderActivtiy implements
 		setActivityButtons(R.string.connect_lbl, 0, 0, 0);
 
 		setButtonAction(actionBtn);
-		setHeaderText("Details");
+		setHeaderTitleText("Details");
 		actionBtn.setBackgroundResource(R.drawable.orange_button_selector);
 
-		findViewById(R.id.first_star).setVisibility(View.INVISIBLE);
-		findViewById(R.id.second_star).setVisibility(View.INVISIBLE);
-		findViewById(R.id.third_star).setVisibility(View.INVISIBLE);
+		findViewById(R.id.host_name_star).setVisibility(View.INVISIBLE);
+		findViewById(R.id.host_star).setVisibility(View.INVISIBLE);
+		findViewById(R.id.port_star).setVisibility(View.INVISIBLE);
 	}
 
 	/**
@@ -424,8 +414,8 @@ public class ConnectionActivity extends HeaderActivtiy implements
 			int btn2Color) {
 		Log.d(TAG, "setActivityButtons(...) ENTER");
 		
-		TextView btn1 = (TextView) layout.findViewById(R.id.leftBtn);
-		TextView btn2 = (TextView) layout.findViewById(R.id.rightBtn);
+		TextView btn1 = (TextView) layout.findViewById(R.id.left_button);
+		TextView btn2 = (TextView) layout.findViewById(R.id.right_button);
 
 		btn1.setText(btn1Lbl);
 		setButtonSelector(btn1, btn1Color);
@@ -526,7 +516,7 @@ public class ConnectionActivity extends HeaderActivtiy implements
 		setHeaderTextByMode();
 
 		// clear text
-		if (connectionsPoints == null)
+		if (mConnectionsPoints == null)
 			clearInputs();
 	}
 
@@ -587,10 +577,10 @@ public class ConnectionActivity extends HeaderActivtiy implements
 		button.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				switch (mode) {
+				switch (mActivityMode) {
 				case AddConnection:
 				case ViewConnection: {
-					findViewById(R.id.lable3).setVisibility(View.VISIBLE);
+					findViewById(R.id.port_label).setVisibility(View.VISIBLE);
 					firstInput.setBackgroundResource(R.drawable.gray_border_square);
 					thirdInput.setBackgroundResource(R.drawable.gray_border_square);
 					resetButtons();
@@ -612,22 +602,6 @@ public class ConnectionActivity extends HeaderActivtiy implements
 	@Override
 	protected void setHeader() {
 		Log.d(TAG, "setHeader(...) ENTER");
-	}
-
-	@Override
-	public void OnSocketCreated() {
-		Log.d(TAG, "OnSocketCreated(...) ENTER");
-		
-		Logger.log(LogLevel.INFO, "Zacky: OnMessageReceived::OnSocketCreated");
-		// get screen width and height
-		Display d = getWindowManager().getDefaultDisplay();
-		DisplayMetrics metrics = new DisplayMetrics();
-		d.getMetrics(metrics);
-		int width = metrics.widthPixels;
-		int height = metrics.heightPixels;
-
-		// send cockpit site info message
-		socketManager.sendMessage(new CockpitSiteInfoMsg(width, height));
 	}
 
 	@Override
@@ -661,7 +635,7 @@ public class ConnectionActivity extends HeaderActivtiy implements
 
 				hostName = firstInput.getText().toString().trim();
 
-				if (connectionsPoints == null) {
+				if (mConnectionsPoints == null) {
 					saveConnectionModeToCP(cptResponse.getConnectionPoints());
 					ConnectionsDB.saveNewConnection(hostName,
 							cptResponse.getConnectionPoints());
@@ -676,24 +650,6 @@ public class ConnectionActivity extends HeaderActivtiy implements
 
 				break;
 
-			case MessagesValues.ClassID.LoginScreenImageMsg:
-
-				ScreenImageResponse imageResponse = (ScreenImageResponse) msg
-						.getJsonResponse();
-
-				byte[] bytes = imageResponse.getImage();
-
-				try {
-					Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0,
-							bytes.length);
-					((ImageView) layout.findViewById(R.id.loginScreenImage))
-							.setImageBitmap(bmp);
-					fs.saveBitmap(imageName, bmp);
-				} catch (Exception e) {
-					Log.i(TAG, "ConnectionActivity#OnMessageReceived(...) exception with image cokpit");
-					Log.e(TAG, "ERROR: ", e);
-				}
-				break;
 			case MessagesValues.ClassID.LoginMsg:
 				
 				LoginMsgResponse loginResponse = (LoginMsgResponse) msg.getJsonResponse();
@@ -792,10 +748,7 @@ public class ConnectionActivity extends HeaderActivtiy implements
 				.setPositiveButton("Retry",
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
-								startLoadingScreen();
-								socketManager.openSocket(secondInput.getText()
-										.toString(), Integer.valueOf(thirdInput
-										.getText().toString()), new Handler());
+								openSocket();
 							}
 						}).setNegativeButton("ok",
 
@@ -806,29 +759,6 @@ public class ConnectionActivity extends HeaderActivtiy implements
 				}
 
 				).show();
-	}
-
-	@Override
-	public void OnIOError(final String exception) {
-		Log.d(TAG, "OnIOError(...) ENTER");
-		
-		Log.i(TAG, "ConnectionActivity#OnIOError(...) exception: " + exception);
-		
-		try {
-			runOnUiThread(new Runnable() {
-				public void run() {
-					if ("Retry".equals(exception)) {
-						showDialogConenctAgain();
-					} else if ("Disconnect".equals(exception)) {
-						finish();
-					}
-
-					stopLoadingScreen();
-				}
-			});
-		} catch (Exception e) {
-			Log.e(TAG, "ERROR: ", e);
-		}
 	}
 
 	/**
@@ -848,7 +778,45 @@ public class ConnectionActivity extends HeaderActivtiy implements
 		Log.i(TAG, "ConnectionActivity#openSocket(...) host: " + host);
 		Log.i(TAG, "ConnectionActivity#openSocket(...) port: " + port);
 		
-		socketManager.openSocket(host, port, new Handler());
+		mClientChannel.Connect(host, port);
+		
+		Display display = getWindowManager().getDefaultDisplay();
+		DisplayMetrics metrics = new DisplayMetrics();
+		display.getMetrics(metrics);
+		int width = metrics.widthPixels;
+		int height = metrics.heightPixels;
+
+		////////// CockpitSiteInfoMsg ////////////////
+		CockpitSiteInfoMsg msgCSI = new CockpitSiteInfoMsg(width, height);
+		CockpitSiteInfoMsg respCSI = (CockpitSiteInfoMsg) mClientChannel.SendReceive(msgCSI, ClientChannel.TIME_OUT);
+		if(respCSI != null) 
+			System.out.println(respCSI.toString());
+		else
+		{
+			System.out.println("null received instead of CockpitSiteInfoMsg");
+			mClientChannel.Stop();
+			return;
+		}
+		
+		///////   LoginScreenImageMsg ////////
+		String loginScreenImageName = respCSI.getLoginScreenImage();
+		Bitmap loginScreenImage = fs.getBitmap(loginScreenImageName);
+		if (loginScreenImage == null) {
+			LoginScreenImageMsg msgLIS = new LoginScreenImageMsg();
+			msgLIS.ImageName = ((CockpitSiteInfoMsg)msgCSI).LoginScreenImage;
+			LoginScreenImageMsg respLIS = (LoginScreenImageMsg) mClientChannel.SendReceive(msgLIS, ClientChannel.TIME_OUT);
+			if(respLIS != null) {
+				System.out.println(respLIS.toString());
+				String imageName = respLIS.getImageName();
+				byte[] bytes = respLIS.getImage();
+				Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+				((ImageView) layout.findViewById(R.id.login_screen_image)).setImageBitmap(bmp);
+				fs.saveBitmap(imageName, bmp);
+			} else {
+				System.out.println("null received instead of LoginScreenImageMsg");
+				return;
+			}
+		}
 	}
 
 	/**
@@ -861,7 +829,7 @@ public class ConnectionActivity extends HeaderActivtiy implements
 
 		boolean valid = true;
 
-		switch (mode) {
+		switch (mActivityMode) {
 
 		case AddConnection:
 
@@ -999,18 +967,18 @@ public class ConnectionActivity extends HeaderActivtiy implements
 		String password = "";
 		String domain = "";
 
-		if (mode == ConnectionActivityMode.Login) {
+		if (mActivityMode == ConnectionActivityMode.Login) {
 			userName = firstInput.getText().toString().trim();
 			password = secondInput.getText().toString().trim();
 			domain = thirdInput.getText().toString().trim();
-		} else if (mode == ConnectionActivityMode.ResetPassword) {
+		} else if (mActivityMode == ConnectionActivityMode.ResetPassword) {
 			userName = firstInput.getText().toString().trim();
 			password = secondInput.getText().toString().trim();
-			domain = connectionsPoints.get(0).getDomain();
+			domain = mConnectionsPoints.get(0).getDomain();
 		}
 		
-		if (connectionsPoints == null) {
-			connectionsPoints = new ArrayList<ConnectionPoint>();
+		if (mConnectionsPoints == null) {
+			mConnectionsPoints = new ArrayList<ConnectionPoint>();
 		}
 		
 		// save params in connection point
@@ -1019,7 +987,7 @@ public class ConnectionActivity extends HeaderActivtiy implements
 		cp.setPassword(password);
 		cp.setDomain(domain);
 		cp.setConnectionMode("***");
-		connectionsPoints.add(cp);
+		mConnectionsPoints.add(cp);
 
 		ConnectionsDB.saveCredentialsForExistingConnection(hostName, userName, domain);
 
@@ -1027,13 +995,27 @@ public class ConnectionActivity extends HeaderActivtiy implements
 
 		// save the connection point in our global app
 		// so it can be used when re-authenticating when connecting to RDP
-		GlobalApp.SetConnectionPoint(connectionsPoints.get(0));
+		GlobalApp.SetConnectionPoint(mConnectionsPoints.get(0));
 
 		startLoadingScreen();
-
-		socketManager.sendMessage(new LoginMsg(userName, password, domain,
-				Build.MODEL, Secure.getString(getContentResolver(),
-						Secure.ANDROID_ID)));
+		
+		//////////////   LoginMsg   //////
+		LoginMsg msgLIN = new LoginMsg();
+		msgLIN.name = userName;
+		msgLIN.password = password;
+		msgLIN.domain = domain;
+		msgLIN.deviceModel = Build.MODEL;
+		msgLIN.deviceId = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
+		BaseMsg respLIN = mClientChannel.SendReceive(msgLIN, ClientChannel.TIME_OUT);
+		if(respLIN != null) {
+			System.out.println(respLIN.toString());
+		} else {
+			System.out.println("null received instead of LoginMsg");
+			mClientChannel.Stop();
+			showDialogConenctAgain();
+			stopLoadingScreen();
+			return;
+		}
 	}
 
 	/**
@@ -1042,15 +1024,13 @@ public class ConnectionActivity extends HeaderActivtiy implements
 	private void doPasswordReset() {
 		Log.d(TAG, "doPasswordReset(...) ENTER");
 
-		Logger.log(LogLevel.INFO, "Zacky: ConnectionActivity::doPasswordReset");
-
 		if (!validateInputs())
 			return;
 
 		String oldPassword = firstInput.getText().toString().trim();
 		String newPassword = secondInput.getText().toString().trim();
-		String userName = connectionsPoints.get(0).getUserName();
-		String domain = connectionsPoints.get(0).getDomain();
+		String userName = mConnectionsPoints.get(0).getUserName();
+		String domain = mConnectionsPoints.get(0).getDomain();
 
 		Log.i(TAG, "ConnectionActivity#doPasswordReset(...) Send password reset message: "
 				+ oldPassword + " - " + newPassword + " - " + domain + " - "
@@ -1119,7 +1099,7 @@ public class ConnectionActivity extends HeaderActivtiy implements
 				Log.d(TAG, "onPostExecute(...) ENTER");
 				
 				if (result != null) {
-					((ImageView) layout.findViewById(R.id.loginScreenImage))
+					((ImageView) layout.findViewById(R.id.login_screen_image))
 							.setImageBitmap(result);
 				}
 				super.onPostExecute(result);
@@ -1161,7 +1141,7 @@ public class ConnectionActivity extends HeaderActivtiy implements
 					public void onClick(DialogInterface dialog, int id) {
 						Intent intent = new Intent(ConnectionActivity.this,
 								ConnectionsListActivity.class);
-						intent.putExtra("type", "type");
+						intent.putExtra(Config.Extras.EXTRA_TYPE, "type");
 						startActivity(intent);
 						finish();
 
@@ -1183,10 +1163,10 @@ public class ConnectionActivity extends HeaderActivtiy implements
 		Log.d(TAG, "onBackPressed(...) ENTER");
 		
 		Intent intent;
-		switch (mode) {
+		switch (mActivityMode) {
 		case AddConnection:
 			if (!ConnectionsDB.isDBEmpty()) {
-				backBtn.setVisibility(View.VISIBLE);
+				mHeaderBackButton.setVisibility(View.VISIBLE);
 				intent = new Intent(ConnectionActivity.this,
 						ConnectionsListActivity.class);
 				startActivity(intent);
@@ -1213,7 +1193,7 @@ public class ConnectionActivity extends HeaderActivtiy implements
 							new DialogInterface.OnClickListener() {
 								public void onClick(DialogInterface dialog,
 										int id) {
-									backBtn.setVisibility(View.VISIBLE);
+									mHeaderBackButton.setVisibility(View.VISIBLE);
 									Intent intent = new Intent(
 											ConnectionActivity.this,
 											ConnectionsListActivity.class);
@@ -1265,4 +1245,5 @@ public class ConnectionActivity extends HeaderActivtiy implements
 			}
 		}
 	}
+	
 }

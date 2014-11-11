@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.freerdp.freerdpcore.sharedobjects.utils.Constants;
 import com.jetro.mobileclient.R;
+import com.jetro.mobileclient.utils.Config;
 
 public class AboutPopupActivity extends HeaderActivtiy {
 	
@@ -32,7 +33,7 @@ public class AboutPopupActivity extends HeaderActivtiy {
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.about_popup_layout);
-		String input = getIntent().getExtras().getString("type");
+		String input = getIntent().getExtras().getString(Config.Extras.EXTRA_TYPE);
 
 		TextView headerText = (TextView) findViewById(R.id.option_about_header_textView);
 		WebView webView = (WebView) findViewById(R.id.about_webview_popup);
@@ -76,14 +77,14 @@ public class AboutPopupActivity extends HeaderActivtiy {
 	public void showPopupOptions(final ImageView button1) {
 		PopupMenu popup = new PopupMenu(AboutPopupActivity.this, button1);
 		// Inflating the Popup using xml file
-		popup.getMenuInflater().inflate(R.menu.popup_menu, popup.getMenu());
+		popup.getMenuInflater().inflate(R.menu.activity_header_menu, popup.getMenu());
 		// registering popup with OnMenuItemClickListener
 		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
 			public boolean onMenuItemClick(MenuItem item) {
 				button1.setBackgroundResource(R.drawable.more);
 
 				if (item.getTitle().equals("Exit")) {
-					showPopUp();
+					showPopup();
 				}
 				if (item.getTitle().equals("About")) {
 
@@ -93,7 +94,7 @@ public class AboutPopupActivity extends HeaderActivtiy {
 					} else {
 						Intent intent = new Intent(AboutPopupActivity.this,
 								AboutPopupActivity.class);
-						intent.putExtra("type", "About");
+						intent.putExtra(Config.Extras.EXTRA_TYPE, "About");
 						startActivity(intent);
 					}
 				}
@@ -104,7 +105,7 @@ public class AboutPopupActivity extends HeaderActivtiy {
 					} else {
 						Intent intent = new Intent(AboutPopupActivity.this,
 								AboutPopupActivity.class);
-						intent.putExtra("type", "Help");
+						intent.putExtra(Config.Extras.EXTRA_TYPE, "Help");
 
 						startActivity(intent);
 					}

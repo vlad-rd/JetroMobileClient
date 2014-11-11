@@ -6,7 +6,7 @@
     android:weightSum="100" >
 
     <RelativeLayout
-        android:id="@+id/headerContainer"
+        android:id="@+id/header_container"
         android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_weight="11" >

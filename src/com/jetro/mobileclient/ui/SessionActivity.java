@@ -1355,7 +1355,6 @@ public class SessionActivity extends Activity
 	@Override
 	public void OnSocketCreated() {
 		Log.d(TAG, "SessionActivity#OnSocketCreated(...) ENTER");
-		
 	}
 
 	@Override

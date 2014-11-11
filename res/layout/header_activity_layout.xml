@@ -11,21 +11,24 @@
         android:orientation="vertical"
         android:weightSum="100" >
 
+        <!-- Activity Header -->
+
         <RelativeLayout
-            android:id="@+id/headerContainer"
+            android:id="@+id/header_container"
             android:layout_width="match_parent"
-            android:layout_height="70dp">
+            android:layout_height="70dp" >
 
             <ImageView
-                android:id="@+id/backBtn"
+                android:id="@+id/header_back_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:background="@drawable/back"
                 android:padding="15dp"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
+
             <TextView
-                android:id="@+id/headerText"
+                android:id="@+id/header_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
@@ -37,29 +40,32 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:alpha="0.2"
-                android:background="@color/black"/>
+                android:background="@color/black" />
 
             <ImageView
                 android:id="@+id/header_menu_button"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_alignParentRight="true"
-                android:layout_alignTop="@+id/backBtn"
+                android:layout_alignTop="@+id/header_back_button"
                 android:layout_marginRight="10dp"
                 android:background="@drawable/selector_button_more" />
-
         </RelativeLayout>
 
+        <!-- Activity Base Content -->
+
         <RelativeLayout
-            android:id="@+id/baseContainer"
+            android:id="@+id/base_container"
             android:layout_width="match_parent"
             android:layout_height="0dip"
-            android:layout_weight="100" >
+            android:layout_weight="1" >
         </RelativeLayout>
     </LinearLayout>
 
+    <!-- Progress Bar -->
+
     <include
-        android:id="@+id/progressBarWrapper"
+        android:id="@+id/progress_bar_wrapper"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         layout="@layout/loading_layout"

@@ -12,7 +12,7 @@
         android:weightSum="100" >
 
         <RelativeLayout
-            android:id="@+id/headerContainer"
+            android:id="@+id/header_container"
             android:layout_width="match_parent"
             android:layout_height="70dp" >
 
@@ -29,7 +29,7 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/headerText"
+                android:id="@+id/header_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
@@ -48,8 +48,8 @@
                 android:id="@+id/option_about_header_textView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignBaseline="@+id/headerText"
-                android:layout_alignBottom="@+id/headerText"
+                android:layout_alignBaseline="@+id/header_title"
+                android:layout_alignBottom="@+id/header_title"
                 android:layout_centerHorizontal="true"
                 android:text="About"
                 android:textColor="@color/theme_orange"
@@ -58,7 +58,7 @@
         </RelativeLayout>
 
         <RelativeLayout
-            android:id="@+id/baseContainer"
+            android:id="@+id/base_container"
             android:layout_width="match_parent"
             android:layout_height="0dip"
             android:layout_weight="100" >
@@ -73,7 +73,7 @@
     </LinearLayout>
 
     <include
-        android:id="@+id/progressBarWrapper"
+        android:id="@+id/progress_bar_wrapper"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         layout="@layout/loading_layout"

@@ -32,6 +32,7 @@ import com.freerdp.freerdpcore.sharedobjects.utils.Logger;
 import com.freerdp.freerdpcore.sharedobjects.utils.Logger.LogLevel;
 import com.jetro.mobileclient.R;
 import com.jetro.mobileclient.repository.ConnectionsDB;
+import com.jetro.mobileclient.utils.Config;
 
 public class ConnectionsListActivity extends HeaderActivtiy {
 
@@ -50,11 +51,11 @@ public class ConnectionsListActivity extends HeaderActivtiy {
 		Log.d(TAG, "ConnectionsListActivity#onCreate(...) ENTER");
 		super.onCreate(savedInstanceState);
 
-		layout = addActivityLayoutInBaseContainer(R.layout.connections_list_activity_layout);
+		layout = setBaseContentView(R.layout.connections_list_activity_layout);
 		listView = (ListView) layout.findViewById(R.id.connectionsListView);
 
-		setHeaderText(getString(R.string.Connections_header));
-		ImageView backBtn1 = (ImageView) findViewById(R.id.backBtn);
+		setHeaderTitleText(getString(R.string.Connections_header));
+		ImageView backBtn1 = (ImageView) findViewById(R.id.header_back_button);
 		backBtn1.setVisibility(View.INVISIBLE);
 
 		layout.findViewById(R.id.addNewConnectionBtn).setOnClickListener(
@@ -62,7 +63,6 @@ public class ConnectionsListActivity extends HeaderActivtiy {
 					@Override
 					public void onClick(View v) {
 						Intent intent = new Intent(ConnectionsListActivity.this, ConnectionActivity.class);
-						//intent.putExtra("type", "type");
 						intent.putExtra(Constants.MODE, ConnectionActivityMode.AddConnection.getNumericType());
 						startActivity(intent);
 						finish();
@@ -109,11 +109,11 @@ public class ConnectionsListActivity extends HeaderActivtiy {
 		if (itemsFromDB.size() == 0) {
 			intent = new Intent(ConnectionsListActivity.this,
 					ConnectionActivity.class);
-			intent.putExtra("type", "type");
+			intent.putExtra(Config.Extras.EXTRA_TYPE, "type");
 			IS_FIRST = true;
 			intent.putExtra(Constants.MODE,
 					ConnectionActivityMode.AddConnection.getNumericType());
-			backBtn.setVisibility(View.INVISIBLE);
+			mHeaderBackButton.setVisibility(View.INVISIBLE);
 			finish();
 			startActivity(intent);
 			return;
@@ -284,7 +284,7 @@ public class ConnectionsListActivity extends HeaderActivtiy {
 					String item = ((TextView) view).getText().toString();
 
 					if (item.equals("Connect")) {
-						ImageView backBtn1 = (ImageView) findViewById(R.id.backBtn);
+						ImageView backBtn1 = (ImageView) findViewById(R.id.header_back_button);
 						backBtn1.setVisibility(View.VISIBLE);
 						startConnectionActivityByMode(cps,
 								ConnectionActivityMode.Login);
