@@ -54,7 +54,7 @@ public class ConnectionsListActivity extends HeaderActivtiy {
 		layout = setBaseContentView(R.layout.connections_list_activity_layout);
 		listView = (ListView) layout.findViewById(R.id.connectionsListView);
 
-		setHeaderTitleText(getString(R.string.Connections_header));
+		setHeaderTitleText(getString(R.string.header_title_Connections));
 		ImageView backBtn1 = (ImageView) findViewById(R.id.header_back_button);
 		backBtn1.setVisibility(View.INVISIBLE);
 

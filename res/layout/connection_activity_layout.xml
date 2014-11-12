@@ -28,7 +28,7 @@
                 android:orientation="horizontal" >
 
                 <ImageView
-                    android:id="@+id/host_name_star"
+                    android:id="@+id/first_star"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
@@ -37,7 +37,7 @@
                     android:src="@drawable/star" />
 
                 <TextView
-                    android:id="@+id/host_name_label"
+                    android:id="@+id/first_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
@@ -49,7 +49,7 @@
             <!-- Host Name - Edit Text -->
 
             <EditText
-                android:id="@+id/host_name_input"
+                android:id="@+id/first_input"
                 style="@style/GrayBorderEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -67,7 +67,7 @@
                 android:orientation="horizontal" >
 
                 <ImageView
-                    android:id="@+id/host_star"
+                    android:id="@+id/second_star"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
@@ -76,7 +76,7 @@
                     android:background="@drawable/star" />
 
                 <TextView
-                    android:id="@+id/host_label"
+                    android:id="@+id/second_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
@@ -89,7 +89,7 @@
             <!-- Host - Edit Text -->
 
             <EditText
-                android:id="@+id/host_input"
+                android:id="@+id/second_input"
                 style="@style/GrayBorderEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -107,7 +107,7 @@
                 android:orientation="horizontal" >
 
                 <ImageView
-                    android:id="@+id/port_star"
+                    android:id="@+id/third_star"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
@@ -116,7 +116,7 @@
                     android:background="@drawable/star" />
 
                 <TextView
-                    android:id="@+id/port_label"
+                    android:id="@+id/third_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
@@ -129,7 +129,7 @@
             <!-- Port - Edit Text -->
 
             <EditText
-                android:id="@+id/port_input"
+                android:id="@+id/third_input"
                 style="@style/GrayBorderEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -64,76 +64,91 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 	
 	private ConnectionActivityMode mActivityMode;
 	
-	private View layout;
-	private EditText firstInput, secondInput, thirdInput, connectionMode;
+	// Connection / Login / Reset Password
+	private View mBaseContentLayout;
+	// HostName / UserName / Old Password
+	private TextView mFirstLabel;
+	private EditText mFirstInput;
+	// Host / Password / New Password
+	private TextView mSecondLabel;
+	private EditText mSecondInput;
+	// Port / Domain / Confirm Password
+	private TextView mThirdLabel;
+	private EditText mThirdInput;
+	// Connection Mode
+	private String[] mConnectionsModes;
+	private ArrayAdapter<CharSequence> mConnectionModeSpinnerAdapter;
+	private Spinner mConnectionModeSpinner;
+	private EditText mConnectionModeInput;
+	private TextView mConnectionModeText;
+	private String mSelectedConnectionMode = "";
+	
+	private String mHeaderTitlePrefix;
+	
+	
 	private ArrayList<ConnectionPoint> mConnectionsPoints;
-	private String spinner_choose = "";
 
 	private static boolean SHOW_DIALOG = false;
-
-	String[] strings = { "Direct", "SSL", "TLS" };
 
 	// holds the current button that make the
 	// main action at the current activity mode
 	private TextView actionBtn;
 
-	private FileSystemManagerServices fs;
+	private FileSystemManagerServices mFileSysManager;
 	private String hostName;
 
-	NetworkChangeReceiver broadCastReceiver = new NetworkChangeReceiver();
+	NetworkChangeReceiver mBroadcastReceiver = new NetworkChangeReceiver();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		Log.d(TAG, "onCreate(...) ENTER");
 		super.onCreate(savedInstanceState);
 		
-		mClientChannel = ClientChannel.getInstance();
-		
 		mActivityMode = ConnectionActivityMode.values()[getIntent().getIntExtra(Constants.MODE, 0)];
 		Log.i(TAG, TAG + "#onCreate(...) ACTIVITY MODE: " + mActivityMode);
 		
-		// get the connection point object from connections list activity
-		mConnectionsPoints = getIntent().getParcelableArrayListExtra(Constants.CONNECTIONS_POINTS);
+		mHeaderTitlePrefix = getString(R.string.header_title_prefix);
 		
-		layout = setContentView(R.layout.connection_activity_layout);
-		firstInput = (EditText) layout.findViewById(R.id.host_name_input);
-		secondInput = (EditText) layout.findViewById(R.id.host_input);
-		thirdInput = (EditText) layout.findViewById(R.id.port_input);
-		fs = new FileSystemManagerServices(this, true, true);
-		mHeaderBackButton = (ImageView) findViewById(R.id.header_back_button);
+		mClientChannel = ClientChannel.getInstance();
+		mConnectionsPoints = getIntent().getParcelableArrayListExtra(Constants.CONNECTIONS_POINTS);
+		mFileSysManager = new FileSystemManagerServices(this, true, true);
+		
+		// Header widgets
 		mHeaderBackButton.setVisibility(View.VISIBLE);
-		hidenConnectionModeDetails();
 		mHeaderBackButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				onBackPressed();
 			}
 		});
+		// Base Content widgets
+		mBaseContentLayout = setBaseContentView(R.layout.connection_activity_layout);
+		mFirstLabel = (TextView) mBaseContentLayout.findViewById(R.id.first_label);
+		mFirstInput = (EditText) mBaseContentLayout.findViewById(R.id.first_input);
+		mSecondLabel = (TextView) mBaseContentLayout.findViewById(R.id.second_label);
+		mSecondInput = (EditText) mBaseContentLayout.findViewById(R.id.second_input);
+		mThirdLabel = (TextView) mBaseContentLayout.findViewById(R.id.third_label);
+		mThirdInput = (EditText) mBaseContentLayout.findViewById(R.id.third_input);
+		mConnectionModeInput = (EditText) mBaseContentLayout.findViewById(R.id.connection_mode_input);
+		mConnectionModeInput.setVisibility(View.GONE);
+		mConnectionModeText = (TextView) mBaseContentLayout.findViewById(R.id.connection_mode_text);
+		mConnectionModeText.setVisibility(View.GONE);
 
-		if (mConnectionsPoints != null && !mConnectionsPoints.isEmpty()
-				&& mActivityMode == ConnectionActivityMode.Login) {
-			mHeaderBackButton = (ImageView) findViewById(R.id.header_back_button);
-			firstInput.setText(mConnectionsPoints.get(0).getName());
-			secondInput.setText(mConnectionsPoints.get(0).getIP());
-			thirdInput.setText(String.valueOf(mConnectionsPoints.get(0).getPort()));
+		if (mActivityMode == ConnectionActivityMode.Login && mConnectionsPoints != null && !mConnectionsPoints.isEmpty()) {
+			ConnectionPoint lastConnectionPoint = mConnectionsPoints.get(0);
+			mFirstInput.setText(lastConnectionPoint.getName());
+			mSecondInput.setText(lastConnectionPoint.getIP());
+			mThirdInput.setText(String.valueOf(lastConnectionPoint.getPort()));
 			openSocket();
 		} else {
 			switch (mActivityMode) {
 			case AddConnection:
-				if (ConnectionsDB.getAllSavedConnections().size() != 0) {
-					mHeaderBackButton.setVisibility(View.VISIBLE);
-				} else {
-					mHeaderBackButton.setVisibility(View.INVISIBLE);
-				}
 				setAddConnectionMode();
 				break;
 			case Login:
-				mHeaderBackButton = (ImageView) findViewById(R.id.header_back_button);
-				mHeaderBackButton.setVisibility(View.VISIBLE);
 				setLoginMode();
 				break;
 			case ResetPassword:
-				mHeaderBackButton = (ImageView) findViewById(R.id.header_back_button);
 				setResetPasswdMode();
 				break;
 			case ViewConnection:
@@ -149,9 +164,7 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 	protected void onStart() {
 		Log.d(TAG, "onStart(...) ENTER");
 		
-		// register recevier
-		this.registerReceiver(broadCastReceiver, new IntentFilter(
-				"android.net.conn.CONNECTIVITY_CHANGE"));
+		registerReceiver(mBroadcastReceiver, new IntentFilter(Config.Actions.ACTION_CONNECTIVITY_CHANGE));
 		super.onStart();
 	}
 
@@ -161,80 +174,40 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 		super.onStop();
 		
 		SHOW_DIALOG = false;
-		unregisterReceiver(broadCastReceiver);
-	}
-
-	private void setHeaderTextByMode() {
-		try {
-			int rId = getResources().getIdentifier(mActivityMode.toString() + "_header",
-					"string", getPackageName());
-			setHeaderTitleText(getString(rId));
-		} catch (Exception e) {
-			setHeaderTitleText("Jetro");
-		}
-	}
-
-	private void hidenConnectionModeDetails() {
-		EditText connectionModeEditText = (EditText) findViewById(R.id.connection_mode_input);
-		connectionModeEditText.setVisibility(View.GONE);
-
-		TextView connectionModeText = (TextView) findViewById(R.id.connection_mode_text);
-		connectionModeText.setVisibility(View.GONE);
+		unregisterReceiver(mBroadcastReceiver);
 	}
 
 	/**
 	 * set add new connection mode
 	 */
 	private void setAddConnectionMode() {
-		ArrayList<HashMap<String, ArrayList<ConnectionPoint>>> itemsFromDB = new ArrayList<HashMap<String, ArrayList<ConnectionPoint>>>();
-
-		mHeaderBackButton = (ImageView) findViewById(R.id.header_back_button);
-		Logger.log(LogLevel.INFO,
-				"Zacky: ConnectionAvtivity::setAddConnectionMode");
-
+		Log.d(TAG, TAG + "#setAddConnectionMode(...) ENTER");
+		
 		mActivityMode = ConnectionActivityMode.AddConnection;
-
-		((TextView) layout.findViewById(R.id.host_name_label))
-				.setText(getString(R.string.host_name_lbl));
-		((TextView) layout.findViewById(R.id.host_label))
-				.setText(getString(R.string.host_lbl));
-		((TextView) layout.findViewById(R.id.port_label))
-				.setText(getString(R.string.port_lbl));
-
-		setActivityButtons(R.string.connect_lbl, 0, 0, 0);
-		// TODO: remove below lines
-		firstInput.setText("Test environment");
-		secondInput.setText("212.199.106.213");
-		thirdInput.setText("13000");
-
-		firstInput.setHint("Host name here");
-		secondInput.setHint("Host details here");
-		thirdInput.setHint("Port details here");
-
-		Spinner spinnerConnectionMode = (Spinner) findViewById(R.id.connection_mode_spinner);
-
-		spinnerConnectionMode.setAdapter(new MyAdapter(ConnectionActivity.this,
-				R.layout.spinner_iten, strings));
-
-		// get the user choose from the spinner mode
-		spinnerConnectionMode
-				.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-					public void onItemSelected(AdapterView<?> parent,
-							View view, int pos, long id) {
-						Object item = parent.getItemAtPosition(pos);
-						spinner_choose = (String) item;
-						Log.i("spi", "the spiner is " + spinner_choose);
-					}
-
-					public void onNothingSelected(AdapterView<?> parent) {
-					}
-				});
-
-		thirdInput.setOnEditorActionListener(new OnEditorActionListener() {
+		
+		boolean hasConnections = ConnectionsDB.getAllSavedConnections().size() != 0;
+		if (hasConnections) {
+			mHeaderBackButton.setVisibility(View.VISIBLE);
+		} else {
+			mHeaderBackButton.setVisibility(View.INVISIBLE);
+		}
+		
+		// Sets labels
+		mFirstLabel.setText(getString(R.string.host_name_lbl));
+		mSecondLabel.setText(getString(R.string.host_lbl));
+		mThirdLabel.setText(getString(R.string.port_lbl));
+		// Sets hints
+		mFirstInput.setHint(getString(R.string.host_name_hint));
+		mSecondInput.setHint(getString(R.string.host_hint));
+		mThirdInput.setHint(getString(R.string.port_hint));
+		// TODO: remove this after debug
+		mFirstInput.setText("Test environment");
+		mSecondInput.setText("212.199.106.213");
+		mThirdInput.setText("13000");
+		
+		mThirdInput.setOnEditorActionListener(new OnEditorActionListener() {
 			@Override
-			public boolean onEditorAction(TextView v, int actionId,
-					KeyEvent event) {
-
+			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_GO) {
 					openSocket();
 					return true;
@@ -242,6 +215,23 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 				return false;
 			}
 		});
+		mConnectionsModes = getResources().getStringArray(R.array.connection_mode_options);
+		mConnectionModeSpinnerAdapter = ArrayAdapter.createFromResource(
+				ConnectionActivity.this, R.array.connection_mode_options,
+				R.layout.spinner_item_connection_mode);
+		mConnectionModeSpinner = (Spinner) findViewById(R.id.connection_mode_spinner);
+		mConnectionModeSpinner.setAdapter(mConnectionModeSpinnerAdapter);
+		mConnectionModeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+					@Override
+					public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+						mSelectedConnectionMode = mConnectionsModes[position];
+					}
+					@Override
+					public void onNothingSelected(AdapterView<?> parent) {
+					}
+				});
+
+		setActivityButtons(R.string.connect_lbl, 0, 0, 0);
 	}
 
 	/**
@@ -249,41 +239,37 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 	 */
 	private void setLoginMode() {
 		Log.d(TAG, "setLoginMode(...) ENTER");
-		
-		Logger.log(LogLevel.INFO, "Zacky: ConnectionAvtivity::setLoginMode");
 
 		mActivityMode = ConnectionActivityMode.Login;
+		
+		mHeaderBackButton.setVisibility(View.VISIBLE);
 
-		((TextView) layout.findViewById(R.id.host_name_label))
-				.setText(getString(R.string.user_name_lbl));
-		((TextView) layout.findViewById(R.id.host_label))
-				.setText(getString(R.string.passwd_lbl));
-		((TextView) layout.findViewById(R.id.port_label))
-				.setText(getString(R.string.domain_lbl));
-		// getProfileDetails();
+		mFirstLabel.setText(getString(R.string.user_name_lbl));
+		mSecondLabel.setText(getString(R.string.passwd_lbl));
+		mThirdLabel.setText(getString(R.string.domain_lbl));
 
-		layout.findViewById(R.id.spinnerWrapper).setVisibility(View.GONE);
+		mBaseContentLayout.findViewById(R.id.spinnerWrapper).setVisibility(View.GONE);
 
-		secondInput.setInputType(InputType.TYPE_CLASS_TEXT);
-		thirdInput.setInputType(InputType.TYPE_CLASS_TEXT);
+		mSecondInput.setInputType(InputType.TYPE_CLASS_TEXT);
+		mThirdInput.setInputType(InputType.TYPE_CLASS_TEXT);
 
-		firstInput.setHint(getString(R.string.user_name_lbl));
-		secondInput.setHint(getString(R.string.passwd_lbl));
-		thirdInput.setHint(getString(R.string.domain_lbl));
-		secondInput.setInputType(InputType.TYPE_CLASS_TEXT
+		mFirstInput.setHint(getString(R.string.user_name_lbl));
+		mSecondInput.setHint(getString(R.string.passwd_lbl));
+		mThirdInput.setHint(getString(R.string.domain_lbl));
+		mSecondInput.setInputType(InputType.TYPE_CLASS_TEXT
 				| InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
-		firstInput.setBackgroundResource(R.drawable.black_border_square);
-		secondInput.setBackgroundResource(R.drawable.black_border_square);
-		thirdInput.setBackgroundResource(R.drawable.black_border_square);
-		secondInput.setText("");
+		mFirstInput.setBackgroundResource(R.drawable.black_border_square);
+		mSecondInput.setBackgroundResource(R.drawable.black_border_square);
+		mThirdInput.setBackgroundResource(R.drawable.black_border_square);
+		mSecondInput.setText("");
 
 		setActivityButtons(R.string.cancle_lbl,
 				R.drawable.orange_button_selector, R.string.login_lbl, 0);
 		mHeaderBackButton.setVisibility(View.VISIBLE);
 		getProfileDetails();
 
-		thirdInput.setOnEditorActionListener(new OnEditorActionListener() {
+		mThirdInput.setOnEditorActionListener(new OnEditorActionListener() {
 			@Override
 			public boolean onEditorAction(TextView v, int actionId,
 					KeyEvent event) {
@@ -295,13 +281,13 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 			}
 		});
 
-		firstInput.setEnabled(true);
-		secondInput.setEnabled(true);
-		thirdInput.setEnabled(true);
+		mFirstInput.setEnabled(true);
+		mSecondInput.setEnabled(true);
+		mThirdInput.setEnabled(true);
 
-		firstInput.setClickable(true);
-		secondInput.setClickable(true);
-		thirdInput.setClickable(true);
+		mFirstInput.setClickable(true);
+		mSecondInput.setClickable(true);
+		mThirdInput.setClickable(true);
 
 		setInputTextWatcher();
 	}
@@ -317,41 +303,38 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 
 		mActivityMode = ConnectionActivityMode.ResetPassword;
 
-		((TextView) layout.findViewById(R.id.host_name_label))
-				.setText(getString(R.string.old_passwd_lbl));
-		((TextView) layout.findViewById(R.id.host_label))
-				.setText(getString(R.string.new_passwd_lbl));
-		((TextView) layout.findViewById(R.id.port_label))
-				.setText(getString(R.string.confirm_passwd_lbl));
-		layout.findViewById(R.id.spinnerWrapper).setVisibility(View.GONE);
+		mFirstLabel.setText(getString(R.string.old_passwd_lbl));
+		mSecondLabel.setText(getString(R.string.new_passwd_lbl));
+		mThirdLabel.setText(getString(R.string.confirm_passwd_lbl));
+		mBaseContentLayout.findViewById(R.id.spinnerWrapper).setVisibility(View.GONE);
 
-		firstInput.setText(secondInput.getText().toString());
-		secondInput.setText("");
-		thirdInput.setText("");
-		thirdInput.setHint("Confirm new password");
-		secondInput.setHint("New password");
+		mFirstInput.setText(mSecondInput.getText().toString());
+		mSecondInput.setText("");
+		mThirdInput.setText("");
+		mThirdInput.setHint("Confirm new password");
+		mSecondInput.setHint("New password");
 
-		secondInput.setInputType(InputType.TYPE_CLASS_TEXT
+		mSecondInput.setInputType(InputType.TYPE_CLASS_TEXT
 				| InputType.TYPE_TEXT_VARIATION_PASSWORD);
-		thirdInput.setInputType(InputType.TYPE_CLASS_TEXT
+		mThirdInput.setInputType(InputType.TYPE_CLASS_TEXT
 				| InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
-		firstInput.setBackgroundResource(R.drawable.black_border_square);
-		secondInput.setBackgroundResource(R.drawable.black_border_square);
-		thirdInput.setBackgroundResource(R.drawable.black_border_square);
+		mFirstInput.setBackgroundResource(R.drawable.black_border_square);
+		mSecondInput.setBackgroundResource(R.drawable.black_border_square);
+		mThirdInput.setBackgroundResource(R.drawable.black_border_square);
 
 		setActivityButtons(R.string.reset_lbl,
 				R.drawable.orange_button_selector, 0, 0);
 
 		setButtonAction(actionBtn);
 
-		firstInput.setEnabled(true);
-		secondInput.setEnabled(true);
-		thirdInput.setEnabled(true);
+		mFirstInput.setEnabled(true);
+		mSecondInput.setEnabled(true);
+		mThirdInput.setEnabled(true);
 
-		firstInput.setClickable(true);
-		secondInput.setClickable(true);
-		thirdInput.setClickable(true);
+		mFirstInput.setClickable(true);
+		mSecondInput.setClickable(true);
+		mThirdInput.setClickable(true);
 	}
 
 	private void setViewConnectionMode() {
@@ -359,13 +342,10 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 		
 		mActivityMode = ConnectionActivityMode.ViewConnection;
 
-		((TextView) layout.findViewById(R.id.host_name_label))
-				.setText(getString(R.string.host_name_lbl));
-		((TextView) layout.findViewById(R.id.host_label))
-				.setText(getString(R.string.host_lbl));
-		((TextView) layout.findViewById(R.id.port_label))
-				.setText(getString(R.string.port_lbl));
-		layout.findViewById(R.id.spinnerWrapper).setVisibility(View.GONE);
+		mFirstLabel.setText(getString(R.string.host_name_lbl));
+		mSecondLabel.setText(getString(R.string.host_lbl));
+		mThirdLabel.setText(getString(R.string.port_lbl));
+		mBaseContentLayout.findViewById(R.id.spinnerWrapper).setVisibility(View.GONE);
 
 		TextView connectionModeText = (TextView) findViewById(R.id.connection_mode_text);
 		connectionModeText.setVisibility(View.VISIBLE);
@@ -373,29 +353,29 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 		edit.setVisibility(View.VISIBLE);
 		edit.setText(mConnectionsPoints.get(0).getConnectionMode());
 
-		firstInput.setText(mConnectionsPoints.get(0).getName());
-		secondInput.setText(mConnectionsPoints.get(0).getIP());
-		thirdInput.setText(String.valueOf(mConnectionsPoints.get(0).getPort()));
+		mFirstInput.setText(mConnectionsPoints.get(0).getName());
+		mSecondInput.setText(mConnectionsPoints.get(0).getIP());
+		mThirdInput.setText(String.valueOf(mConnectionsPoints.get(0).getPort()));
 
-		firstInput.setEnabled(false);
-		secondInput.setEnabled(false);
-		thirdInput.setEnabled(false);
+		mFirstInput.setEnabled(false);
+		mSecondInput.setEnabled(false);
+		mThirdInput.setEnabled(false);
 
-		firstInput.setClickable(false);
-		secondInput.setClickable(false);
-		thirdInput.setClickable(false);
+		mFirstInput.setClickable(false);
+		mSecondInput.setClickable(false);
+		mThirdInput.setClickable(false);
 		edit.setClickable(false);
 		edit.setEnabled(false);
 
 		setActivityButtons(R.string.connect_lbl, 0, 0, 0);
 
 		setButtonAction(actionBtn);
-		setHeaderTitleText("Details");
+		setHeaderTitleText(R.string.header_title_ViewConnection);
 		actionBtn.setBackgroundResource(R.drawable.orange_button_selector);
 
-		findViewById(R.id.host_name_star).setVisibility(View.INVISIBLE);
-		findViewById(R.id.host_star).setVisibility(View.INVISIBLE);
-		findViewById(R.id.port_star).setVisibility(View.INVISIBLE);
+		findViewById(R.id.first_star).setVisibility(View.INVISIBLE);
+		findViewById(R.id.second_star).setVisibility(View.INVISIBLE);
+		findViewById(R.id.third_star).setVisibility(View.INVISIBLE);
 	}
 
 	/**
@@ -410,12 +390,11 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 	 * @param btn2Lbl
 	 * @param btn2Color
 	 */
-	private void setActivityButtons(int btn1Lbl, int btn1Color, int btn2Lbl,
-			int btn2Color) {
+	private void setActivityButtons(int btn1Lbl, int btn1Color, int btn2Lbl, int btn2Color) {
 		Log.d(TAG, "setActivityButtons(...) ENTER");
 		
-		TextView btn1 = (TextView) layout.findViewById(R.id.left_button);
-		TextView btn2 = (TextView) layout.findViewById(R.id.right_button);
+		TextView btn1 = (TextView) mBaseContentLayout.findViewById(R.id.left_button);
+		TextView btn2 = (TextView) mBaseContentLayout.findViewById(R.id.right_button);
 
 		btn1.setText(btn1Lbl);
 		setButtonSelector(btn1, btn1Color);
@@ -438,9 +417,9 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 		Log.d(TAG, "clearInputs(...) ENTER");
 		
 		removeInputTextWatcher();
-		thirdInput.setText("");
-		secondInput.setText("");
-		firstInput.setText("");
+		mThirdInput.setText("");
+		mSecondInput.setText("");
+		mFirstInput.setText("");
 		setInputTextWatcher();
 	}
 
@@ -513,7 +492,12 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 		}
 
 		// set header title
-		setHeaderTextByMode();
+		try {
+			int resourceId = getResources().getIdentifier(mHeaderTitlePrefix + mActivityMode, "string", getPackageName());
+			setHeaderTitleText(resourceId);
+		} catch (Exception e) {
+			setHeaderTitleText(R.string.app_title);
+		}
 
 		// clear text
 		if (mConnectionsPoints == null)
@@ -541,30 +525,30 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 	private void removeInputTextWatcher() {
 		Log.d(TAG, "removeInputTextWatcher(...) ENTER");
 		
-		firstInput.removeTextChangedListener(this);
-		secondInput.addTextChangedListener(this);
-		thirdInput.addTextChangedListener(this);
+		mFirstInput.removeTextChangedListener(this);
+		mSecondInput.addTextChangedListener(this);
+		mThirdInput.addTextChangedListener(this);
 	}
 
 	private void setInputTextWatcher() {
 		Log.d(TAG, "setInputTextWatcher(...) ENTER");
 		
-		firstInput.addTextChangedListener(this);
-		secondInput.addTextChangedListener(this);
-		thirdInput.addTextChangedListener(this);
+		mFirstInput.addTextChangedListener(this);
+		mSecondInput.addTextChangedListener(this);
+		mThirdInput.addTextChangedListener(this);
 	}
 
 	private void resetButtons() {
 		Log.d(TAG, "resetButtons(...) ENTER");
 		
-		firstInput.setTextColor(Color.BLACK);
-		secondInput.setTextColor(Color.BLACK);
-		thirdInput.setTextColor(Color.BLACK);
+		mFirstInput.setTextColor(Color.BLACK);
+		mSecondInput.setTextColor(Color.BLACK);
+		mThirdInput.setTextColor(Color.BLACK);
 		// firstInput.setBackgroundColor(Color.BLACK);
 
-		firstInput.setVisibility(View.VISIBLE);
-		secondInput.setVisibility(View.VISIBLE);
-		thirdInput.setVisibility(View.VISIBLE);
+		mFirstInput.setVisibility(View.VISIBLE);
+		mSecondInput.setVisibility(View.VISIBLE);
+		mThirdInput.setVisibility(View.VISIBLE);
 	}
 
 	/**
@@ -580,9 +564,9 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 				switch (mActivityMode) {
 				case AddConnection:
 				case ViewConnection: {
-					findViewById(R.id.port_label).setVisibility(View.VISIBLE);
-					firstInput.setBackgroundResource(R.drawable.gray_border_square);
-					thirdInput.setBackgroundResource(R.drawable.gray_border_square);
+					findViewById(R.id.third_label).setVisibility(View.VISIBLE);
+					mFirstInput.setBackgroundResource(R.drawable.gray_border_square);
+					mThirdInput.setBackgroundResource(R.drawable.gray_border_square);
 					resetButtons();
 					openSocket();
 					break;
@@ -609,7 +593,7 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 		Log.d(TAG, "OnMessageReceived(...) ENTER");
 		
 		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-		imm.hideSoftInputFromWindow(firstInput.getWindowToken(), 0);
+		imm.hideSoftInputFromWindow(mFirstInput.getWindowToken(), 0);
 
 		Log.i(TAG, "ConnectionActivity#OnMessageReceived(...) message id: " + msg.extraHeader.MsgClassID);
 		
@@ -633,7 +617,7 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 				imageName = cptResponse.getLoginScreenImage();
 				Log.i(TAG, "ConnectionActivity#OnMessageReceived(...) image name: " + imageName);
 
-				hostName = firstInput.getText().toString().trim();
+				hostName = mFirstInput.getText().toString().trim();
 
 				if (mConnectionsPoints == null) {
 					saveConnectionModeToCP(cptResponse.getConnectionPoints());
@@ -715,7 +699,7 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 		
 		for (int i = 0; i < cp.length; i++) {
 			ConnectionPoint p = cp[i];
-			p.setConnectionMode(spinner_choose);
+			p.setConnectionMode(mSelectedConnectionMode);
 		}
 	}
 
@@ -772,8 +756,8 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 
 		startLoadingScreen();
 		
-		String host = secondInput.getText().toString();
-		Integer port = Integer.valueOf(thirdInput.getText().toString());
+		String host = mSecondInput.getText().toString();
+		Integer port = Integer.valueOf(mThirdInput.getText().toString());
 		
 		Log.i(TAG, "ConnectionActivity#openSocket(...) host: " + host);
 		Log.i(TAG, "ConnectionActivity#openSocket(...) port: " + port);
@@ -800,7 +784,7 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 		
 		///////   LoginScreenImageMsg ////////
 		String loginScreenImageName = respCSI.getLoginScreenImage();
-		Bitmap loginScreenImage = fs.getBitmap(loginScreenImageName);
+		Bitmap loginScreenImage = mFileSysManager.getBitmap(loginScreenImageName);
 		if (loginScreenImage == null) {
 			LoginScreenImageMsg msgLIS = new LoginScreenImageMsg();
 			msgLIS.ImageName = ((CockpitSiteInfoMsg)msgCSI).LoginScreenImage;
@@ -810,8 +794,8 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 				String imageName = respLIS.getImageName();
 				byte[] bytes = respLIS.getImage();
 				Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-				((ImageView) layout.findViewById(R.id.login_screen_image)).setImageBitmap(bmp);
-				fs.saveBitmap(imageName, bmp);
+				((ImageView) mBaseContentLayout.findViewById(R.id.login_screen_image)).setImageBitmap(bmp);
+				mFileSysManager.saveBitmap(imageName, bmp);
 			} else {
 				System.out.println("null received instead of LoginScreenImageMsg");
 				return;
@@ -833,12 +817,12 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 
 		case AddConnection:
 
-			String ip = secondInput.getText().toString();
+			String ip = mSecondInput.getText().toString();
 			if (!isButtonAvailabile() /* || !(ip.equals(Patterns.IP_ADDRESS)) */) {
 				valid = false;
 			}
 
-			String port = thirdInput.getText().toString();
+			String port = mThirdInput.getText().toString();
 			if (!isButtonAvailabile() || port.length() < 4) {
 				valid = false;
 			}
@@ -853,8 +837,8 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 			if (!isButtonAvailabile()) {
 				valid = false;
 			} else
-				valid = (secondInput.getText().toString().trim()
-						.equals(thirdInput.getText().toString().trim()));
+				valid = (mSecondInput.getText().toString().trim()
+						.equals(mThirdInput.getText().toString().trim()));
 
 			break;
 
@@ -881,18 +865,18 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 		
 		boolean isAvaliable = true;
 
-		if (firstInput.getText().toString().trim().isEmpty()) {
-			firstInput.setError(null);
+		if (mFirstInput.getText().toString().trim().isEmpty()) {
+			mFirstInput.setError(null);
 			isAvaliable = false;
 		}
 
-		if (secondInput.getText().toString().trim().isEmpty()) {
-			secondInput.setError(null);
+		if (mSecondInput.getText().toString().trim().isEmpty()) {
+			mSecondInput.setError(null);
 			isAvaliable = false;
 		}
 
-		if (thirdInput.getText().toString().trim().isEmpty()) {
-			thirdInput.setError(null);
+		if (mThirdInput.getText().toString().trim().isEmpty()) {
+			mThirdInput.setError(null);
 			isAvaliable = false;
 		}
 
@@ -932,12 +916,12 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 		SharedPreferences pref = getApplicationContext().getSharedPreferences(
 				"MyPref", MODE_PRIVATE);
 
-		Log.i(TAG, "ConnectionActivity#saveProfileDetails(...) connection name: " + firstInput.getText().toString());
-		Log.i(TAG, "ConnectionActivity#saveProfileDetails(...) domain: " + thirdInput.getText().toString());
+		Log.i(TAG, "ConnectionActivity#saveProfileDetails(...) connection name: " + mFirstInput.getText().toString());
+		Log.i(TAG, "ConnectionActivity#saveProfileDetails(...) domain: " + mThirdInput.getText().toString());
 
 		Editor editor = pref.edit();
-		editor.putString("name", firstInput.getText().toString());
-		editor.putString("domain", thirdInput.getText().toString());
+		editor.putString("name", mFirstInput.getText().toString());
+		editor.putString("domain", mThirdInput.getText().toString());
 		editor.commit();
 	}
 
@@ -948,8 +932,8 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 		Log.d(TAG, "getProfileDetails(...) ENTER");
 		
 		SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
-		firstInput.setText(pref.getString("name", ""));
-		thirdInput.setText(pref.getString("domain", ""));
+		mFirstInput.setText(pref.getString("name", ""));
+		mThirdInput.setText(pref.getString("domain", ""));
 	}
 
 	/**
@@ -968,12 +952,12 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 		String domain = "";
 
 		if (mActivityMode == ConnectionActivityMode.Login) {
-			userName = firstInput.getText().toString().trim();
-			password = secondInput.getText().toString().trim();
-			domain = thirdInput.getText().toString().trim();
+			userName = mFirstInput.getText().toString().trim();
+			password = mSecondInput.getText().toString().trim();
+			domain = mThirdInput.getText().toString().trim();
 		} else if (mActivityMode == ConnectionActivityMode.ResetPassword) {
-			userName = firstInput.getText().toString().trim();
-			password = secondInput.getText().toString().trim();
+			userName = mFirstInput.getText().toString().trim();
+			password = mSecondInput.getText().toString().trim();
 			domain = mConnectionsPoints.get(0).getDomain();
 		}
 		
@@ -1027,8 +1011,8 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 		if (!validateInputs())
 			return;
 
-		String oldPassword = firstInput.getText().toString().trim();
-		String newPassword = secondInput.getText().toString().trim();
+		String oldPassword = mFirstInput.getText().toString().trim();
+		String newPassword = mSecondInput.getText().toString().trim();
 		String userName = mConnectionsPoints.get(0).getUserName();
 		String domain = mConnectionsPoints.get(0).getDomain();
 
@@ -1046,16 +1030,14 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 	 * @author Hamody.M
 	 * 
 	 */
-	public class MyAdapter extends ArrayAdapter<String> {
+	public class ConnectionsModesAdapter extends ArrayAdapter<String> {
 
-		public MyAdapter(Context context, int textViewResourceId,
-				String[] objects) {
+		public ConnectionsModesAdapter(Context context, int textViewResourceId, String[] objects) {
 			super(context, textViewResourceId, objects);
 		}
 
 		@Override
-		public View getDropDownView(int position, View convertView,
-				ViewGroup parent) {
+		public View getDropDownView(int position, View convertView, ViewGroup parent) {
 			return getCustomView(position, convertView, parent);
 		}
 
@@ -1064,13 +1046,10 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 			return getCustomView(position, convertView, parent);
 		}
 
-		public View getCustomView(int position, View convertView,
-				ViewGroup parent) {
-
+		public View getCustomView(int position, View convertView, ViewGroup parent) {
 			LayoutInflater inflater = getLayoutInflater();
-			View row = inflater.inflate(R.layout.spinner_iten, parent, false);
-			TextView label = (TextView) row
-					.findViewById(R.id.spinner_item_choose);
+			View row = inflater.inflate(, parent, false);
+			TextView label = (TextView) row.findViewById(R.id.spinner_item_choose);
 			label.setText(strings[position]);
 
 			row.setBackgroundResource(R.drawable.spinner_item_selector);
@@ -1085,7 +1064,7 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 			protected Bitmap doInBackground(Void... params) {
 				Log.d(TAG, "setLoginScreenImage(...) ENTER");
 				
-				Bitmap bmp = fs.getBitmap(imageName, true);
+				Bitmap bmp = mFileSysManager.getBitmap(imageName, true);
 				if (bmp == null) {
 					socketManager
 							.sendMessage(new LoginScreenImageMsg(imageName));
@@ -1099,7 +1078,7 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 				Log.d(TAG, "onPostExecute(...) ENTER");
 				
 				if (result != null) {
-					((ImageView) layout.findViewById(R.id.login_screen_image))
+					((ImageView) mBaseContentLayout.findViewById(R.id.login_screen_image))
 							.setImageBitmap(result);
 				}
 				super.onPostExecute(result);

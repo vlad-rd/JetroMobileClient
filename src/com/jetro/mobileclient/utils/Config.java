@@ -17,5 +17,11 @@ public class Config {
 		public static final String EXTRA_TYPE = "type";
 		
 	}
+	
+	public static final class Actions {
+		
+		public static final String ACTION_CONNECTIVITY_CHANGE = "android.net.conn.CONNECTIVITY_CHANGE";
+		
+	}
 
 }
