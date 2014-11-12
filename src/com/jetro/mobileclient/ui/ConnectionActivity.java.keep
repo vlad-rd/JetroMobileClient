@@ -85,7 +85,6 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 	
 	private String mHeaderTitlePrefix;
 	
-	
 	private ArrayList<ConnectionPoint> mConnectionsPoints;
 
 	private static boolean SHOW_DIALOG = false;
@@ -110,7 +109,7 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 		mHeaderTitlePrefix = getString(R.string.header_title_prefix);
 		
 		mClientChannel = ClientChannel.getInstance();
-		mConnectionsPoints = getIntent().getParcelableArrayListExtra(Constants.CONNECTIONS_POINTS);
+		mConnectionsPoints = getIntent().getParcelableArrayListExtra(Config.Extras.EXTRA_CONNECTIONS_POINTS);
 		mFileSysManager = new FileSystemManagerServices(this, true, true);
 		
 		// Header widgets
@@ -198,8 +197,8 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 		mThirdLabel.setText(getString(R.string.port_lbl));
 		// Sets hints
 		mFirstInput.setHint(getString(R.string.host_name_hint));
-		mSecondInput.setHint(getString(R.string.host_hint));
-		mThirdInput.setHint(getString(R.string.port_hint));
+		mSecondInput.setHint(getString(R.string.host_ip_hint));
+		mThirdInput.setHint(getString(R.string.host_port_hint));
 		// TODO: remove this after debug
 		mFirstInput.setText("Test environment");
 		mSecondInput.setText("212.199.106.213");
@@ -902,7 +901,7 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 			actionBtn.setBackgroundResource(R.drawable.orange_button_selector);
 			setButtonAction(actionBtn);
 		} else {
-			actionBtn.setBackgroundResource(R.color.disable_gray);
+			actionBtn.setBackgroundResource(R.color.button_disabled_color);
 			actionBtn.setOnClickListener(null);
 		}
 	}
@@ -1189,7 +1188,7 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 			break;
 		case ResetPassword:
 			intent = new Intent(ConnectionActivity.this, ConnectionActivity.class);
-			intent.putParcelableArrayListExtra(Constants.CONNECTIONS_POINTS, null);
+			intent.putParcelableArrayListExtra(Config.Extras.EXTRA_CONNECTIONS_POINTS, null);
 			intent.putExtra(Constants.MODE, ConnectionActivityMode.Login.getNumericType());
 			startActivity(intent);
 			finish();

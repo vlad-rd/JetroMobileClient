@@ -12,9 +12,15 @@ public class Config {
 	private Config() {
 	}
 	
+	public static final String APP_PACKAGE = "com.jetro.mobileclient";
+	
 	public static class Extras {
 		
-		public static final String EXTRA_TYPE = "type";
+		public static final String EXTRA_CONNECTION_ACTIVITY_STATE = APP_PACKAGE + ".EXTRA_CONNECTION_ACTIVITY_STATE";
+		
+		public static final String EXTRA_CONNECTIONS_POINTS = APP_PACKAGE + ".EXTRA_CONNECTIONS_POINTS";
+		
+		public static final String EXTRA_TYPE = APP_PACKAGE + ".type";
 		
 	}
 	

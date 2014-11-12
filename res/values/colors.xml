@@ -12,6 +12,6 @@
     <color name="theme_blue_pressed">#092B4D</color>
     <color name="spinner_item_background">#BBBBBB</color>
     <color name="spinner_item_background_pressed">#707070</color>
-    <color name="disable_gray">#E3E3E3</color>
-    <color  name="light_blue">#23466C</color>
+    <color name="button_disabled_color">#E3E3E3</color>
+    <color name="light_blue">#23466C</color>
 </resources>

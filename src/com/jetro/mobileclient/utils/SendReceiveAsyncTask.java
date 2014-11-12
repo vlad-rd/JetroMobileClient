@@ -3,9 +3,9 @@
  */
 package com.jetro.mobileclient.utils;
 
-import JProtocol.Core.BaseMsg;
-import JProtocol.Core.IMessageSubscriber;
-import JProtocol.Core.Net.ClientChannel;
+import com.jetro.protocol.Core.BaseMsg;
+import com.jetro.protocol.Core.IMessageSubscriber;
+import com.jetro.protocol.Core.Net.ClientChannel;
 import android.os.AsyncTask;
 
 /**

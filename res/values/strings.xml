@@ -25,8 +25,9 @@
     
     <!-- Hints -->
     <string name="host_name_hint">Host name here</string>
-    <string name="host_hint">Host IP here</string>
-    <string name="port_hint">Host Port here</string>
+    <string name="host_ip_hint">Host IP here</string>
+    <string name="host_port_hint">Host Port here</string>
+    <string name="connection_mode_hint">Choose connection mode</string>
     
     <!-- Arrays -->
     <string-array name="connection_mode_options">

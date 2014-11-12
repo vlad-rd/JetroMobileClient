@@ -32,12 +32,12 @@ import com.freerdp.freerdpcore.sharedobjects.utils.Logger;
 import com.freerdp.freerdpcore.sharedobjects.utils.Logger.LogLevel;
 import com.jetro.mobileclient.R;
 import com.jetro.mobileclient.repository.ConnectionsDB;
+import com.jetro.mobileclient.ui.activities.NewConnectionActivity;
 import com.jetro.mobileclient.utils.Config;
 
 public class ConnectionsListActivity extends HeaderActivtiy {
 
-	private static final String TAG = ConnectionsListActivity.class
-			.getSimpleName();
+	private static final String TAG = ConnectionsListActivity.class.getSimpleName();
 	
 	private View layout;
 	private ArrayList<HashMap<String, ArrayList<ConnectionPoint>>> itemsFromDB = new ArrayList<HashMap<String, ArrayList<ConnectionPoint>>>();
@@ -54,7 +54,7 @@ public class ConnectionsListActivity extends HeaderActivtiy {
 		layout = setBaseContentView(R.layout.connections_list_activity_layout);
 		listView = (ListView) layout.findViewById(R.id.connectionsListView);
 
-		setHeaderTitleText(getString(R.string.header_title_Connections));
+		setHeaderTitleText(R.string.header_title_Connections);
 		ImageView backBtn1 = (ImageView) findViewById(R.id.header_back_button);
 		backBtn1.setVisibility(View.INVISIBLE);
 
@@ -62,7 +62,7 @@ public class ConnectionsListActivity extends HeaderActivtiy {
 				new OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						Intent intent = new Intent(ConnectionsListActivity.this, ConnectionActivity.class);
+						Intent intent = new Intent(ConnectionsListActivity.this, NewConnectionActivity.class);
 						intent.putExtra(Constants.MODE, ConnectionActivityMode.AddConnection.getNumericType());
 						startActivity(intent);
 						finish();
@@ -107,8 +107,7 @@ public class ConnectionsListActivity extends HeaderActivtiy {
 		itemsFromDB = ConnectionsDB.getAllSavedConnections();
 		Intent intent = null;
 		if (itemsFromDB.size() == 0) {
-			intent = new Intent(ConnectionsListActivity.this,
-					ConnectionActivity.class);
+			intent = new Intent(ConnectionsListActivity.this, NewConnectionActivity.class);
 			intent.putExtra(Config.Extras.EXTRA_TYPE, "type");
 			IS_FIRST = true;
 			intent.putExtra(Constants.MODE,
@@ -312,8 +311,8 @@ public class ConnectionsListActivity extends HeaderActivtiy {
 		private void startConnectionActivityByMode(ArrayList<ConnectionPoint> cps, ConnectionActivityMode mode) {
 			Log.d(TAG, "ConnectionsListActivity.ConnectionsListAdapter#startConnectionActivityByMode(...) ENTER");
 
-			Intent intent = new Intent(ConnectionsListActivity.this, ConnectionActivity.class);
-			intent.putParcelableArrayListExtra(Constants.CONNECTIONS_POINTS, cps);
+			Intent intent = new Intent(ConnectionsListActivity.this, NewConnectionActivity.class);
+			intent.putParcelableArrayListExtra(Config.Extras.EXTRA_CONNECTIONS_POINTS, cps);
 			intent.putExtra(Constants.MODE, mode.getNumericType());
 			startActivity(intent);
 			finish();
