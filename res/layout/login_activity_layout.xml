@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" >
 
-            <!-- Host Name - Label -->
+            <!-- User Name - Label -->
 
             <LinearLayout
                 android:id="@+id/wrapper_vertical"
@@ -28,7 +28,7 @@
                 android:orientation="horizontal" >
 
                 <ImageView
-                    android:id="@+id/first_star"
+                    android:id="@+id/username_star"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
@@ -37,29 +37,31 @@
                     android:src="@drawable/star" />
 
                 <TextView
-                    android:id="@+id/first_label"
+                    android:id="@+id/username_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="@string/host_name_lbl"
+                    android:text="@string/user_name_lbl"
                     android:textColor="@color/black"
                     android:textSize="@dimen/edittext_lbl" />
             </LinearLayout>
 
-            <!-- Host Name - Edit Text -->
+            <!-- User Name - Edit Text -->
 
             <EditText
-                android:id="@+id/first_input"
+                android:id="@+id/username_input"
                 style="@style/GrayBorderEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/black_border_square"
                 android:cursorVisible="true"
+                android:hint="@string/user_name_hint"
                 android:inputType="text"
                 android:singleLine="true"
                 android:textCursorDrawable="@null"
                 android:textSize="@dimen/edittext_lbl" />
 
-            <!-- Host - Label -->
+            <!-- Password - Label -->
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -67,7 +69,7 @@
                 android:orientation="horizontal" >
 
                 <ImageView
-                    android:id="@+id/second_star"
+                    android:id="@+id/password_star"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
@@ -76,30 +78,32 @@
                     android:background="@drawable/star" />
 
                 <TextView
-                    android:id="@+id/second_label"
+                    android:id="@+id/password_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:gravity="center"
-                    android:text="@string/host_ip_lbl"
+                    android:text="@string/password_lbl"
                     android:textColor="@color/black"
                     android:textSize="@dimen/edittext_lbl" />
             </LinearLayout>
 
-            <!-- Host - Edit Text -->
+            <!-- Password - Edit Text -->
 
             <EditText
-                android:id="@+id/second_input"
+                android:id="@+id/password_input"
                 style="@style/GrayBorderEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/black_border_square"
                 android:cursorVisible="true"
-                android:inputType="date"
+                android:hint="@string/password_hint"
+                android:inputType="text|textPassword"
                 android:singleLine="true"
                 android:textCursorDrawable="@null"
                 android:textSize="@dimen/edittext_lbl" />
 
-            <!-- Port - Label -->
+            <!-- Domain - Label -->
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -107,7 +111,7 @@
                 android:orientation="horizontal" >
 
                 <ImageView
-                    android:id="@+id/third_star"
+                    android:id="@+id/domain_star"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
@@ -116,81 +120,28 @@
                     android:background="@drawable/star" />
 
                 <TextView
-                    android:id="@+id/third_label"
+                    android:id="@+id/domain_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:gravity="center"
-                    android:text="@string/host_port_lbl"
+                    android:text="@string/domain_lbl"
                     android:textColor="@color/black"
                     android:textSize="@dimen/edittext_lbl" />
             </LinearLayout>
 
-            <!-- Port - Edit Text -->
+            <!-- Domain - Edit Text -->
 
             <EditText
-                android:id="@+id/third_input"
+                android:id="@+id/domain_input"
                 style="@style/GrayBorderEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/black_border_square"
                 android:cursorVisible="true"
+                android:hint="@string/domain_hint"
                 android:imeOptions="actionGo"
-                android:inputType="number"
-                android:singleLine="true"
-                android:textCursorDrawable="@null"
-                android:textSize="@dimen/edittext_lbl" />
-
-            <!-- Connection Mode - ComboBox -->
-
-            <RelativeLayout
-                android:id="@+id/spinnerWrapper"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:animateLayoutChanges="true" >
-
-                <Spinner
-                    android:id="@+id/connection_mode_spinner"
-                    style="@style/MySpinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:background="@drawable/spinner_background"
-                    android:dropDownWidth="match_parent"
-                    android:entries="@array/connection_mode_options"
-                    android:listSelector="@drawable/selector_back_button"
-                    android:popupBackground="#bbbbbb"
-                    android:spinnerMode="dropdown" />
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginRight="15dp"
-                    android:layout_marginTop="30dp"
-                    android:background="@drawable/down" />
-            </RelativeLayout>
-
-            <!-- Connection Mode - Text -->
-
-            <TextView
-                android:id="@+id/connection_mode_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:paddingLeft="14dp"
-                android:text="Connection mode"
-                android:textColor="@color/black"
-                android:textSize="@dimen/edittext_lbl" />
-
-            <!-- Connection Mode - Edit Text -->
-
-            <EditText
-                android:id="@+id/connection_mode_input"
-                style="@style/GrayBorderEditText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:cursorVisible="true"
-                android:inputType="date"
+                android:inputType="text"
                 android:singleLine="true"
                 android:textCursorDrawable="@null"
                 android:textSize="@dimen/edittext_lbl" />
@@ -206,7 +157,7 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- Connect - Button -->
+    <!-- Buttons -->
 
     <LinearLayout
         android:id="@+id/buttons_container"
@@ -216,13 +167,16 @@
         android:orientation="horizontal"
         android:weightSum="2" >
 
+        <!-- Cancel - Button -->
+
         <TextView
-            android:id="@+id/left_button"
+            android:id="@+id/cancel_button"
             style="@style/DefaultButtonState"
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="0.99"
-            android:text="@string/connect_lbl"
+            android:background="@drawable/orange_button_selector"
+            android:text="@string/cancel_lbl"
             android:textSize="@dimen/button_text_lbl" />
 
         <ImageView
@@ -230,13 +184,16 @@
             android:layout_height="wrap_content"
             android:layout_weight="0.02" />
 
+        <!-- Login - Button -->
+
         <TextView
-            android:id="@+id/right_button"
+            android:id="@+id/login_button"
             style="@style/DefaultButtonState"
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="0.99"
-            android:text="@string/connect_lbl"
+            android:background="@drawable/orange_button_selector"
+            android:text="@string/login_lbl"
             android:textSize="@dimen/button_text_lbl" />
     </LinearLayout>
 

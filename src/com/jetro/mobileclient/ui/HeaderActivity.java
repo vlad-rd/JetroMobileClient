@@ -20,7 +20,7 @@ import com.jetro.mobileclient.R;
 import com.jetro.mobileclient.utils.Config;
 import com.jetro.mobileclient.utils.ConnectivityUtils;
 
-public abstract class HeaderActivtiy extends BaseActivity {
+public abstract class HeaderActivity extends BaseActivity {
 
 	private final String TAG = getClass().getSimpleName();
 	
@@ -47,6 +47,12 @@ public abstract class HeaderActivtiy extends BaseActivity {
 		
 		// Sets Header widgets
 		mHeaderBackButton = (ImageView) findViewById(R.id.header_back_button);
+		mHeaderBackButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onBackPressed();
+			}
+		});
 		mHeaderTitle = (TextView) findViewById(R.id.header_title);
 		mHeaderMenuButton = (ImageView) findViewById(R.id.header_menu_button);
 		mHeaderMenuButton.setOnClickListener(new OnClickListener() {
@@ -68,14 +74,14 @@ public abstract class HeaderActivtiy extends BaseActivity {
 	public void showPopupOptions(View anchor) {
 		Log.d(TAG, TAG + "#showPopupOptions(...) ENTER");
 		
-		PopupMenu popup = new PopupMenu(HeaderActivtiy.this, anchor);
+		PopupMenu popup = new PopupMenu(HeaderActivity.this, anchor);
 		popup.getMenuInflater().inflate(R.menu.activity_header_menu, popup.getMenu());
 		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
 			public boolean onMenuItemClick(MenuItem item) {
 				switch (item.getItemId()) {
 				case R.id.header_menu_item_about:
 				case R.id.header_menu_item_help: {
-					boolean isConnected = ConnectivityUtils.isNetworkConnected(HeaderActivtiy.this);
+					boolean isConnected = ConnectivityUtils.isNetworkConnected(HeaderActivity.this);
 					if (!isConnected) {
 						showNoInternetConnectionDialog();
 					} else {
@@ -85,7 +91,7 @@ public abstract class HeaderActivtiy extends BaseActivity {
 						} else if (item.getItemId() == R.id.header_menu_item_help) {
 							type = "Help";
 						}
-						Intent intent = new Intent(HeaderActivtiy.this, AboutPopupActivity.class);
+						Intent intent = new Intent(HeaderActivity.this, AboutPopupActivity.class);
 						intent.putExtra(Config.Extras.EXTRA_TYPE, type);
 						startActivity(intent);
 					}
@@ -103,7 +109,7 @@ public abstract class HeaderActivtiy extends BaseActivity {
 	}
 	
 	private void showNoInternetConnectionDialog() {
-		new AlertDialog.Builder(HeaderActivtiy.this)
+		new AlertDialog.Builder(HeaderActivity.this)
 				.setCancelable(false)
 				.setMessage(R.string.dialog_no_internet_connection_message)
 				.setNegativeButton(R.string.dialog_no_internet_connection_negative_btn, null)
@@ -126,7 +132,7 @@ public abstract class HeaderActivtiy extends BaseActivity {
 
 	/**
 	 * should be implemented in every activity that extends
-	 * {@link HeaderActivtiy} implementation of this method should call
+	 * {@link HeaderActivity} implementation of this method should call
 	 * setHeaderTextAndBehavior(OnClickListener backBtnListener,
 	 * intheaderStringResourceId) method in header activity
 	 */

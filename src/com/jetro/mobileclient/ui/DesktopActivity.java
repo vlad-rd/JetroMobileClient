@@ -44,6 +44,7 @@ import com.freerdp.freerdpcore.sharedobjects.protocol.MessagesValues;
 import com.freerdp.freerdpcore.sharedobjects.utils.Constants;
 import com.jetro.mobileclient.R;
 import com.jetro.mobileclient.application.GlobalApp;
+import com.jetro.mobileclient.ui.activities.ConnectionsListActivity;
 
 public class DesktopActivity extends BaseActivity implements ISocketListener {
 

@@ -1,4 +1,4 @@
-package com.jetro.mobileclient.ui;
+package com.jetro.mobileclient.ui.activities;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,108 +28,111 @@ import android.widget.TextView;
 import com.freerdp.freerdpcore.application.GlobalApp;
 import com.freerdp.freerdpcore.sharedobjects.ConnectionPoint;
 import com.freerdp.freerdpcore.sharedobjects.utils.Constants;
-import com.freerdp.freerdpcore.sharedobjects.utils.Logger;
-import com.freerdp.freerdpcore.sharedobjects.utils.Logger.LogLevel;
 import com.jetro.mobileclient.R;
 import com.jetro.mobileclient.repository.ConnectionsDB;
-import com.jetro.mobileclient.ui.activities.NewConnectionActivity;
+import com.jetro.mobileclient.ui.HeaderActivity;
+import com.jetro.mobileclient.ui.dialogs.DialogLauncher;
 import com.jetro.mobileclient.utils.Config;
 
-public class ConnectionsListActivity extends HeaderActivtiy {
+public class ConnectionsListActivity extends HeaderActivity {
 
 	private static final String TAG = ConnectionsListActivity.class.getSimpleName();
 	
-	private View layout;
+	public static boolean IS_FIRST = false;
+	
 	private ArrayList<HashMap<String, ArrayList<ConnectionPoint>>> itemsFromDB = new ArrayList<HashMap<String, ArrayList<ConnectionPoint>>>();
 	private ArrayList<ViewItem> itemsToShow = new ArrayList<ViewItem>();
-	private ListView listView;
 	
-	public static boolean IS_FIRST = false;
+	private View mBaseContentLayout;
+	private View mAddNewConnectionButton;
+	private ConnectionsListAdapter mConnectionsAdapter;
+	private ListView mConnectionsList;
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		Log.d(TAG, "ConnectionsListActivity#onCreate(...) ENTER");
+		Log.d(TAG, TAG + "#onCreate(...) ENTER");
 		super.onCreate(savedInstanceState);
 
-		layout = setBaseContentView(R.layout.connections_list_activity_layout);
-		listView = (ListView) layout.findViewById(R.id.connectionsListView);
-
 		setHeaderTitleText(R.string.header_title_Connections);
-		ImageView backBtn1 = (ImageView) findViewById(R.id.header_back_button);
-		backBtn1.setVisibility(View.INVISIBLE);
-
-		layout.findViewById(R.id.addNewConnectionBtn).setOnClickListener(
-				new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						Intent intent = new Intent(ConnectionsListActivity.this, NewConnectionActivity.class);
-						intent.putExtra(Constants.MODE, ConnectionActivityMode.AddConnection.getNumericType());
-						startActivity(intent);
-						finish();
-					}
-				});
-	}
-
-	@Override
-	public void onBackPressed() {
-		Log.d(TAG, "ConnectionsListActivity#onBackPressed(...) ENTER");
+		mHeaderBackButton.setVisibility(View.INVISIBLE);
 		
-		new AlertDialog.Builder(this)
-				.setMessage("Are you sure you want to exit?")
-				.setCancelable(false)
-				.setPositiveButton("Yes",
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-								finish();
-							}
-						})
-				.setNegativeButton("No", null)
-				.show();
+		mBaseContentLayout = setBaseContentView(R.layout.connections_list_activity_layout);
+		mAddNewConnectionButton = mBaseContentLayout.findViewById(R.id.add_new_connection_button);
+		mAddNewConnectionButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(ConnectionsListActivity.this,
+						ConnectionActivity.class);
+				intent.putExtra(Config.Extras.EXTRA_CONNECTION_ACTIVITY_STATE,
+						ConnectionActivity.State.ADD_CONNECTION);
+				startActivity(intent);
+				finish();
+			}
+		});
+		mConnectionsList = (ListView) mBaseContentLayout.findViewById(R.id.connections_list);
 	}
-
-	@Override
-	public void finish() {
-		Log.d(TAG, "ConnectionsListActivity#finish(...) ENTER");
-		
-		GlobalApp.getSocketManager(null).closeSocket();
-		Logger.log(LogLevel.INFO, "Terminating the main socket");
-		super.finish();
-	}
-
+	
 	@Override
 	protected void onResume() {
-		Log.d(TAG, "ConnectionsListActivity#onResume(...) ENTER");
+		Log.d(TAG, TAG + "#onResume(...) ENTER");
 		super.onResume();
 
-		itemsToShow.clear();
 		itemsFromDB.clear();
+		itemsToShow.clear();
 
 		itemsFromDB = ConnectionsDB.getAllSavedConnections();
-		Intent intent = null;
+		
+		// If there are none connections, redirect to ConnectionActivity,
+		// to add the first connection
 		if (itemsFromDB.size() == 0) {
-			intent = new Intent(ConnectionsListActivity.this, NewConnectionActivity.class);
-			intent.putExtra(Config.Extras.EXTRA_TYPE, "type");
 			IS_FIRST = true;
-			intent.putExtra(Constants.MODE,
-					ConnectionActivityMode.AddConnection.getNumericType());
 			mHeaderBackButton.setVisibility(View.INVISIBLE);
-			finish();
+			Intent intent = new Intent(ConnectionsListActivity.this, ConnectionActivity.class);
+			intent.putExtra(Config.Extras.EXTRA_CONNECTION_ACTIVITY_STATE,
+					ConnectionActivity.State.ADD_CONNECTION);
 			startActivity(intent);
-			return;
+			finish();
 		} else {
 			for (HashMap<String, ArrayList<ConnectionPoint>> item : itemsFromDB) {
 				for (String key : item.keySet()) {
 					itemsToShow.add(new ViewItem(key, item.get(key)));
+					mConnectionsAdapter = new ConnectionsListAdapter(itemsToShow);
+					mConnectionsList.setAdapter(mConnectionsAdapter);
 				}
 			}
 		}
+	}
 
-		listView.setAdapter(new ConnectionsListAdapter(itemsToShow));
+	@Override
+	public void onBackPressed() {
+		Log.d(TAG, TAG + "#onBackPressed(...) ENTER");
+		
+		DialogLauncher.launchExitConnectionsListDialog(
+				ConnectionsListActivity.this,
+				new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if (which == DialogInterface.BUTTON_POSITIVE) {
+					finish();
+				}
+			}
+		});
+	}
+
+	@Override
+	public void finish() {
+		Log.d(TAG, TAG + "#finish(...) ENTER");
+		
+		GlobalApp.getSocketManager(null).closeSocket();
+		Log.i(TAG, TAG + "#finish(...) Terminating the main socket");
+		
+		super.finish();
 	}
 
 	@Override
 	protected void setHeader() {
-		Log.d(TAG, "ConnectionsListActivity#setHeader(...) ENTER");
+		
 	}
 
 	private class ViewItem {
@@ -311,7 +314,7 @@ public class ConnectionsListActivity extends HeaderActivtiy {
 		private void startConnectionActivityByMode(ArrayList<ConnectionPoint> cps, ConnectionActivityMode mode) {
 			Log.d(TAG, "ConnectionsListActivity.ConnectionsListAdapter#startConnectionActivityByMode(...) ENTER");
 
-			Intent intent = new Intent(ConnectionsListActivity.this, NewConnectionActivity.class);
+			Intent intent = new Intent(ConnectionsListActivity.this, ConnectionActivity.class);
 			intent.putParcelableArrayListExtra(Config.Extras.EXTRA_CONNECTIONS_POINTS, cps);
 			intent.putExtra(Constants.MODE, mode.getNumericType());
 			startActivity(intent);

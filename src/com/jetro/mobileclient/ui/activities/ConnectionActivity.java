@@ -24,7 +24,8 @@ import android.widget.TextView.OnEditorActionListener;
 
 import com.freerdp.freerdpcore.sharedobjects.ConnectionPoint;
 import com.jetro.mobileclient.R;
-import com.jetro.mobileclient.ui.HeaderActivtiy;
+import com.jetro.mobileclient.repository.ConnectionsDB;
+import com.jetro.mobileclient.ui.HeaderActivity;
 import com.jetro.mobileclient.utils.Config;
 import com.jetro.protocol.Core.Net.ClientChannel;
 
@@ -32,10 +33,9 @@ import com.jetro.protocol.Core.Net.ClientChannel;
  * @author ran.h
  *
  */
-public class NewConnectionActivity extends HeaderActivtiy {
+public class ConnectionActivity extends HeaderActivity {
 	
-	private static final String TAG = NewConnectionActivity.class
-			.getSimpleName();
+	private static final String TAG = ConnectionActivity.class.getSimpleName();
 	
 	private ArrayList<ConnectionPoint> mConnectionsPoints;
 	
@@ -52,7 +52,7 @@ public class NewConnectionActivity extends HeaderActivtiy {
 	private EditText mConnectionModeInput;
 	private String mSelectedConnectionMode;
 	private ImageView mLoginScreenImage;
-	private ImageView mConnectButton;
+	private TextView mConnectButton;
 	
 	private TextWatcher mInputTextWatcher = new TextWatcher() {
 		@Override
@@ -90,6 +90,7 @@ public class NewConnectionActivity extends HeaderActivtiy {
 	protected void onSaveInstanceState(Bundle outState) {
 		// Save the user's current game state
 		outState.putSerializable(Config.Extras.EXTRA_CONNECTION_ACTIVITY_STATE, mState);
+		outState.putParcelableArrayList(Config.Extras.EXTRA_CONNECTIONS_POINTS, mConnectionsPoints);
 		
 		// Always call the superclass so it can save the view hierarchy state
 	    super.onSaveInstanceState(outState);
@@ -100,17 +101,17 @@ public class NewConnectionActivity extends HeaderActivtiy {
 		Log.d(TAG, TAG + "#onCreate(...) ENTER");
 		super.onCreate(savedInstanceState);
 		
-		mConnectionsPoints = getIntent().getParcelableArrayListExtra(Config.Extras.EXTRA_CONNECTIONS_POINTS);
-		
 		// Check whether we're recreating a previously destroyed instance
 		if (savedInstanceState != null) {
 			// Restore value of members from saved state
 			mState = (State) savedInstanceState.getSerializable(Config.Extras.EXTRA_CONNECTION_ACTIVITY_STATE);
+			mConnectionsPoints = savedInstanceState.getParcelableArrayList(Config.Extras.EXTRA_CONNECTIONS_POINTS);
 		} else {
 			// Probably initialize members with default values for a new instance
 			Intent intent = getIntent();
 			Bundle extras = intent.getExtras();
 			mState = (State) extras.getSerializable(Config.Extras.EXTRA_CONNECTION_ACTIVITY_STATE);
+			mConnectionsPoints = getIntent().getParcelableArrayListExtra(Config.Extras.EXTRA_CONNECTIONS_POINTS);
 		}
 		
 		mBaseContentLayout = setBaseContentView(R.layout.new_connection_activit_layout);
@@ -131,7 +132,7 @@ public class NewConnectionActivity extends HeaderActivtiy {
 			}
 		});
 		mLoginScreenImage = (ImageView) mBaseContentLayout.findViewById(R.id.login_screen_image);
-		mConnectButton = (ImageView) mBaseContentLayout.findViewById(R.id.connect_button);
+		mConnectButton = (TextView) mBaseContentLayout.findViewById(R.id.connect_button);
 		mConnectButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -143,6 +144,12 @@ public class NewConnectionActivity extends HeaderActivtiy {
 		case ADD_CONNECTION:
 			// Sets the header title
 			setHeaderTitleText(R.string.header_title_AddConnection);
+			boolean hasConnections = ConnectionsDB.getAllSavedConnections().size() != 0;
+			if (hasConnections) {
+				mHeaderBackButton.setVisibility(View.VISIBLE);
+			} else {
+				mHeaderBackButton.setVisibility(View.INVISIBLE);
+			}
 			
 			mConnectionsModes = getResources().getStringArray(R.array.connection_mode_options);
 			mConnectionModeSpinner = (Spinner) mBaseContentLayout.findViewById(R.id.connection_mode_spinner);
@@ -164,6 +171,7 @@ public class NewConnectionActivity extends HeaderActivtiy {
 		case VIEW_CONNECTION:
 			// Sets the header title
 			setHeaderTitleText(R.string.header_title_ViewConnection);
+			mHeaderBackButton.setVisibility(View.VISIBLE);
 			
 			// Hides the required input fields indicators (stars)
 			mHostNameStar = (ImageView) mBaseContentLayout.findViewById(R.id.host_name_star);
@@ -248,7 +256,7 @@ public class NewConnectionActivity extends HeaderActivtiy {
 		
 //		clientChannel.Connect(hostIp, hostPort);
 		
-//		DisplayMetrics displayMetrics = DisplayUtils.getDisplayMetrics(NewConnectionActivity.this);
+//		DisplayMetrics displayMetrics = DisplayUtils.getDisplayMetrics(ConnectionActivity.this);
 //		
 //		// Sends CockpitSiteInfoMsg
 //		CockpitSiteInfoMsg msgCSI = new CockpitSiteInfoMsg(displayMetrics.widthPixels, displayMetrics.heightPixels);

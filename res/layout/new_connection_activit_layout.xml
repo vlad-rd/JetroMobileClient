@@ -42,7 +42,7 @@
                     android:gravity="center"
                     android:text="@string/host_name_lbl"
                     android:textColor="@color/black"
-                    android:textSize="@dimen/edittext_lalble" />
+                    android:textSize="@dimen/edittext_lbl" />
             </LinearLayout>
 
             <!-- Host Name - Edit Text -->
@@ -57,7 +57,7 @@
                 android:inputType="text"
                 android:singleLine="true"
                 android:textCursorDrawable="@null"
-                android:textSize="@dimen/edittext_lalble" />
+                android:textSize="@dimen/edittext_lbl" />
 
             <!-- Host IP - Label -->
 
@@ -80,9 +80,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:gravity="center"
-                    android:text="@string/host_lbl"
+                    android:text="@string/host_ip_lbl"
                     android:textColor="@color/black"
-                    android:textSize="@dimen/edittext_lalble" />
+                    android:textSize="@dimen/edittext_lbl" />
             </LinearLayout>
 
             <!-- Host IP - Edit Text -->
@@ -97,7 +97,7 @@
                 android:inputType="date"
                 android:singleLine="true"
                 android:textCursorDrawable="@null"
-                android:textSize="@dimen/edittext_lalble" />
+                android:textSize="@dimen/edittext_lbl" />
 
             <!-- Host Port - Label -->
 
@@ -120,9 +120,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:gravity="center"
-                    android:text="@string/port_lbl"
+                    android:text="@string/host_port_lbl"
                     android:textColor="@color/black"
-                    android:textSize="@dimen/edittext_lalble" />
+                    android:textSize="@dimen/edittext_lbl" />
             </LinearLayout>
 
             <!-- Host Port - Edit Text -->
@@ -138,7 +138,7 @@
                 android:inputType="number"
                 android:singleLine="true"
                 android:textCursorDrawable="@null"
-                android:textSize="@dimen/edittext_lalble" />
+                android:textSize="@dimen/edittext_lbl" />
 
             <!-- Connection Mode - ComboBox -->
 
@@ -180,7 +180,7 @@
                 android:layout_marginTop="5dp"
                 android:paddingLeft="14dp"
                 android:textColor="@color/black"
-                android:textSize="@dimen/edittext_lalble" />
+                android:textSize="@dimen/edittext_lbl" />
 
             <!-- Connection Mode - Edit Text -->
 
@@ -194,7 +194,7 @@
                 android:inputType="date"
                 android:singleLine="true"
                 android:textCursorDrawable="@null"
-                android:textSize="@dimen/edittext_lalble" />
+                android:textSize="@dimen/edittext_lbl" />
 
             <!-- Login Screen Image -->
 
@@ -216,6 +216,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:text="@string/connect_lbl"
-        android:textSize="@dimen/button_lable" />
+        android:textSize="@dimen/button_text_lbl" />
 
 </RelativeLayout>

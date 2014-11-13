@@ -7,7 +7,8 @@ import android.util.Log;
 
 import com.freerdp.freerdpcore.sharedobjects.utils.Constants;
 import com.jetro.mobileclient.R;
-import com.jetro.mobileclient.ui.activities.NewConnectionActivity;
+import com.jetro.mobileclient.ui.activities.ConnectionActivity;
+import com.jetro.mobileclient.ui.activities.ConnectionsListActivity;
 
 public class SplashActivity extends BaseActivity {
 	
@@ -27,7 +28,7 @@ public class SplashActivity extends BaseActivity {
 			public void run() {
 				Intent intent;
 				if (connectionsDB.isDBEmpty()) {
-					intent = new Intent(SplashActivity.this, NewConnectionActivity.class);
+					intent = new Intent(SplashActivity.this, ConnectionActivity.class);
 					intent.putExtra(Constants.MODE, ConnectionActivityMode.AddConnection);
 				} else {					
 					intent = new Intent(SplashActivity.this, ConnectionsListActivity.class);

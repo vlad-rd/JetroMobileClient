@@ -47,7 +47,7 @@
             android:windowSoftInputMode="adjustNothing|stateHidden" >
         </activity>
         <activity
-            android:name="com.jetro.mobileclient.ui.ConnectionsListActivity"
+            android:name="com.jetro.mobileclient.ui.activities.ConnectionsListActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustNothing|stateHidden" >
         </activity>

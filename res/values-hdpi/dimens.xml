@@ -10,10 +10,10 @@
     <!-- desktop activity -->
     <dimen name="grid_item_image">35dp</dimen>
     <!-- connection activity -->
-    <dimen name="edittext_lalble">20sp</dimen>
+    <dimen name="edittext_lbl">20sp</dimen>
     <!-- connection list activtiy -->
     <dimen name="connection_list_item_ip">14sp</dimen>
     <dimen name="add_new_aconnection_btn">22sp</dimen>
     <dimen name="connection_list_item_name">16sp</dimen>
-    <dimen name="button_lable">16sp</dimen>
+    <dimen name="button_text_lbl">16sp</dimen>
 </resources>

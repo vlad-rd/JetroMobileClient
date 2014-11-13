@@ -8,18 +8,18 @@
 
     <!-- lables -->
     <string name="host_name_lbl">Host Name</string>
-    <string name="host_lbl">Host</string>
-    <string name="port_lbl">Port</string>
+    <string name="host_ip_lbl">Host IP</string>
+    <string name="host_port_lbl">Host Port</string>
     <string name="connect_lbl">CONNECT</string>
-    <string name="reset_lbl">RESET</string>
-    <string name="login_lbl">LOGIN</string>
-    <string name="cancle_lbl">CANCEL</string>
-    <string name="old_passwd_lbl">Old password</string>
-    <string name="new_passwd_lbl">New password</string>
-    <string name="confirm_passwd_lbl">Confirm new pasword</string>
     <string name="user_name_lbl">User name</string>
-    <string name="passwd_lbl">Password</string>
+    <string name="password_lbl">Password</string>
     <string name="domain_lbl">Domain</string>
+    <string name="login_lbl">LOGIN</string>
+    <string name="cancel_lbl">CANCEL</string>
+    <string name="old_password_lbl">Old password</string>
+    <string name="new_password_lbl">New password</string>
+    <string name="confirm_new_password_lbl">Confirm new pasword</string>
+    <string name="reset_lbl">RESET</string>
     <string name="add_new_connection_lbl">ADD NEW CONNECTION</string>
     <string name="loading_text">Loading.... please wait.</string>
     
@@ -28,6 +28,20 @@
     <string name="host_ip_hint">Host IP here</string>
     <string name="host_port_hint">Host Port here</string>
     <string name="connection_mode_hint">Choose connection mode</string>
+    <string name="user_name_hint">Enter user name here</string>
+    <string name="password_hint">Enter password here</string>
+    <string name="domain_hint">Enter domain here</string>
+    <string name="old_password_hint">Enter old password here</string>
+    <string name="new_password_hint">Enter new password here</string>
+    <string name="confirm_new_password_hint">Enter again new password here</string>
+    
+    <!-- Dialogs -->
+    <string name="dialog_cancel_login_message">Are you sure you want to cancel login?</string>
+    <string name="dialog_cancel_login_positive_text">YES</string>
+    <string name="dialog_cancel_login_negative_text">NO</string>
+    <string name="dialog_exit_connections_list_message">Are you sure you want to exit?</string>
+    <string name="dialog_exit_connections_list_positive_text">YES</string>
+    <string name="dialog_exit_connections_list_negative_text">NO</string>
     
     <!-- Arrays -->
     <string-array name="connection_mode_options">

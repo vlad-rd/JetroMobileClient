@@ -21,7 +21,7 @@ import com.freerdp.freerdpcore.sharedobjects.utils.Constants;
 import com.jetro.mobileclient.R;
 import com.jetro.mobileclient.utils.Config;
 
-public class AboutPopupActivity extends HeaderActivtiy {
+public class AboutPopupActivity extends HeaderActivity {
 	
 	private String TAG = AboutPopupActivity.class.getSimpleName();
 	ImageView backBtn;

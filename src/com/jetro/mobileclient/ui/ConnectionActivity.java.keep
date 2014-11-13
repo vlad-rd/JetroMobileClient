@@ -3,11 +3,11 @@ package com.jetro.mobileclient.ui;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import JProtocol.Core.BaseMsg;
-import JProtocol.Core.Net.ClientChannel;
-import JProtocol.Protocols.Controller.CockpitSiteInfoMsg;
-import JProtocol.Protocols.Controller.LoginMsg;
-import JProtocol.Protocols.Controller.LoginScreenImageMsg;
+import com.jetro.protocol.Core.BaseMsg;
+import com.jetro.protocol.Core.Net.ClientChannel;
+import com.jetro.protocol.Protocols.Controller.CockpitSiteInfoMsg;
+import com.jetro.protocol.Protocols.Controller.LoginMsg;
+import com.jetro.protocol.Protocols.Controller.LoginScreenImageMsg;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -296,9 +296,6 @@ public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 	 */
 	private void setResetPasswdMode() {
 		Log.d(TAG, "setResetPasswdMode(...) ENTER");
-		
-		Logger.log(LogLevel.INFO,
-				"Zacky: ConnectionAvtivity::setResetPasswdModeResetPossible");
 
 		mActivityMode = ConnectionActivityMode.ResetPassword;
 
