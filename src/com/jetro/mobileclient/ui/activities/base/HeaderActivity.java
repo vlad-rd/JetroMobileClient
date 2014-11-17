@@ -58,7 +58,7 @@ public abstract class HeaderActivity extends Activity {
 		mHeaderMenuButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				showPopupOptions(v);
+				launchPopupOptions(v);
 			}
 		});
 		// Sets Content widgets
@@ -71,8 +71,8 @@ public abstract class HeaderActivity extends Activity {
 	/**
 	 * Shows the header action bar overflow action menu.
 	 */
-	public void showPopupOptions(View anchor) {
-		Log.d(TAG, TAG + "#showPopupOptions(...) ENTER");
+	public void launchPopupOptions(View anchor) {
+		Log.d(TAG, TAG + "#launchPopupOptions(...) ENTER");
 		
 		PopupMenu popup = new PopupMenu(HeaderActivity.this, anchor);
 		popup.getMenuInflater().inflate(R.menu.activity_header_menu, popup.getMenu());
@@ -83,7 +83,7 @@ public abstract class HeaderActivity extends Activity {
 				case R.id.header_menu_item_help: {
 					boolean isConnected = ConnectivityUtils.isNetworkConnected(HeaderActivity.this);
 					if (!isConnected) {
-						showNoInternetConnectionDialog();
+						launchNoInternetConnectionDialog();
 					} else {
 						String type = null;
 						if (item.getItemId() == R.id.header_menu_item_about) {
@@ -98,7 +98,7 @@ public abstract class HeaderActivity extends Activity {
 					return true;
 				}
 				case R.id.header_menu_item_exit:
-					showExitDialog();
+					launchExitDialog();
 					return true;
 				default:
 					return false;
@@ -108,7 +108,7 @@ public abstract class HeaderActivity extends Activity {
 		popup.show();
 	}
 	
-	private void showNoInternetConnectionDialog() {
+	private void launchNoInternetConnectionDialog() {
 		new AlertDialog.Builder(HeaderActivity.this)
 				.setCancelable(false)
 				.setMessage(R.string.dialog_no_internet_connection_message)
@@ -116,7 +116,7 @@ public abstract class HeaderActivity extends Activity {
 				.show();
 	}
 
-	public void showExitDialog() {
+	public void launchExitDialog() {
 		new AlertDialog.Builder(this)
 				.setCancelable(false)
 				.setMessage(R.string.dialog_exit_message)
