@@ -3,7 +3,7 @@
  */
 package com.jetro.mobileclient.ui.activities;
 
-import java.util.ArrayList;
+import java.util.Iterator;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -22,22 +22,29 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-import com.freerdp.freerdpcore.sharedobjects.ConnectionPoint;
 import com.jetro.mobileclient.R;
+import com.jetro.mobileclient.model.beans.Host;
 import com.jetro.mobileclient.repository.ConnectionsDB;
 import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
 import com.jetro.mobileclient.utils.Config;
+import com.jetro.protocol.Core.BaseMsg;
+import com.jetro.protocol.Core.ClassID;
+import com.jetro.protocol.Core.IMessageSubscriber;
 import com.jetro.protocol.Core.Net.ClientChannel;
+import com.jetro.protocol.Protocols.Controller.CockpitSiteInfoMsg;
+import com.jetro.protocol.Protocols.Controller.ConnectionPoint;
 
 /**
  * @author ran.h
  *
  */
-public class ConnectionActivity extends HeaderActivity {
+public class ConnectionActivity extends HeaderActivity implements IMessageSubscriber {
 	
 	private static final String TAG = ConnectionActivity.class.getSimpleName();
 	
-	private ArrayList<ConnectionPoint> mConnectionsPoints;
+	private ClientChannel mClientChannel;
+	
+	private Host mHost;
 	
 	private View mBaseContentLayout;
 	private ImageView mHostNameStar;
@@ -89,7 +96,7 @@ public class ConnectionActivity extends HeaderActivity {
 	protected void onSaveInstanceState(Bundle outState) {
 		// Save the user's current game state
 		outState.putSerializable(Config.Extras.EXTRA_CONNECTION_ACTIVITY_STATE, mState);
-		outState.putParcelableArrayList(Config.Extras.EXTRA_CONNECTIONS_POINTS, mConnectionsPoints);
+		outState.putSerializable(Config.Extras.EXTRA_HOST, mHost);
 		
 		// Always call the superclass so it can save the view hierarchy state
 	    super.onSaveInstanceState(outState);
@@ -104,13 +111,13 @@ public class ConnectionActivity extends HeaderActivity {
 		if (savedInstanceState != null) {
 			// Restore value of members from saved state
 			mState = (State) savedInstanceState.getSerializable(Config.Extras.EXTRA_CONNECTION_ACTIVITY_STATE);
-			mConnectionsPoints = savedInstanceState.getParcelableArrayList(Config.Extras.EXTRA_CONNECTIONS_POINTS);
+			mHost = (Host) savedInstanceState.getSerializable(Config.Extras.EXTRA_HOST);
 		} else {
 			// Probably initialize members with default values for a new instance
 			Intent intent = getIntent();
 			Bundle extras = intent.getExtras();
 			mState = (State) extras.getSerializable(Config.Extras.EXTRA_CONNECTION_ACTIVITY_STATE);
-			mConnectionsPoints = getIntent().getParcelableArrayListExtra(Config.Extras.EXTRA_CONNECTIONS_POINTS);
+			mHost = (Host) extras.getSerializable(Config.Extras.EXTRA_HOST);
 		}
 		
 		mBaseContentLayout = setBaseContentView(R.layout.new_connection_activit_layout);
@@ -144,8 +151,8 @@ public class ConnectionActivity extends HeaderActivity {
 		case ADD_CONNECTION:
 			// Sets the header title
 			setHeaderTitleText(R.string.header_title_AddConnection);
-			boolean hasConnections = ConnectionsDB.getInstance(this).getAllSavedConnections().size() != 0;
-			if (hasConnections) {
+			boolean hasHosts = ConnectionsDB.getInstance(this).hasHosts();
+			if (hasHosts) {
 				mHeaderBackButton.setVisibility(View.VISIBLE);
 			} else {
 				mHeaderBackButton.setVisibility(View.INVISIBLE);
@@ -191,11 +198,15 @@ public class ConnectionActivity extends HeaderActivity {
 			mConnectionModeInput.setEnabled(false);
 			
 			// Fills the input fields
-			ConnectionPoint lastConnectionPoint = mConnectionsPoints.get(0);
-			mHostNameInput.setText(lastConnectionPoint.getName());
-			mHostIpInput.setText(lastConnectionPoint.getIP());
-			mHostPortInput.setText(String.valueOf(lastConnectionPoint.getPort()));
-			mConnectionModeInput.setText(lastConnectionPoint.getConnectionMode());
+			mHostNameInput.setText(mHost.getHostName());
+			Iterator<ConnectionPoint> iterator = mHost.getConnectionPoints().iterator();
+			if (iterator.hasNext()) {
+				ConnectionPoint lastConnectionPoint = iterator.next();
+				mHostIpInput.setText(lastConnectionPoint.IP);
+				mHostPortInput.setText(String.valueOf(lastConnectionPoint.Port));
+				String connectionModeText = (lastConnectionPoint.SSL) ? mConnectionsModes[0] : mConnectionsModes[1];
+				mConnectionModeInput.setText(connectionModeText);
+			}
 			
 			break;
 		}
@@ -204,7 +215,6 @@ public class ConnectionActivity extends HeaderActivity {
 
 	@Override
 	protected void setHeader() {
-		
 	}
 	
 	/**
@@ -243,29 +253,44 @@ public class ConnectionActivity extends HeaderActivity {
 		
 		startLoadingScreen();
 		
-		String hostIp = mHostNameInput.getText().toString();
+		String hostIp = mHostIpInput.getText().toString();
 		int hostPort = Integer.valueOf(mHostPortInput.getText().toString());
 		
 		Log.i(TAG, "ConnectionActivity#openSocket(...) host: " + hostIp);
 		Log.i(TAG, "ConnectionActivity#openSocket(...) port: " + hostPort);
 		
-		ClientChannel clientChannel = ClientChannel.getInstance();
-		
-//		clientChannel.Connect(hostIp, hostPort);
-		
-//		DisplayMetrics displayMetrics = DisplayUtils.getDisplayMetrics(ConnectionActivity.this);
-//		
-//		// Sends CockpitSiteInfoMsg
-//		CockpitSiteInfoMsg msgCSI = new CockpitSiteInfoMsg(displayMetrics.widthPixels, displayMetrics.heightPixels);
-//		CockpitSiteInfoMsg respCSI = (CockpitSiteInfoMsg) clientChannel.SendReceive(msgCSI, ClientChannel.TIME_OUT);
-//		if(respCSI != null) 
-//			System.out.println(respCSI.toString());
-//		else
-//		{
-//			System.out.println("null received instead of CockpitSiteInfoMsg");
-//			clientChannel.Stop();
-//			return;
-//		}
+		boolean isCreated = ClientChannel.Create(hostIp, hostPort, ClientChannel.TIME_OUT);
+		if (isCreated) {
+			mClientChannel = ClientChannel.getInstance();
+			mClientChannel.AddListener(ConnectionActivity.this);
+			// Sends CockpitSiteInfoMsg
+			CockpitSiteInfoMsg msgCSI = new CockpitSiteInfoMsg();
+	    	mClientChannel.SendAsync(msgCSI);
+		}
+	}
+
+	@Override
+	public void ProcessMsg(BaseMsg msg) {
+		if(msg.msgCalssID == ClassID.CockpitSiteInfoMsg.ValueOf()) {
+			Log.i("CallBack", "received CockpitSiteInfoMsg");
+			
+			CockpitSiteInfoMsg cockpitSiteInfoMsg = (CockpitSiteInfoMsg) msg;
+			ConnectionPoint[] connectionPoints = cockpitSiteInfoMsg.getConnectionPoints();
+			// Creates a new host
+			String hostName = mHostNameInput.getText().toString();
+			Host host = new Host();
+			host.setHostName(hostName);
+			for (ConnectionPoint cp : connectionPoints) {
+				host.addConnectionPoint(cp);
+			}
+			// Save the new host
+			ConnectionsDB.getInstance(ConnectionActivity.this).saveHost(host);
+		}
+	}
+
+	@Override
+	public void ConnectionIsBroken() {
+		// Do nothing
 	}
 
 }

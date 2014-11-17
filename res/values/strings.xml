@@ -52,7 +52,6 @@
     <string-array name="connection_mode_options">
         <item>Direct</item>
         <item>SSL</item>
-        <item>TLS</item>
     </string-array>
     <string-array name="connection_types_options">
         <item>I\'m in the office</item>

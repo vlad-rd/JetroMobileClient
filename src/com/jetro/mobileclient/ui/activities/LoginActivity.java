@@ -27,12 +27,14 @@ import com.jetro.mobileclient.R;
 import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
 import com.jetro.mobileclient.ui.dialogs.DialogLauncher;
 import com.jetro.mobileclient.utils.Config;
+import com.jetro.protocol.Core.BaseMsg;
+import com.jetro.protocol.Core.IMessageSubscriber;
 
 /**
  * @author ran.h
  *
  */
-public class LoginActivity extends HeaderActivity {
+public class LoginActivity extends HeaderActivity implements IMessageSubscriber {
 	
 	private static final String TAG = LoginActivity.class.getSimpleName();
 	
@@ -215,6 +217,17 @@ public class LoginActivity extends HeaderActivity {
 		
 		// TODO: save user credenticals
 		saveUserCredentials(username, password, domain);
+	}
+
+	@Override
+	public void ProcessMsg(BaseMsg msg) {
+		
+	}
+
+	@Override
+	public void ConnectionIsBroken() {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

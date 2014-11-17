@@ -1,39 +1,36 @@
 package com.jetro.mobileclient.repository;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.text.TextUtils;
 import android.util.Log;
 
-import com.freerdp.freerdpcore.sharedobjects.ConnectionPoint;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import com.jetro.mobileclient.model.beans.Host;
 
 public class ConnectionsDB {
 	
 	private static final String TAG = ConnectionsDB.class.getSimpleName();
 
-	private final static String CONNECTIONS_DB = "con_db";
-	private final static String HOSTS_NAME_LIST = "host_names_list";
-	private static SharedPreferences connections;
-	public static ConnectionsDB instance;
+	private final static String HOSTS_DB = "hosts_db";
+	private final static String HOSTS_NAMES_LIST = "hosts_names_list";
+	
+	private SharedPreferences hosts;
+	private Gson gson;
+	
+	private static ConnectionsDB instance;
 
 	private ConnectionsDB(Context context) {
 		Log.d(TAG, TAG + "#ConnectionsDB(...) ENTER");
 		
-		connections = context.getSharedPreferences(CONNECTIONS_DB,
-				Context.MODE_PRIVATE);
+		hosts = context.getSharedPreferences(HOSTS_DB, Context.MODE_PRIVATE);
+		gson = new Gson();
 	}
 
 	public static ConnectionsDB getInstance(Context context) {
@@ -46,150 +43,77 @@ public class ConnectionsDB {
 		return instance;
 	}
 
-	public void saveNewConnection(String hostName, ConnectionPoint[] cps) {
-		Log.d(TAG, "ConnectionsDB#saveNewConnection(...) ENTER");
-
-		for (int i = 0; i < cps.length; i++) {
-			Log.i(TAG, "ConnectionsDB#saveNewConnection(...) connection point: " + cps[i].getIP() + ":" + cps[i].getPort());
-		}
-
-		Editor edit = connections.edit();
-
-		edit.putString(hostName,
-				convertConnectionPointToString(hostName, cps));
-		edit.commit();
-		addHostToHostsNamesList(hostName);
-	}
-
-	private void addHostToHostsNamesList(String hostName) {
-		Log.d(TAG, "ConnectionsDB#addHostToHostsNamesList(...) ENTER");
+	public void saveHost(Host host) {
+		Log.d(TAG, TAG + "#saveHost(...) ENTER");
+		Log.i(TAG, TAG + "#saveHost(...) host: " + host);
 		
-		Set<String> list = getHostsNamesList();
-		list.add(hostName);
-		Editor edit = connections.edit();
-		edit.putStringSet(HOSTS_NAME_LIST, list);
+		String hostName = host.getHostName();
+		
+		Editor edit = hosts.edit();
+		// Save the host as JSON
+		edit.putString(hostName, host.toString());
+		// Save the host name
+		Set<String> hostsNamesSet = getHostsNamesList();
+		hostsNamesSet.add(hostName);
+		edit.putStringSet(HOSTS_NAMES_LIST, hostsNamesSet);
 		edit.commit();
 	}
-
-	private Set<String> getHostsNamesList() {
-		Log.d(TAG, "ConnectionsDB#getHostsNamesList(...) ENTER");
+	
+	public Host getHost(String hostName) {
+		Log.d(TAG, TAG + "#getHost(...) ENTER");
 		
-		return connections.getStringSet(HOSTS_NAME_LIST, new HashSet<String>());
-	}
-
-	/**
-	 * convert the connection points to json structure and save it ad string
-	 * 
-	 * @param cp
-	 *            - the connection point object
-	 * @return - json structure strings representation
-	 */
-	public String convertConnectionPointToString(String hostName, ConnectionPoint[] cp) {
-		Log.d(TAG, "ConnectionsDB#convertConnectionPointToString(...) ENTER");
-
-		JsonObject toString = new JsonObject();
-		JsonArray array = new JsonArray();
-		for (int i = 0; i < cp.length; i++) {
-			JsonObject o = new JsonObject();
-			o.addProperty("WAN", cp[i].isWAN());
-			o.addProperty("IP", cp[i].getIP());
-			o.addProperty("Port", cp[i].getPort());
-			o.addProperty("Name", hostName);
-			o.addProperty("SSL", cp[i].isSSL());
-			o.addProperty("UserName", cp[i].getUserName());
-			o.addProperty("Domain", cp[i].getDomain());
-			o.addProperty("ConnectionMode", cp[i].getConnectionMode());
-
-			array.add(o);
+		String hostJson = hosts.getString(hostName, null);
+		try {
+			return gson.fromJson(hostJson, Host.class);
+		} catch (JsonSyntaxException e) {
+			Log.e(TAG, "ERROR: ", e);
 		}
-		toString.add(hostName, array);
-		
-		Log.i(TAG, "ConnectionsDB#convertConnectionPointToString(...) connection point json: " + toString);
-
-		return toString.toString();
+		return null;
 	}
-
-	public HashMap<String, ArrayList<ConnectionPoint>> getConnectionsPoints(String hostName) {
-		Log.d(TAG, "ConnectionsDB#getConnectionPoint(...) ENTER");
-
-		HashMap<String, ArrayList<ConnectionPoint>> map = null;
-		ArrayList<ConnectionPoint> cps = new ArrayList<ConnectionPoint>();
-
-		String cpsStr = connections.getString(hostName, null);
-
-		if (!TextUtils.isEmpty(cpsStr)) {
-			try {
-				JSONObject jsonObject = new JSONObject(cpsStr);
-				JSONArray jsonArray = jsonObject.getJSONArray(hostName);
-				for (int i = 0; i < jsonArray.length(); i++) {
-					Gson g = new Gson();
-					ConnectionPoint cp = g.fromJson(jsonArray.get(i).toString(), ConnectionPoint.class);
-					cps.add(cp);
-				}
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-			map = new HashMap<String, ArrayList<ConnectionPoint>>();
-			map.put(hostName, cps);
+	
+	public boolean hasHosts() {
+		Log.d(TAG, TAG + "#hasHosts(...) ENTER");
+		
+		return !getHostsNamesList().isEmpty();
+	}
+	
+	public List<Host> getAllHosts() {
+		Log.d(TAG, TAG + "#getAllHosts(...) ENTER");
+		
+		ArrayList<Host> hosts = new ArrayList<Host>();
+		
+		Set<String> hostsNamesSet = getHostsNamesList();
+		for (String hostName: hostsNamesSet) {
+			hosts.add( getHost(hostName) );
 		}
 		
-		return map;
+		return hosts;
 	}
 
-	public ArrayList<HashMap<String, ArrayList<ConnectionPoint>>> getAllSavedConnections() {
-		Log.d(TAG, "ConnectionsDB#getAllSavedConnections(...) ENTER");
+	public void deleteHost(String hostName) {
+		Log.d(TAG, TAG + "#deleteHost(...) ENTER");
 		
-		ArrayList<HashMap<String, ArrayList<ConnectionPoint>>> allPoints = new ArrayList<HashMap<String, ArrayList<ConnectionPoint>>>();
-		Set<String> names = getHostsNamesList();
-		for (String host : names) {
-			allPoints.add(getConnectionsPoints(host)); 
-		}
-		return allPoints;
-	}
-
-	public void saveCredentialsForExistingConnection(String hostName, String userName, String domain) {
-		Log.d(TAG, "ConnectionsDB#saveCredentialsForExistingConnection(...) ENTER");
-
-		HashMap<String, ArrayList<ConnectionPoint>> cps = getConnectionsPoints(hostName);
-		if (cps != null) {
-			for (int i = 0; i < cps.get(hostName).size(); i++) {
-				ConnectionPoint cp = cps.get(hostName).get(i);
-				cp.setUserName(userName);
-				cp.setDomain(domain);
-			}
-			saveNewConnection(hostName, toArray(cps.get(hostName)));
-		}
-	}
-
-	public void deleteConnectionPoint(String hostName) {
-		Log.d(TAG, "ConnectionsDB#deleteConnectionPoint(...) ENTER");
-		
-		Editor edit = connections.edit();
+		// Deletes host from hosts
+		Editor edit = hosts.edit();
 		edit.remove(hostName);
 		edit.commit();
-		
-		Set<String> hosts = connections.getStringSet(HOSTS_NAME_LIST, null);
-		if (hosts != null && hosts.size() > 0) {
-			hosts.remove(hostName);
-		}
-		edit.putStringSet(HOSTS_NAME_LIST, hosts);
+		// Deletes host name from hosts names
+		Set<String> hosts = getHostsNamesList();
+		hosts.remove(hostName);
+		edit.putStringSet(HOSTS_NAMES_LIST, hosts);
 		edit.commit();
-	}
-
-	private ConnectionPoint[] toArray(ArrayList<ConnectionPoint> cps) {
-		Log.d(TAG, "ConnectionsDB#toArray(...) ENTER");
-		
-		ConnectionPoint[] array = new ConnectionPoint[cps.size()];
-		for (int i = 0; i < array.length; i++) {
-			array[i] = cps.get(i);
-		}
-		return array;
 	}
 
 	public boolean isDBEmpty() {
 		Log.d(TAG, "ConnectionsDB#isDBEmpty(...) ENTER");
 		
-		return instance != null && connections != null
+		return instance != null && hosts != null
 				&& getHostsNamesList().size() == 0;		
+	}
+	
+	private Set<String> getHostsNamesList() {
+		Log.d(TAG, TAG + "#getHostsNamesList(...) ENTER");
+		
+		return hosts.getStringSet(HOSTS_NAMES_LIST, new HashSet<String>());
 	}
 }

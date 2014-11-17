@@ -1,8 +1,8 @@
 package com.jetro.mobileclient.ui.activities;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -22,12 +22,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.freerdp.freerdpcore.application.GlobalApp;
-import com.freerdp.freerdpcore.sharedobjects.ConnectionPoint;
 import com.jetro.mobileclient.R;
+import com.jetro.mobileclient.model.beans.Host;
 import com.jetro.mobileclient.repository.ConnectionsDB;
 import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
 import com.jetro.mobileclient.ui.dialogs.DialogLauncher;
 import com.jetro.mobileclient.utils.Config;
+import com.jetro.protocol.Protocols.Controller.ConnectionPoint;
 
 public class ConnectionsListActivity extends HeaderActivity {
 
@@ -35,8 +36,7 @@ public class ConnectionsListActivity extends HeaderActivity {
 	
 	private ConnectionsDB mConnectionsDB;
 	
-	private ArrayList<HashMap<String, ArrayList<ConnectionPoint>>> itemsFromDB = new ArrayList<HashMap<String, ArrayList<ConnectionPoint>>>();
-	private ArrayList<ViewItem> itemsToShow = new ArrayList<ViewItem>();
+	private List<Host> hosts = null;
 	
 	private View mBaseContentLayout;
 	private View mAddNewConnectionButton;
@@ -74,28 +74,20 @@ public class ConnectionsListActivity extends HeaderActivity {
 	protected void onResume() {
 		Log.d(TAG, TAG + "#onResume(...) ENTER");
 		super.onResume();
-
-		itemsFromDB.clear();
-		itemsToShow.clear();
-
-		itemsFromDB = mConnectionsDB.getAllSavedConnections();
 		
-		// If there are none connections, redirect to ConnectionActivity,
+		// If there are none hosts, redirect to ConnectionActivity,
 		// to add the first connection
-		if (itemsFromDB.size() == 0) {
+		boolean hasHosts = mConnectionsDB.hasHosts();
+		if (hasHosts) {
 			Intent intent = new Intent(ConnectionsListActivity.this, ConnectionActivity.class);
 			intent.putExtra(Config.Extras.EXTRA_CONNECTION_ACTIVITY_STATE,
 					ConnectionActivity.State.ADD_CONNECTION);
 			startActivity(intent);
 			finish();
 		} else {
-			for (HashMap<String, ArrayList<ConnectionPoint>> item : itemsFromDB) {
-				for (String key : item.keySet()) {
-					itemsToShow.add(new ViewItem(key, item.get(key)));
-					mConnectionsAdapter = new ConnectionsListAdapter(itemsToShow);
-					mConnectionsList.setAdapter(mConnectionsAdapter);
-				}
-			}
+			hosts = mConnectionsDB.getAllHosts();
+			mConnectionsAdapter = new ConnectionsListAdapter(hosts);
+			mConnectionsList.setAdapter(mConnectionsAdapter);
 		}
 	}
 
@@ -129,43 +121,28 @@ public class ConnectionsListActivity extends HeaderActivity {
 	protected void setHeader() {
 	}
 
-	private class ViewItem {
-
-		String name;
-		ArrayList<ConnectionPoint> cps;
-
-		public ViewItem(String name, ArrayList<ConnectionPoint> cps) {
-			this.name = name;
-			this.cps = cps;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public ArrayList<ConnectionPoint> getConnectionsPoints() {
-			return cps;
-		}
-	}
-
+	/**
+	 * @author ran.h
+	 *
+	 */
 	private class ConnectionsListAdapter extends BaseAdapter {
 
-		ArrayList<ViewItem> mItems;
-		LayoutInflater mInflater;
+		private List<Host> mHosts;
+		private LayoutInflater mInflater;
 
-		public ConnectionsListAdapter(ArrayList<ViewItem> items) {
-			mItems = items;
+		public ConnectionsListAdapter(List<Host> hosts) {
+			mHosts = hosts;
 			mInflater = getLayoutInflater();
 		}
 
 		@Override
 		public int getCount() {
-			return mItems.size();
+			return mHosts.size();
 		}
 
 		@Override
 		public Object getItem(int position) {
-			return mItems.get(position);
+			return mHosts.get(position);
 		}
 
 		@Override
@@ -176,20 +153,22 @@ public class ConnectionsListActivity extends HeaderActivity {
 		@Override
 		public View getView(final int position, View convertView, ViewGroup parent) {
 
-			final ArrayList<ConnectionPoint> cps = mItems.get(position).getConnectionsPoints();
+			final Host host = mHosts.get(position);
+			
+			String name = host.getHostName();
+			Set<ConnectionPoint> connectionPoints = host.getConnectionPoints();
 			
 			convertView = mInflater.inflate(R.layout.connection_list_item_layout, parent, false);
 			TextView hostName = (TextView) convertView.findViewById(R.id.host_name);
-			hostName.setText(mItems.get(position).getName());
+			hostName.setText(name);
 			TextView hostIp = (TextView) convertView.findViewById(R.id.host_ip);
-			hostIp.setText(Arrays.toString(cps.toArray()));
-			
+			hostIp.setText(Arrays.toString(connectionPoints.toArray()));
 
 			convertView.findViewById(R.id.itemBg).setOnClickListener(
 					new OnClickListener() {
 						@Override
 						public void onClick(View v) {
-							launchConnectionTypesDialog(cps);
+							launchConnectionTypesDialog(host);
 						}
 					});
 
@@ -197,7 +176,7 @@ public class ConnectionsListActivity extends HeaderActivity {
 					new OnLongClickListener() {
 						@Override
 						public boolean onLongClick(View v) {
-							launchConnectionActionsDialog(cps, position);
+							launchHostActionsDialog(host);
 							return true;
 						}
 					});
@@ -206,13 +185,13 @@ public class ConnectionsListActivity extends HeaderActivity {
 					new OnClickListener() {
 						@Override
 						public void onClick(View v) {
-							launchDeleteConnectionDialog(cps, position);
+							launchHostConnectionDialog(host, position);
 						}
 					});
 			return convertView;
 		}
 		
-		private void launchConnectionTypesDialog(final ArrayList<ConnectionPoint> cps) {
+		private void launchConnectionTypesDialog(final Host host) {
 			Log.d(TAG, TAG + "#launchConnectionTypesDialog(...) ENTER");
 
 			final String[] connectionsTypes = getResources().getStringArray(R.array.connection_types_options);
@@ -226,17 +205,15 @@ public class ConnectionsListActivity extends HeaderActivity {
 				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 					String item = ((TextView) view).getText().toString();
 					if (connectionsTypes[0].equals(item)) {
-						// Filters only LAN connections points
-						ArrayList<ConnectionPoint> lanCps = filterConnectionsPoints(cps, false);
 						Intent intent = new Intent(ConnectionsListActivity.this, LoginActivity.class);
-						intent.putParcelableArrayListExtra(Config.Extras.EXTRA_CONNECTIONS_POINTS, lanCps);
+						intent.putExtra(Config.Extras.EXTRA_IS_WAN, false);
+						intent.putExtra(Config.Extras.EXTRA_HOST, host);
 						startActivity(intent);
 						finish();
 					} else if (connectionsTypes[1].equals(item)) {
-						// Filters only WAN connections points
-						ArrayList<ConnectionPoint> wanCps = filterConnectionsPoints(cps, true);
 						Intent intent = new Intent(ConnectionsListActivity.this, LoginActivity.class);
-						intent.putParcelableArrayListExtra(Config.Extras.EXTRA_CONNECTIONS_POINTS, wanCps);
+						intent.putExtra(Config.Extras.EXTRA_IS_WAN, true);
+						intent.putExtra(Config.Extras.EXTRA_HOST, host);
 						startActivity(intent);
 						finish();
 					}
@@ -246,18 +223,8 @@ public class ConnectionsListActivity extends HeaderActivity {
 			connectionsTypesDialog.show();
 		}
 		
-		private ArrayList<ConnectionPoint> filterConnectionsPoints(ArrayList<ConnectionPoint> cps, boolean isWAN) {
-			ArrayList<ConnectionPoint> filteredCps = new ArrayList<ConnectionPoint>();
-			for (ConnectionPoint cp : cps) {
-				if (isWAN == cp.isWAN()) {
-					filteredCps.add(cp);
-				}
-			}
-			return filteredCps;
-		}
-		
-		private void launchConnectionActionsDialog(final ArrayList<ConnectionPoint> cps, final int position) {
-			Log.d(TAG, TAG + "#launchConnectionActionsDialog(...) ENTER");
+		private void launchHostActionsDialog(final Host host) {
+			Log.d(TAG, TAG + "#launchHostActionsDialog(...) ENTER");
 
 			final Dialog dialog = new Dialog(ConnectionsListActivity.this);
 			dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -272,17 +239,17 @@ public class ConnectionsListActivity extends HeaderActivity {
 
 					if (connectionActionsOptions[0].equals(connectionActionOption)) {
 						Intent intent = new Intent(ConnectionsListActivity.this, LoginActivity.class);
-						intent.putParcelableArrayListExtra(Config.Extras.EXTRA_CONNECTIONS_POINTS, cps);
+						intent.putExtra(Config.Extras.EXTRA_HOST, host);
 						startActivity(intent);
 						finish();
 					} else if (connectionActionsOptions[1].equals(connectionActionOption)) {
 						Intent intent = new Intent(ConnectionsListActivity.this, ConnectionActivity.class);
-						intent.putParcelableArrayListExtra(Config.Extras.EXTRA_CONNECTIONS_POINTS, cps);
 						intent.putExtra(Config.Extras.EXTRA_CONNECTION_ACTIVITY_STATE, ConnectionActivity.State.VIEW_CONNECTION);
+						intent.putExtra(Config.Extras.EXTRA_HOST, host);
 						startActivity(intent);
 						finish();
 					} else if (connectionActionsOptions[2].equals(connectionActionOption)) {
-						launchDeleteConnectionDialog(cps, position);
+						launchHostConnectionDialog(host, position);
 					}
 
 					dialog.dismiss();
@@ -291,17 +258,15 @@ public class ConnectionsListActivity extends HeaderActivity {
 			dialog.show();
 		}
 		
-		private void launchDeleteConnectionDialog(final ArrayList<ConnectionPoint> cps, final int position) {
+		private void launchHostConnectionDialog(final Host host, final int position) {
 			Log.d(TAG, TAG + "#launchDeleteConnectionDialog(...) ENTER");
 			
 			DialogLauncher.launchDeleteConnectionDialog(
 					ConnectionsListActivity.this,
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
-							for (ConnectionPoint cp : cps) {
-								mConnectionsDB.deleteConnectionPoint(cp.getName());
-							}
-							mItems.remove(position);
+							mConnectionsDB.deleteHost(host.getHostName());
+							mHosts.remove(position);
 							if (mConnectionsDB.isDBEmpty()) {
 								Intent intent = new Intent(ConnectionsListActivity.this, ConnectionActivity.class);
 								intent.putExtra(Config.Extras.EXTRA_CONNECTION_ACTIVITY_STATE, ConnectionActivity.State.ADD_CONNECTION);
