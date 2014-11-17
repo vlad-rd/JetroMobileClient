@@ -5,11 +5,10 @@
     android:orientation="vertical" >
 
     <ListView
-        android:background="@color/gray_border"
-        android:id="@+id/list_connection"
+        android:id="@+id/connection_actions_list"
         android:layout_width="match_parent"
-        android:entries="@array/connection_actions_options"
-        android:layout_height="wrap_content" >
-    </ListView>
+        android:layout_height="wrap_content"
+        android:background="@color/gray_border"
+        android:entries="@array/connection_actions_options" />
 
 </LinearLayout>

@@ -1,20 +1,22 @@
-package com.jetro.mobileclient.ui;
+package com.jetro.mobileclient.ui.activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 
-import com.freerdp.freerdpcore.sharedobjects.utils.Constants;
 import com.jetro.mobileclient.R;
-import com.jetro.mobileclient.ui.activities.ConnectionActivity;
-import com.jetro.mobileclient.ui.activities.ConnectionsListActivity;
+import com.jetro.mobileclient.repository.ConnectionsDB;
+import com.jetro.mobileclient.utils.Config;
 
-public class SplashActivity extends BaseActivity {
+public class SplashActivity extends Activity {
 	
 	private static final String TAG = SplashActivity.class.getSimpleName();
 	
 	private static final int SPLASH_SCREEN_TIMEOUT = 2000;
+
+	private ConnectionsDB mConnectionsDB;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -22,14 +24,18 @@ public class SplashActivity extends BaseActivity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.splash_activity_layout);
+		
+		mConnectionsDB = ConnectionsDB.getInstance(SplashActivity.this);
 
 		new Handler().postDelayed(new Runnable() {
 			@Override
 			public void run() {
 				Intent intent;
-				if (connectionsDB.isDBEmpty()) {
+				if (mConnectionsDB.isDBEmpty()) {
 					intent = new Intent(SplashActivity.this, ConnectionActivity.class);
-					intent.putExtra(Constants.MODE, ConnectionActivityMode.AddConnection);
+					intent.putExtra(
+							Config.Extras.EXTRA_CONNECTION_ACTIVITY_STATE,
+							ConnectionActivity.State.ADD_CONNECTION);
 				} else {					
 					intent = new Intent(SplashActivity.this, ConnectionsListActivity.class);
 				}

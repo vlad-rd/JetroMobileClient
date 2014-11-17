@@ -140,37 +140,6 @@
                 android:textCursorDrawable="@null"
                 android:textSize="@dimen/edittext_lbl" />
 
-            <!-- Connection Mode - ComboBox -->
-
-            <RelativeLayout
-                android:id="@+id/spinnerWrapper"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:animateLayoutChanges="true" >
-
-                <Spinner
-                    android:id="@+id/connection_mode_spinner"
-                    style="@style/MySpinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:background="@drawable/spinner_background"
-                    android:dropDownWidth="match_parent"
-                    android:entries="@array/connection_mode_options"
-                    android:hint="@string/connection_mode_hint"
-                    android:listSelector="@drawable/selector_back_button"
-                    android:popupBackground="#bbbbbb"
-                    android:spinnerMode="dropdown" />
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginRight="15dp"
-                    android:layout_marginTop="30dp"
-                    android:background="@drawable/down" />
-            </RelativeLayout>
-
             <!-- Connection Mode - Label -->
 
             <TextView
@@ -178,9 +147,42 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
+                android:gravity="center"
                 android:paddingLeft="14dp"
+                android:text="@string/connection_mode_lbl"
                 android:textColor="@color/black"
                 android:textSize="@dimen/edittext_lbl" />
+
+            <!-- Connection Mode - ComboBox -->
+
+            <RelativeLayout
+                android:id="@+id/spinnerWrapper"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:animateLayoutChanges="true" >
+
+                <Spinner
+                    android:id="@+id/connection_mode_spinner"
+                    style="@style/MySpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/spinner_background"
+                    android:dropDownWidth="match_parent"
+                    android:entries="@array/connection_mode_options"
+                    android:hint="@string/connection_mode_hint"
+                    android:listSelector="@drawable/selector_back_button"
+                    android:popupBackground="#bbbbbb"
+                    android:spinnerMode="dropdown"
+                    android:textSize="@dimen/edittext_lbl" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_margin="16dp"
+                    android:background="@drawable/down" />
+            </RelativeLayout>
 
             <!-- Connection Mode - Edit Text -->
 

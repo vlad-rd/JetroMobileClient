@@ -10,8 +10,8 @@
     <RelativeLayout
         android:id="@+id/add_new_connection_button"
         android:layout_width="match_parent"
-        android:layout_height="0dip"
-        android:layout_weight="20"
+        android:layout_height="50dp"
+        android:layout_marginBottom="10dp"
         android:background="@drawable/orange_button_selector" >
 
         <TextView
@@ -26,16 +26,11 @@
             android:textSize="@dimen/add_new_aconnection_btn" />
     </RelativeLayout>
 
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="0dip"
-        android:layout_weight="2" />
-
     <ListView
         android:id="@+id/connections_list"
         android:layout_width="match_parent"
         android:layout_height="0dip"
-        android:layout_weight="60"
+        android:layout_weight="1"
         android:background="@color/transparent"
         android:divider="@color/transparent"
         android:dividerHeight="1dp" />

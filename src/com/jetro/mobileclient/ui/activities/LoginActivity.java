@@ -24,7 +24,7 @@ import android.widget.TextView.OnEditorActionListener;
 
 import com.freerdp.freerdpcore.sharedobjects.ConnectionPoint;
 import com.jetro.mobileclient.R;
-import com.jetro.mobileclient.ui.HeaderActivity;
+import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
 import com.jetro.mobileclient.ui.dialogs.DialogLauncher;
 import com.jetro.mobileclient.utils.Config;
 
@@ -155,12 +155,12 @@ public class LoginActivity extends HeaderActivity {
 			areInputFieldsValid = false;
 		}
 
-		if (!TextUtils.isEmpty(mPasswordInput.getText())) {
+		if (TextUtils.isEmpty(mPasswordInput.getText())) {
 			mPasswordInput.setError(null);
 			areInputFieldsValid = false;
 		}
 
-		if (!TextUtils.isEmpty(mDomainInput.getText())) {
+		if (TextUtils.isEmpty(mDomainInput.getText())) {
 			mDomainInput.setError(null);
 			areInputFieldsValid = false;
 		}

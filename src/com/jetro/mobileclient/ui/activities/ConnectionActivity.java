@@ -25,7 +25,7 @@ import android.widget.TextView.OnEditorActionListener;
 import com.freerdp.freerdpcore.sharedobjects.ConnectionPoint;
 import com.jetro.mobileclient.R;
 import com.jetro.mobileclient.repository.ConnectionsDB;
-import com.jetro.mobileclient.ui.HeaderActivity;
+import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
 import com.jetro.mobileclient.utils.Config;
 import com.jetro.protocol.Core.Net.ClientChannel;
 
@@ -48,7 +48,6 @@ public class ConnectionActivity extends HeaderActivity {
 	private EditText mHostPortInput;
 	private String[] mConnectionsModes;
 	private Spinner mConnectionModeSpinner;
-	private TextView mConnectionModeLabel;
 	private EditText mConnectionModeInput;
 	private String mSelectedConnectionMode;
 	private ImageView mLoginScreenImage;
@@ -131,6 +130,7 @@ public class ConnectionActivity extends HeaderActivity {
 				return false;
 			}
 		});
+		mConnectionModeInput = (EditText) mBaseContentLayout.findViewById(R.id.connection_mode_input);
 		mLoginScreenImage = (ImageView) mBaseContentLayout.findViewById(R.id.login_screen_image);
 		mConnectButton = (TextView) mBaseContentLayout.findViewById(R.id.connect_button);
 		mConnectButton.setOnClickListener(new OnClickListener() {
@@ -144,7 +144,7 @@ public class ConnectionActivity extends HeaderActivity {
 		case ADD_CONNECTION:
 			// Sets the header title
 			setHeaderTitleText(R.string.header_title_AddConnection);
-			boolean hasConnections = ConnectionsDB.getAllSavedConnections().size() != 0;
+			boolean hasConnections = ConnectionsDB.getInstance(this).getAllSavedConnections().size() != 0;
 			if (hasConnections) {
 				mHeaderBackButton.setVisibility(View.VISIBLE);
 			} else {
@@ -163,6 +163,9 @@ public class ConnectionActivity extends HeaderActivity {
 						}
 					});
 			
+			// Hides view connection state specific widgets
+			mConnectionModeInput.setVisibility(View.GONE);
+			
 			// TODO: remove this after debug
 			mHostNameInput.setText("Test environment");
 			mHostIpInput.setText("212.199.106.213");
@@ -180,12 +183,6 @@ public class ConnectionActivity extends HeaderActivity {
 			mHostNameStar.setVisibility(View.INVISIBLE);
 			mHostIpStar.setVisibility(View.INVISIBLE);
 			mHostPortStar.setVisibility(View.INVISIBLE);
-			
-			// Shows view connection state specific widgets
-			mConnectionModeLabel = (TextView) mBaseContentLayout.findViewById(R.id.connection_mode_label);
-			mConnectionModeInput = (EditText) mBaseContentLayout.findViewById(R.id.connection_mode_input);
-			mConnectionModeLabel.setVisibility(View.VISIBLE);
-			mConnectionModeInput.setVisibility(View.VISIBLE);
 			
 			// Disables the input fields
 			mHostNameInput.setEnabled(false);
@@ -225,12 +222,12 @@ public class ConnectionActivity extends HeaderActivity {
 			areInputFieldsValid = false;
 		}
 
-		if (!TextUtils.isEmpty(mHostIpInput.getText())) {
+		if (TextUtils.isEmpty(mHostIpInput.getText())) {
 			mHostIpInput.setError(null);
 			areInputFieldsValid = false;
 		}
 
-		if (!TextUtils.isEmpty(mHostPortInput.getText())) {
+		if (TextUtils.isEmpty(mHostPortInput.getText())) {
 			mHostPortInput.setError(null);
 			areInputFieldsValid = false;
 		}

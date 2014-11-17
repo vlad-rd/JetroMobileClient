@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.freerdp.freerdpcore.sharedobjects.utils.Constants;
 import com.jetro.mobileclient.R;
+import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
 import com.jetro.mobileclient.utils.Config;
 
 public class AboutPopupActivity extends HeaderActivity {
@@ -84,7 +85,6 @@ public class AboutPopupActivity extends HeaderActivity {
 				button1.setBackgroundResource(R.drawable.more);
 
 				if (item.getTitle().equals("Exit")) {
-					showPopup();
 				}
 				if (item.getTitle().equals("About")) {
 

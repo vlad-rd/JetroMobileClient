@@ -20,7 +20,7 @@ import android.widget.TextView.OnEditorActionListener;
 
 import com.freerdp.freerdpcore.sharedobjects.ConnectionPoint;
 import com.jetro.mobileclient.R;
-import com.jetro.mobileclient.ui.HeaderActivity;
+import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
 import com.jetro.mobileclient.utils.Config;
 
 /**
@@ -127,12 +127,12 @@ public class ResetPasswordActivity extends HeaderActivity {
 			areInputFieldsValid = false;
 		}
 
-		if (!TextUtils.isEmpty(mNewPasswordInput.getText())) {
+		if (TextUtils.isEmpty(mNewPasswordInput.getText())) {
 			mNewPasswordInput.setError(null);
 			areInputFieldsValid = false;
 		}
 
-		if (!TextUtils.isEmpty(mConfirmPasswordInput.getText())) {
+		if (TextUtils.isEmpty(mConfirmPasswordInput.getText())) {
 			mConfirmPasswordInput.setError(null);
 			areInputFieldsValid = false;
 		}

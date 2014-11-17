@@ -1,5 +1,6 @@
 package com.jetro.mobileclient.ui;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -46,7 +47,7 @@ import com.jetro.mobileclient.R;
 import com.jetro.mobileclient.application.GlobalApp;
 import com.jetro.mobileclient.ui.activities.ConnectionsListActivity;
 
-public class DesktopActivity extends BaseActivity implements ISocketListener {
+public class DesktopActivity extends Activity implements ISocketListener {
 
 	private static final String TAG = DesktopActivity.class.getSimpleName();
 	

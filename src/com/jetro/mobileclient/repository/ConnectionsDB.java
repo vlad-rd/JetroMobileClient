@@ -30,14 +30,14 @@ public class ConnectionsDB {
 	public static ConnectionsDB instance;
 
 	private ConnectionsDB(Context context) {
-		Log.d(TAG, "ConnectionsDB#ConnectionsDB(...) ENTER");
+		Log.d(TAG, TAG + "#ConnectionsDB(...) ENTER");
 		
 		connections = context.getSharedPreferences(CONNECTIONS_DB,
 				Context.MODE_PRIVATE);
 	}
 
-	public static ConnectionsDB getConnectionsDB(Context context) {
-		Log.d(TAG, "ConnectionsDB#getConnectionsDB(...) ENTER");
+	public static ConnectionsDB getInstance(Context context) {
+		Log.d(TAG, TAG + "#getInstance(...) ENTER");
 		
 		if (instance == null) {
 			instance = new ConnectionsDB(context);
@@ -46,7 +46,7 @@ public class ConnectionsDB {
 		return instance;
 	}
 
-	public static void saveNewConnection(String hostName, ConnectionPoint[] cps) {
+	public void saveNewConnection(String hostName, ConnectionPoint[] cps) {
 		Log.d(TAG, "ConnectionsDB#saveNewConnection(...) ENTER");
 
 		for (int i = 0; i < cps.length; i++) {
@@ -61,7 +61,7 @@ public class ConnectionsDB {
 		addHostToHostsNamesList(hostName);
 	}
 
-	private static void addHostToHostsNamesList(String hostName) {
+	private void addHostToHostsNamesList(String hostName) {
 		Log.d(TAG, "ConnectionsDB#addHostToHostsNamesList(...) ENTER");
 		
 		Set<String> list = getHostsNamesList();
@@ -71,7 +71,7 @@ public class ConnectionsDB {
 		edit.commit();
 	}
 
-	private static Set<String> getHostsNamesList() {
+	private Set<String> getHostsNamesList() {
 		Log.d(TAG, "ConnectionsDB#getHostsNamesList(...) ENTER");
 		
 		return connections.getStringSet(HOSTS_NAME_LIST, new HashSet<String>());
@@ -84,7 +84,7 @@ public class ConnectionsDB {
 	 *            - the connection point object
 	 * @return - json structure strings representation
 	 */
-	public static String convertConnectionPointToString(String hostName, ConnectionPoint[] cp) {
+	public String convertConnectionPointToString(String hostName, ConnectionPoint[] cp) {
 		Log.d(TAG, "ConnectionsDB#convertConnectionPointToString(...) ENTER");
 
 		JsonObject toString = new JsonObject();
@@ -109,7 +109,7 @@ public class ConnectionsDB {
 		return toString.toString();
 	}
 
-	public static HashMap<String, ArrayList<ConnectionPoint>> getConnectionsPoints(String hostName) {
+	public HashMap<String, ArrayList<ConnectionPoint>> getConnectionsPoints(String hostName) {
 		Log.d(TAG, "ConnectionsDB#getConnectionPoint(...) ENTER");
 
 		HashMap<String, ArrayList<ConnectionPoint>> map = null;
@@ -136,7 +136,7 @@ public class ConnectionsDB {
 		return map;
 	}
 
-	public static ArrayList<HashMap<String, ArrayList<ConnectionPoint>>> getAllSavedConnections() {
+	public ArrayList<HashMap<String, ArrayList<ConnectionPoint>>> getAllSavedConnections() {
 		Log.d(TAG, "ConnectionsDB#getAllSavedConnections(...) ENTER");
 		
 		ArrayList<HashMap<String, ArrayList<ConnectionPoint>>> allPoints = new ArrayList<HashMap<String, ArrayList<ConnectionPoint>>>();
@@ -147,7 +147,7 @@ public class ConnectionsDB {
 		return allPoints;
 	}
 
-	public static void saveCredentialsForExistingConnection(String hostName, String userName, String domain) {
+	public void saveCredentialsForExistingConnection(String hostName, String userName, String domain) {
 		Log.d(TAG, "ConnectionsDB#saveCredentialsForExistingConnection(...) ENTER");
 
 		HashMap<String, ArrayList<ConnectionPoint>> cps = getConnectionsPoints(hostName);
@@ -161,7 +161,7 @@ public class ConnectionsDB {
 		}
 	}
 
-	public static void deleteConnectionPoint(String hostName) {
+	public void deleteConnectionPoint(String hostName) {
 		Log.d(TAG, "ConnectionsDB#deleteConnectionPoint(...) ENTER");
 		
 		Editor edit = connections.edit();
@@ -176,7 +176,7 @@ public class ConnectionsDB {
 		edit.commit();
 	}
 
-	private static ConnectionPoint[] toArray(ArrayList<ConnectionPoint> cps) {
+	private ConnectionPoint[] toArray(ArrayList<ConnectionPoint> cps) {
 		Log.d(TAG, "ConnectionsDB#toArray(...) ENTER");
 		
 		ConnectionPoint[] array = new ConnectionPoint[cps.size()];
@@ -186,11 +186,10 @@ public class ConnectionsDB {
 		return array;
 	}
 
-	public static boolean isDBEmpty() {
+	public boolean isDBEmpty() {
 		Log.d(TAG, "ConnectionsDB#isDBEmpty(...) ENTER");
 		
-		Log.i(TAG, "ConnectionsDB#isDBEmpty(...) is empty " + (getHostsNamesList().size() == 0));
-		
-		return getHostsNamesList().size() == 0;		
+		return instance != null && connections != null
+				&& getHostsNamesList().size() == 0;		
 	}
 }

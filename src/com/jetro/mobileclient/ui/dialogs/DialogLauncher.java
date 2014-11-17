@@ -21,8 +21,8 @@ public class DialogLauncher {
 	public static void launchCancelLoginDialog(Activity activity,
 			DialogInterface.OnClickListener buttonClickListener) {
 		new AlertDialog.Builder(activity)
-			.setMessage(R.string.dialog_cancel_login_message)
 			.setCancelable(false)
+			.setMessage(R.string.dialog_cancel_login_message)
 			.setPositiveButton(R.string.dialog_cancel_login_positive_text, buttonClickListener)
 			.setNegativeButton(R.string.dialog_cancel_login_positive_text, buttonClickListener)
 			.show();
@@ -31,11 +31,21 @@ public class DialogLauncher {
 	public static void launchExitConnectionsListDialog(Activity activity,
 			DialogInterface.OnClickListener buttonClickListener) {
 		new AlertDialog.Builder(activity)
-			.setMessage(R.string.dialog_exit_connections_list_message)
 			.setCancelable(false)
+			.setMessage(R.string.dialog_exit_connections_list_message)
 			.setPositiveButton(R.string.dialog_exit_connections_list_positive_text, buttonClickListener)
 			.setNegativeButton(R.string.dialog_exit_connections_list_negative_text, buttonClickListener)
 			.show();
+	}
+	
+	public static void launchDeleteConnectionDialog(Activity activity,
+			DialogInterface.OnClickListener buttonClickListener) {
+		new AlertDialog.Builder(activity)
+				.setCancelable(false)
+				.setMessage(R.string.dialog_delete_connection_message)
+				.setPositiveButton(R.string.dialog_delete_connection_positive_text, buttonClickListener)
+				.setNegativeButton(R.string.dialog_delete_connection_negative_text, buttonClickListener)
+				.show();
 	}
 
 }

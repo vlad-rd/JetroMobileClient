@@ -1,5 +1,6 @@
-package com.jetro.mobileclient.ui;
+package com.jetro.mobileclient.ui.activities.base;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,12 +18,13 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.jetro.mobileclient.R;
+import com.jetro.mobileclient.ui.AboutPopupActivity;
 import com.jetro.mobileclient.utils.Config;
 import com.jetro.mobileclient.utils.ConnectivityUtils;
 
-public abstract class HeaderActivity extends BaseActivity {
+public abstract class HeaderActivity extends Activity {
 
-	private final String TAG = getClass().getSimpleName();
+	private final String TAG = HeaderActivity.class.getSimpleName();
 	
 	protected ImageView mHeaderBackButton;
 	private TextView mHeaderTitle;
@@ -31,8 +33,6 @@ public abstract class HeaderActivity extends BaseActivity {
 	
 	private ViewGroup mProgressBarContainer;
 	private ImageView mProgressBarImage;
-	
-	
 	
 	private AnimationDrawable progressAnimation;
 	public static boolean IS_LAST_ACTIVITY = false;

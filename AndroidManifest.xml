@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jetro.mobileclient"
-    android:installLocation="auto"
     android:versionCode="3"
     android:versionName="n/a" >
 
@@ -21,87 +20,55 @@
         android:xlargeScreens="true" />
 
     <application
-        android:name="com.jetro.mobileclient.application.GlobalApp"
+        android:name=".application.GlobalApp"
         android:allowBackup="true"
         android:icon="@drawable/icon_jetro_launcher"
-        android:label="@string/app_title"
+        android:label="@string/app_name"
         android:theme="@style/MyTheme" >
+        
+        <!-- Activities -->
+        
         <activity
-            android:name="com.jetro.mobileclient.ui.SplashActivity"
+            android:name=".ui.activities.SplashActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustNothing|stateHidden" >
-            <intent-filter android:label="@string/app_title" >
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name="com.jetro.mobileclient.ui.ConnectionActivity"
+            android:name=".ui.activities.ConnectionActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustNothing|stateHidden" >
         </activity>
         <activity
-            android:name="com.jetro.mobileclient.ui.AboutPopupActivity"
+            android:name=".ui.activities.ConnectionsListActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustNothing|stateHidden" >
         </activity>
         <activity
-            android:name="com.jetro.mobileclient.ui.activities.ConnectionsListActivity"
+            android:name=".ui.SessionActivity"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="adjustNothing|stateHidden" >
+        </activity>
+        <activity
+            android:name=".ui.AboutPopupActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustNothing|stateHidden" >
         </activity>
+        <!-- 
         <activity
-            android:name="com.jetro.mobileclient.ui.DesktopActivity"
+            android:name=".ui.DesktopActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="adjustNothing|stateHidden" >
         </activity>
         <activity
-            android:name="com.jetro.mobileclient.ui.SessionActivity"
+            android:name=".ui.JetroSessionActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="adjustNothing|stateHidden" >
         </activity>
-        <activity
-            android:name="com.jetro.mobileclient.ui.JetroSessionActivity"
-            android:screenOrientation="landscape"
-            android:windowSoftInputMode="adjustNothing|stateHidden" >
-        </activity>
-
-        <!-- Main activity -->
-        <!-- <activity -->
-        <!-- android:name="com.freerdp.freerdpcore.presentation.HomeActivity" -->
-        <!-- android:alwaysRetainTaskState="true" -->
-        <!-- android:label="@string/app_title" -->
-        <!-- android:theme="@style/Theme.Main" > -->
-        <!-- <intent-filter android:label="@string/app_title" > -->
-        <!-- <action android:name="android.intent.action.MAIN" /> -->
-
-
-        <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-        <!-- </intent-filter> -->
-        <!-- <intent-filter> -->
-        <!-- <action android:name="android.intent.action.VIEW" /> -->
-        <!-- F -->
-        <!-- <category android:name="android.intent.category.DEFAULT" /> -->
-        <!-- <category android:name="android.intent.category.BROWSABLE" /> -->
-
-
-        <!-- <data -->
-        <!-- android:host="*" -->
-        <!-- android:pathPattern=".*\\.rdp" -->
-        <!-- android:scheme="http" /> -->
-        <!-- <data -->
-        <!-- android:host="*" -->
-        <!-- android:pathPattern=".*\\.rdp" -->
-        <!-- android:scheme="file" /> -->
-        <!-- <data android:mimeType="*/*" /> -->
-        <!-- </intent-filter> -->
-        <!-- </activity> -->
-
-
-        <!-- Session request handler activity - used for search and internally to start sessions -->
-        <!-- This should actually be defined in FreeRDPCore lib but Android manifest merging will -->
-        <!-- append the libs manifest to the apps manifest and therefore aliasing is not possible -->
         <activity
             android:name="com.freerdp.freerdpcore.services.SessionRequestHandlerActivity"
             android:excludeFromRecents="true"
@@ -123,19 +90,23 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
         </activity-alias>
-
+		-->
+		
         <provider
             android:name="com.freerdp.freerdpcore.services.FreeRDPSuggestionProvider"
             android:authorities="com.freerdp.afreerdp.services.freerdpsuggestionprovider" >
         </provider>
 
+        <!-- 
         <receiver
-            android:name="com.jetro.mobileclient.ui.NetworkChangeReceiver"
+            android:name=".ui.NetworkChangeReceiver"
             android:enabled="true" >
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
+         -->
+         
     </application>
 
 </manifest>
