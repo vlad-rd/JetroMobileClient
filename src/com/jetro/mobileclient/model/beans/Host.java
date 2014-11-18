@@ -7,8 +7,8 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.google.gson.Gson;
+import com.jetro.mobileclient.model.helpers.GsonHelper;
 import com.jetro.protocol.Protocols.Controller.ConnectionPoint;
 
 /**
@@ -17,6 +17,8 @@ import com.jetro.protocol.Protocols.Controller.ConnectionPoint;
  */
 public class Host implements Serializable {
 	
+	private static final long serialVersionUID = 1188781886078062688L;
+
 	private String hostName;
 	
 	private String userName;
@@ -25,9 +27,9 @@ public class Host implements Serializable {
 	
 	private String domain;
 	
-	private Set<ConnectionPoint> lanConnectionPoints = new HashSet<ConnectionPoint>();
+	private Set<ConnectionPoint> LANs = new HashSet<ConnectionPoint>();
 	
-	private Set<ConnectionPoint> wanConnectionPoints = new HashSet<ConnectionPoint>();
+	private Set<ConnectionPoint> WANs = new HashSet<ConnectionPoint>();
 
 	public Host() {
 		super();
@@ -65,70 +67,72 @@ public class Host implements Serializable {
 		this.domain = domain;
 	}
 
-	public Set<ConnectionPoint> getLanConnectionPoints() {
-		return lanConnectionPoints;
+	public Set<ConnectionPoint> getLANs() {
+		return LANs;
 	}
 
-	public void setLanConnectionPoints(Set<ConnectionPoint> lanConnectionPoints) {
-		this.lanConnectionPoints = lanConnectionPoints;
+	public void setLANs(Set<ConnectionPoint> lANs) {
+		LANs = lANs;
 	}
 
-	public Set<ConnectionPoint> getWanConnectionPoints() {
-		return wanConnectionPoints;
+	public Set<ConnectionPoint> getWANs() {
+		return WANs;
 	}
 
-	public void setWanConnectionPoints(Set<ConnectionPoint> wanConnectionPoints) {
-		this.wanConnectionPoints = wanConnectionPoints;
+	public void setWANs(Set<ConnectionPoint> wANs) {
+		WANs = wANs;
 	}
-	
+
 	public Set<ConnectionPoint> getConnectionPoints() {
 		final Set<ConnectionPoint> cps = new HashSet<ConnectionPoint>();
-		cps.addAll(getLanConnectionPoints());
-		cps.addAll(getWanConnectionPoints());
+		cps.addAll(getLANs());
+		cps.addAll(getWANs());
 		return cps;
 	}
 	
 	public boolean addConnectionPoint(ConnectionPoint connectionPoint) {
 		boolean isWan = connectionPoint.WAN;
 		if (isWan) {
-			return wanConnectionPoints.add(connectionPoint);
+			return WANs.add(connectionPoint);
 		} else {
-			return lanConnectionPoints.add(connectionPoint);
+			return LANs.add(connectionPoint);
 		}
 	}
 	
 	public boolean removeConnectionPoint(ConnectionPoint connectionPoint) {
 		boolean isWan = connectionPoint.WAN;
 		if (isWan) {
-			return wanConnectionPoints.remove(connectionPoint);
+			return WANs.remove(connectionPoint);
 		} else {
-			return lanConnectionPoints.remove(connectionPoint);
+			return LANs.remove(connectionPoint);
 		}
 	}
 
 	@Override
 	public String toString() {
-		JsonObject hostJsonObject = new JsonObject();
-		hostJsonObject.addProperty("Name", hostName);
-		hostJsonObject.addProperty("UserName", userName);
-		hostJsonObject.addProperty("Password", password);
-		hostJsonObject.addProperty("Domain", domain);
-		hostJsonObject.addProperty("LANs", getConnectionPoints(lanConnectionPoints));
-		hostJsonObject.addProperty("WANs", getConnectionPoints(wanConnectionPoints));
-		return hostJsonObject.toString();
+		Gson gson = GsonHelper.getInstance().getGson();
+		return gson.toJson(this);
+//		JsonObject hostJsonObject = new JsonObject();
+//		hostJsonObject.addProperty("hostName", hostName);
+//		hostJsonObject.addProperty("userName", userName);
+//		hostJsonObject.addProperty("password", password);
+//		hostJsonObject.addProperty("domain", domain);
+//		hostJsonObject.addProperty("LANs", getConnectionPoints(LANs));
+//		hostJsonObject.addProperty("WANs", getConnectionPoints(WANs));
+//		return hostJsonObject.toString();
 	}
 	
-	private String getConnectionPoints(Set<ConnectionPoint> connectionPoints) {
-		JsonArray connectionsJsonArray = new JsonArray();
-		for (ConnectionPoint cp : connectionPoints) {
-			JsonObject cpJsonObject = new JsonObject();
-			cpJsonObject.addProperty("IP", cp.IP);
-			cpJsonObject.addProperty("Port", cp.Port);
-			cpJsonObject.addProperty("WAN", cp.WAN);
-			cpJsonObject.addProperty("SSL", cp.SSL);
-			connectionsJsonArray.add(cpJsonObject);
-		}
-		return connectionsJsonArray.toString();
-	}
+//	private String getConnectionPoints(Set<ConnectionPoint> connectionPoints) {
+//		JsonArray connectionsJsonArray = new JsonArray();
+//		for (ConnectionPoint cp : connectionPoints) {
+//			JsonObject cpJsonObject = new JsonObject();
+//			cpJsonObject.addProperty("IP", cp.IP);
+//			cpJsonObject.addProperty("Port", cp.Port);
+//			cpJsonObject.addProperty("WAN", cp.WAN);
+//			cpJsonObject.addProperty("SSL", cp.SSL);
+//			connectionsJsonArray.add(cpJsonObject);
+//		}
+//		return connectionsJsonArray.toString();
+//	}
 	
 }

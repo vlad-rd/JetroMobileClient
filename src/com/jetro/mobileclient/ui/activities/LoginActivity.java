@@ -3,12 +3,8 @@
  */
 package com.jetro.mobileclient.ui.activities;
 
-import java.util.ArrayList;
-
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -22,8 +18,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-import com.freerdp.freerdpcore.sharedobjects.ConnectionPoint;
 import com.jetro.mobileclient.R;
+import com.jetro.mobileclient.model.beans.Host;
+import com.jetro.mobileclient.repository.ConnectionsDB;
 import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
 import com.jetro.mobileclient.ui.dialogs.DialogLauncher;
 import com.jetro.mobileclient.utils.Config;
@@ -38,7 +35,8 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 	
 	private static final String TAG = LoginActivity.class.getSimpleName();
 	
-	private ArrayList<ConnectionPoint> mConnectionsPoints;
+	private Host mHost;
+	private boolean mIsWAN;
 	
 	private View mBaseContentLayout;
 	private EditText mUsernameInput;
@@ -67,7 +65,7 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		// Save the user's current game state
-		outState.putParcelableArrayList(Config.Extras.EXTRA_CONNECTIONS_POINTS, mConnectionsPoints);
+		outState.putSerializable(Config.Extras.EXTRA_HOST, mHost);
 		
 		// Always call the superclass so it can save the view hierarchy state
 		super.onSaveInstanceState(outState);
@@ -81,11 +79,13 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		// Check whether we're recreating a previously destroyed instance
 		if (savedInstanceState != null) {
 			// Restore value of members from saved state
-			mConnectionsPoints = savedInstanceState.getParcelableArrayList(Config.Extras.EXTRA_CONNECTIONS_POINTS);
+			mHost = (Host) savedInstanceState.getSerializable(Config.Extras.EXTRA_HOST);
+			mIsWAN = savedInstanceState.getBoolean(Config.Extras.EXTRA_IS_WAN);
 		} else {
 			// Probably initialize members with default values for a new instance
 			Intent intent = getIntent();
-			mConnectionsPoints = intent.getParcelableArrayListExtra(Config.Extras.EXTRA_CONNECTIONS_POINTS);
+			mHost = (Host) intent.getSerializableExtra(Config.Extras.EXTRA_HOST);
+			mIsWAN = intent.getBooleanExtra(Config.Extras.EXTRA_IS_WAN, true);
 		}
 		
 		setHeaderTitleText(R.string.header_title_Login);
@@ -134,7 +134,12 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 			}
 		});
 		
-		loadUserCredentials();
+		// Gets the user credentials from the host
+		if (mHost != null) {
+			mUsernameInput.setText(mHost.getUserName());
+			mPasswordInput.setText(mHost.getPassword());
+			mDomainInput.setText(mHost.getDomain());
+		}
 	}
 
 	@Override
@@ -170,41 +175,6 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		return areInputFieldsValid;
 	}
 	
-	/**
-	 * Saves the user credentials to the preferences
-	 * from the user login from.
-	 * 
-	 * @param username
-	 * @param password
-	 * @param domain
-	 */
-	private void saveUserCredentials(String username, String password, String domain) {
-		Log.d(TAG, TAG + "#saveUserCredentials(...) ENTER");
-		
-		SharedPreferences userCredentialsPrefs = getSharedPreferences(Config.Prefs.PREFS_USER_CREDENTIALS, MODE_PRIVATE);
-		Editor editor = userCredentialsPrefs.edit();
-		editor.putString(Config.Prefs.PREF_KEY_USER_NAME, username);
-		editor.putString(Config.Prefs.PREF_KEY_PASSWORD, password);
-		editor.putString(Config.Prefs.PREF_KEY_DOMAIN, domain);
-		editor.commit();
-	}
-	
-	/**
-	 * Loads the user credentials from the preferences
-	 * to the user login form.
-	 */
-	private void loadUserCredentials() {
-		Log.d(TAG, TAG + "#loadUserCredentials(...) ENTER");
-		
-		SharedPreferences userCredentialsPrefs = getSharedPreferences(Config.Prefs.PREFS_USER_CREDENTIALS, MODE_PRIVATE);
-		String username = userCredentialsPrefs.getString(Config.Prefs.PREF_KEY_USER_NAME, "");
-		String password = userCredentialsPrefs.getString(Config.Prefs.PREF_KEY_PASSWORD, "");
-		String domain = userCredentialsPrefs.getString(Config.Prefs.PREF_KEY_DOMAIN, "");
-		mUsernameInput.setText(username);
-		mPasswordInput.setText(password);
-		mDomainInput.setText(domain);
-	}
-	
 	private void makeLogin() {
 		Log.d(TAG, TAG + "#makeLogin(...) ENTER");
 		
@@ -215,8 +185,11 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		String password = mPasswordInput.getText().toString();
 		String domain = mDomainInput.getText().toString();
 		
-		// TODO: save user credenticals
-		saveUserCredentials(username, password, domain);
+		// Saves user credentials to host
+		mHost.setUserName(username);
+		mHost.setPassword(password);
+		mHost.setDomain(domain);
+		ConnectionsDB.getInstance(getApplicationContext()).saveHost(mHost);
 	}
 
 	@Override

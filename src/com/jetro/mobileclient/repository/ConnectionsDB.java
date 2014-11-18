@@ -13,6 +13,7 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.jetro.mobileclient.model.beans.Host;
+import com.jetro.mobileclient.model.helpers.GsonHelper;
 
 public class ConnectionsDB {
 	
@@ -22,7 +23,6 @@ public class ConnectionsDB {
 	private final static String HOSTS_NAMES_LIST = "hosts_names_list";
 	
 	private SharedPreferences hosts;
-	private Gson gson;
 	
 	private static ConnectionsDB instance;
 
@@ -30,7 +30,6 @@ public class ConnectionsDB {
 		Log.d(TAG, TAG + "#ConnectionsDB(...) ENTER");
 		
 		hosts = context.getSharedPreferences(HOSTS_DB, Context.MODE_PRIVATE);
-		gson = new Gson();
 	}
 
 	public static ConnectionsDB getInstance(Context context) {
@@ -64,6 +63,7 @@ public class ConnectionsDB {
 		
 		String hostJson = hosts.getString(hostName, null);
 		try {
+			Gson gson = GsonHelper.getInstance().getGson();
 			return gson.fromJson(hostJson, Host.class);
 		} catch (JsonSyntaxException e) {
 			Log.e(TAG, "ERROR: ", e);
@@ -84,7 +84,8 @@ public class ConnectionsDB {
 		
 		Set<String> hostsNamesSet = getHostsNamesList();
 		for (String hostName: hostsNamesSet) {
-			hosts.add( getHost(hostName) );
+			Host host = getHost(hostName);
+			hosts.add(host);
 		}
 		
 		return hosts;

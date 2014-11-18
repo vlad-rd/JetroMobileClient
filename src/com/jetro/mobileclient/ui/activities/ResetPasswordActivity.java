@@ -3,9 +3,6 @@
  */
 package com.jetro.mobileclient.ui.activities;
 
-import java.util.ArrayList;
-
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -18,8 +15,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-import com.freerdp.freerdpcore.sharedobjects.ConnectionPoint;
 import com.jetro.mobileclient.R;
+import com.jetro.mobileclient.model.beans.Host;
 import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
 import com.jetro.mobileclient.utils.Config;
 
@@ -32,7 +29,7 @@ public class ResetPasswordActivity extends HeaderActivity {
 	private static final String TAG = ResetPasswordActivity.class
 			.getSimpleName();
 	
-	private ArrayList<ConnectionPoint> mConnectionsPoints;
+	private Host mHost;
 	
 	private View mBaseContentLayout;
 	private EditText mOldPasswordInput;
@@ -62,7 +59,7 @@ public class ResetPasswordActivity extends HeaderActivity {
 		Log.d(TAG, TAG + "#onSaveInstanceState(...) ENTER");
 		
 		// Save the user's current game state
-		outState.putParcelableArrayList(Config.Extras.EXTRA_CONNECTIONS_POINTS, mConnectionsPoints);
+		outState.putSerializable(Config.Extras.EXTRA_HOST, mHost);
 		
 		// Always call the superclass so it can save the view hierarchy state
 		super.onSaveInstanceState(outState);
@@ -76,10 +73,10 @@ public class ResetPasswordActivity extends HeaderActivity {
 		// Check whether we're recreating a previously destroyed instance
 		if (savedInstanceState != null) {
 			// Restore value of members from saved state
-			mConnectionsPoints = savedInstanceState.getParcelableArrayList(Config.Extras.EXTRA_CONNECTIONS_POINTS);
+			mHost = (Host) savedInstanceState.getSerializable(Config.Extras.EXTRA_HOST);
 		} else {
 			// Probably initialize members with default values for a new instance
-			mConnectionsPoints = getIntent().getParcelableArrayListExtra(Config.Extras.EXTRA_CONNECTIONS_POINTS);
+			mHost = (Host) getIntent().getSerializableExtra(Config.Extras.EXTRA_HOST);
 		}
 		
 		setHeaderTitleText(R.string.header_title_ResetPassword);
@@ -103,7 +100,10 @@ public class ResetPasswordActivity extends HeaderActivity {
 			}
 		});
 		
-		loadOldPassword();
+		// Loads old password from host
+		if (mHost != null) {
+			mOldPasswordInput.setText(mHost.getPassword());
+		}
 	}
 	
 	@Override
@@ -140,26 +140,16 @@ public class ResetPasswordActivity extends HeaderActivity {
 		return areInputFieldsValid;
 	}
 	
-	/**
-	 * Loads the user old password from the preferences
-	 * to the user reset password form.
-	 */
-	private void loadOldPassword() {
-		Log.d(TAG, TAG + "#loadUserCredentials(...) ENTER");
-		
-		SharedPreferences userCredentialsPrefs = getSharedPreferences(Config.Prefs.PREFS_USER_CREDENTIALS, MODE_PRIVATE);
-		String password = userCredentialsPrefs.getString(Config.Prefs.PREF_KEY_PASSWORD, "");
-		mOldPasswordInput.setText(password);
-	}
-	
 	private void resetPassword() {
 		Log.d(TAG, TAG + "#resetPassword(...) ENTER");
 		
 		String oldPassword = mOldPasswordInput.getText().toString().trim();
 		String newPassword = mNewPasswordInput.getText().toString().trim();
 		
-		String userName = mConnectionsPoints.get(0).getUserName();
-		String domain = mConnectionsPoints.get(0).getDomain();
+		String userName = mHost.getUserName();
+		String domain = mHost.getDomain();
+		
+		// TODO: save the new password to host
 	}
 
 }

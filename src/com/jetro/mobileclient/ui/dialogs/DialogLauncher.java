@@ -24,7 +24,7 @@ public class DialogLauncher {
 			.setCancelable(false)
 			.setMessage(R.string.dialog_cancel_login_message)
 			.setPositiveButton(R.string.dialog_cancel_login_positive_text, buttonClickListener)
-			.setNegativeButton(R.string.dialog_cancel_login_positive_text, buttonClickListener)
+			.setNegativeButton(R.string.dialog_cancel_login_negative_text, buttonClickListener)
 			.show();
 	}
 	

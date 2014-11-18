@@ -18,13 +18,13 @@ public class Config {
 		
 		private static final String PREF_KEY_PREFIX = APP_PACKAGE + ".PREF_KEY_";
 		
-		public static final String PREFS_USER_CREDENTIALS = APP_PACKAGE + ".PREFS_USER_CREDENTIALS";
+//		public static final String PREFS_USER_CREDENTIALS = APP_PACKAGE + ".PREFS_USER_CREDENTIALS";
 		
-		public static final String PREF_KEY_USER_NAME = PREF_KEY_PREFIX + "USER_NAME";
+//		public static final String PREF_KEY_USER_NAME = PREF_KEY_PREFIX + "USER_NAME";
 		
-		public static final String PREF_KEY_PASSWORD = PREF_KEY_PREFIX + "PASSWORD";
+//		public static final String PREF_KEY_PASSWORD = PREF_KEY_PREFIX + "PASSWORD";
 		
-		public static final String PREF_KEY_DOMAIN = PREF_KEY_PREFIX + "DOMAIN";
+//		public static final String PREF_KEY_DOMAIN = PREF_KEY_PREFIX + "DOMAIN";
 		
 	}
 	
@@ -35,9 +35,6 @@ public class Config {
 		public static final String EXTRA_HOST = APP_PACKAGE + ".EXTRA_HOST";
 		
 		public static final String EXTRA_IS_WAN = APP_PACKAGE + ".EXTRA_CONNECTION_MODE";
-		
-		// TODO: check if you need this.
-		public static final String EXTRA_CONNECTIONS_POINTS = APP_PACKAGE + ".EXTRA_CONNECTIONS_POINTS";
 		
 		public static final String EXTRA_TYPE = APP_PACKAGE + ".type";
 		

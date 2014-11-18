@@ -25,7 +25,7 @@ public class SplashActivity extends Activity {
 
 		setContentView(R.layout.splash_activity_layout);
 		
-		mConnectionsDB = ConnectionsDB.getInstance(SplashActivity.this);
+		mConnectionsDB = ConnectionsDB.getInstance(getApplicationContext());
 
 		new Handler().postDelayed(new Runnable() {
 			@Override

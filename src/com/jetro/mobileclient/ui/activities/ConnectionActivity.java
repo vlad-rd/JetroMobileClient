@@ -151,7 +151,7 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 		case ADD_CONNECTION:
 			// Sets the header title
 			setHeaderTitleText(R.string.header_title_AddConnection);
-			boolean hasHosts = ConnectionsDB.getInstance(this).hasHosts();
+			boolean hasHosts = ConnectionsDB.getInstance(getApplicationContext()).hasHosts();
 			if (hasHosts) {
 				mHeaderBackButton.setVisibility(View.VISIBLE);
 			} else {
@@ -284,7 +284,7 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 				host.addConnectionPoint(cp);
 			}
 			// Save the new host
-			ConnectionsDB.getInstance(ConnectionActivity.this).saveHost(host);
+			ConnectionsDB.getInstance(getApplicationContext()).saveHost(host);
 		}
 	}
 

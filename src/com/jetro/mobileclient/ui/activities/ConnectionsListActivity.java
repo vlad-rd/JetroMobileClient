@@ -36,7 +36,7 @@ public class ConnectionsListActivity extends HeaderActivity {
 	
 	private ConnectionsDB mConnectionsDB;
 	
-	private List<Host> hosts = null;
+	private List<Host> mHosts = null;
 	
 	private View mBaseContentLayout;
 	private View mAddNewConnectionButton;
@@ -49,7 +49,7 @@ public class ConnectionsListActivity extends HeaderActivity {
 		Log.d(TAG, TAG + "#onCreate(...) ENTER");
 		super.onCreate(savedInstanceState);
 		
-		mConnectionsDB = ConnectionsDB.getInstance(ConnectionsListActivity.this);
+		mConnectionsDB = ConnectionsDB.getInstance(getApplicationContext());
 
 		setHeaderTitleText(R.string.header_title_Connections);
 		mHeaderBackButton.setVisibility(View.INVISIBLE);
@@ -75,19 +75,20 @@ public class ConnectionsListActivity extends HeaderActivity {
 		Log.d(TAG, TAG + "#onResume(...) ENTER");
 		super.onResume();
 		
-		// If there are none hosts, redirect to ConnectionActivity,
-		// to add the first connection
+		// If there are mHosts, list them
 		boolean hasHosts = mConnectionsDB.hasHosts();
 		if (hasHosts) {
+			mHosts = mConnectionsDB.getAllHosts();
+			mConnectionsAdapter = new ConnectionsListAdapter(mHosts);
+			mConnectionsList.setAdapter(mConnectionsAdapter);
+		// If there are none mHosts, redirect to ConnectionActivity,
+		// to add the first connection
+		} else {
 			Intent intent = new Intent(ConnectionsListActivity.this, ConnectionActivity.class);
 			intent.putExtra(Config.Extras.EXTRA_CONNECTION_ACTIVITY_STATE,
 					ConnectionActivity.State.ADD_CONNECTION);
 			startActivity(intent);
 			finish();
-		} else {
-			hosts = mConnectionsDB.getAllHosts();
-			mConnectionsAdapter = new ConnectionsListAdapter(hosts);
-			mConnectionsList.setAdapter(mConnectionsAdapter);
 		}
 	}
 
