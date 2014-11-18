@@ -20,7 +20,7 @@ public class SplashActivity extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		Log.d(TAG, "onCreate(...) ENTER");
+		Log.d(TAG, TAG + "#onCreate(...) ENTER");
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.splash_activity_layout);

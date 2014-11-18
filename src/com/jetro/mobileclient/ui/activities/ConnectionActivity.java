@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -54,6 +55,7 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 	private ImageView mHostPortStar;
 	private EditText mHostPortInput;
 	private String[] mConnectionsModes;
+	private ViewGroup mConnectionModeSpinnerWrapper;
 	private Spinner mConnectionModeSpinner;
 	private EditText mConnectionModeInput;
 	private String mSelectedConnectionMode;
@@ -120,6 +122,8 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 			mHost = (Host) extras.getSerializable(Config.Extras.EXTRA_HOST);
 		}
 		
+		mConnectionsModes = getResources().getStringArray(R.array.connection_mode_options);
+		
 		mBaseContentLayout = setBaseContentView(R.layout.new_connection_activit_layout);
 		mHostNameInput = (EditText) mBaseContentLayout.findViewById(R.id.host_name_input);
 		mHostNameInput.addTextChangedListener(mInputTextWatcher);
@@ -137,6 +141,7 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 				return false;
 			}
 		});
+		
 		mConnectionModeInput = (EditText) mBaseContentLayout.findViewById(R.id.connection_mode_input);
 		mLoginScreenImage = (ImageView) mBaseContentLayout.findViewById(R.id.login_screen_image);
 		mConnectButton = (TextView) mBaseContentLayout.findViewById(R.id.connect_button);
@@ -158,7 +163,6 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 				mHeaderBackButton.setVisibility(View.INVISIBLE);
 			}
 			
-			mConnectionsModes = getResources().getStringArray(R.array.connection_mode_options);
 			mConnectionModeSpinner = (Spinner) mBaseContentLayout.findViewById(R.id.connection_mode_spinner);
 			mConnectionModeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 						@Override
@@ -190,6 +194,9 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 			mHostNameStar.setVisibility(View.INVISIBLE);
 			mHostIpStar.setVisibility(View.INVISIBLE);
 			mHostPortStar.setVisibility(View.INVISIBLE);
+			// Hides the connection mode spinner
+			mConnectionModeSpinnerWrapper = (ViewGroup) mBaseContentLayout.findViewById(R.id.connection_mode_spinner_wrapper);
+			mConnectionModeSpinnerWrapper.setVisibility(View.GONE);
 			
 			// Disables the input fields
 			mHostNameInput.setEnabled(false);
@@ -204,7 +211,7 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 				ConnectionPoint lastConnectionPoint = iterator.next();
 				mHostIpInput.setText(lastConnectionPoint.IP);
 				mHostPortInput.setText(String.valueOf(lastConnectionPoint.Port));
-				String connectionModeText = (lastConnectionPoint.SSL) ? mConnectionsModes[0] : mConnectionsModes[1];
+				String connectionModeText = (lastConnectionPoint.SSL) ? mConnectionsModes[1] : mConnectionsModes[0];
 				mConnectionModeInput.setText(connectionModeText);
 			}
 			

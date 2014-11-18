@@ -36,7 +36,7 @@ public class ConnectionsListActivity extends HeaderActivity {
 	
 	private ConnectionsDB mConnectionsDB;
 	
-	private List<Host> mHosts = null;
+	private List<Host> mHosts;
 	
 	private View mBaseContentLayout;
 	private View mAddNewConnectionButton;
@@ -177,7 +177,7 @@ public class ConnectionsListActivity extends HeaderActivity {
 					new OnLongClickListener() {
 						@Override
 						public boolean onLongClick(View v) {
-							launchHostActionsDialog(host);
+							launchConnectionActionsDialog(host);
 							return true;
 						}
 					});
@@ -186,7 +186,7 @@ public class ConnectionsListActivity extends HeaderActivity {
 					new OnClickListener() {
 						@Override
 						public void onClick(View v) {
-							launchHostConnectionDialog(host, position);
+							launchDeleteConnectionDialog(host, position);
 						}
 					});
 			return convertView;
@@ -205,18 +205,18 @@ public class ConnectionsListActivity extends HeaderActivity {
 				@Override
 				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 					String item = ((TextView) view).getText().toString();
+					// Connection type LAN
 					if (connectionsTypes[0].equals(item)) {
 						Intent intent = new Intent(ConnectionsListActivity.this, LoginActivity.class);
 						intent.putExtra(Config.Extras.EXTRA_IS_WAN, false);
 						intent.putExtra(Config.Extras.EXTRA_HOST, host);
 						startActivity(intent);
-						finish();
+					// Connection type WAN
 					} else if (connectionsTypes[1].equals(item)) {
 						Intent intent = new Intent(ConnectionsListActivity.this, LoginActivity.class);
 						intent.putExtra(Config.Extras.EXTRA_IS_WAN, true);
 						intent.putExtra(Config.Extras.EXTRA_HOST, host);
 						startActivity(intent);
-						finish();
 					}
 					connectionsTypesDialog.dismiss();
 				}
@@ -224,8 +224,8 @@ public class ConnectionsListActivity extends HeaderActivity {
 			connectionsTypesDialog.show();
 		}
 		
-		private void launchHostActionsDialog(final Host host) {
-			Log.d(TAG, TAG + "#launchHostActionsDialog(...) ENTER");
+		private void launchConnectionActionsDialog(final Host host) {
+			Log.d(TAG, TAG + "#launchConnectionActionsDialog(...) ENTER");
 
 			final Dialog dialog = new Dialog(ConnectionsListActivity.this);
 			dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -234,49 +234,49 @@ public class ConnectionsListActivity extends HeaderActivity {
 			connectionActionsList.setOnItemClickListener(new OnItemClickListener() {
 				@Override
 				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
 					String[] connectionActionsOptions = getResources().getStringArray(R.array.connection_actions_options);
 					String connectionActionOption = ((TextView) view).getText().toString();
 
+					// Connection option connect
 					if (connectionActionsOptions[0].equals(connectionActionOption)) {
 						Intent intent = new Intent(ConnectionsListActivity.this, LoginActivity.class);
 						intent.putExtra(Config.Extras.EXTRA_HOST, host);
 						startActivity(intent);
-						finish();
+					// Connection option details
 					} else if (connectionActionsOptions[1].equals(connectionActionOption)) {
 						Intent intent = new Intent(ConnectionsListActivity.this, ConnectionActivity.class);
 						intent.putExtra(Config.Extras.EXTRA_CONNECTION_ACTIVITY_STATE, ConnectionActivity.State.VIEW_CONNECTION);
 						intent.putExtra(Config.Extras.EXTRA_HOST, host);
 						startActivity(intent);
-						finish();
+					// Connection option delete
 					} else if (connectionActionsOptions[2].equals(connectionActionOption)) {
-						launchHostConnectionDialog(host, position);
+						launchDeleteConnectionDialog(host, position);
 					}
-
 					dialog.dismiss();
 				}
 			});
 			dialog.show();
 		}
 		
-		private void launchHostConnectionDialog(final Host host, final int position) {
+		private void launchDeleteConnectionDialog(final Host host, final int position) {
 			Log.d(TAG, TAG + "#launchDeleteConnectionDialog(...) ENTER");
 			
 			DialogLauncher.launchDeleteConnectionDialog(
 					ConnectionsListActivity.this,
 					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int id) {
-							mConnectionsDB.deleteHost(host.getHostName());
-							mHosts.remove(position);
-							if (mConnectionsDB.isDBEmpty()) {
-								Intent intent = new Intent(ConnectionsListActivity.this, ConnectionActivity.class);
-								intent.putExtra(Config.Extras.EXTRA_CONNECTION_ACTIVITY_STATE, ConnectionActivity.State.ADD_CONNECTION);
-								startActivity(intent);
-								finish();
-							} else {
-								notifyDataSetChanged();
+						public void onClick(DialogInterface dialog, int which) {
+							if (which == DialogInterface.BUTTON_POSITIVE) {
+								mConnectionsDB.deleteHost(host.getHostName());
+								mHosts.remove(position);
+								if (mConnectionsDB.isDBEmpty()) {
+									Intent intent = new Intent(ConnectionsListActivity.this, ConnectionActivity.class);
+									intent.putExtra(Config.Extras.EXTRA_CONNECTION_ACTIVITY_STATE, ConnectionActivity.State.ADD_CONNECTION);
+									startActivity(intent);
+									finish();
+								} else {
+									notifyDataSetChanged();
+								}
 							}
-							dialog.dismiss();
 						}
 					});
 		}

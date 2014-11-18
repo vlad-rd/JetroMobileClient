@@ -156,7 +156,7 @@
             <!-- Connection Mode - ComboBox -->
 
             <RelativeLayout
-                android:id="@+id/spinnerWrapper"
+                android:id="@+id/connection_mode_spinner_wrapper"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:animateLayoutChanges="true" >
