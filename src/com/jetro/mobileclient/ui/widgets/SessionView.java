@@ -7,7 +7,7 @@
    If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
-package com.jetro.mobileclient.ui;
+package com.jetro.mobileclient.ui.widgets;
 
 import android.util.AttributeSet;
 import android.util.Log;
@@ -24,6 +24,7 @@ import java.util.*;
 import com.freerdp.freerdpcore.application.SessionState;
 import com.freerdp.freerdpcore.utils.DoubleGestureDetector;
 import com.freerdp.freerdpcore.utils.GestureDetector;
+import com.jetro.mobileclient.ui.activities.SessionActivity;
 
 
 public class SessionView extends View

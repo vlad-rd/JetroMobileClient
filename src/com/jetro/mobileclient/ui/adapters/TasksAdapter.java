@@ -15,19 +15,19 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.freerdp.freerdpcore.sharedobjects.Task;
 import com.jetro.mobileclient.R;
+import com.jetro.protocol.Protocols.TsSession.Window;
 
 /**
  * @author ran.h
  *
  */
-public class TasksAdapter extends ArrayAdapter<Task> {
+public class TasksAdapter extends ArrayAdapter<Window> {
 	
 	private LayoutInflater mInflater;
 	private int mLayoutResourceId;
 
-	public TasksAdapter(Context context, int resource, List<Task> tasks) {
+	public TasksAdapter(Context context, int resource, List<Window> tasks) {
 		super(context, resource, tasks);
 		
 		mInflater = LayoutInflater.from(context);
@@ -48,11 +48,11 @@ public class TasksAdapter extends ArrayAdapter<Task> {
 			holder = (ViewHolder) convertView.getTag();
 		}
 		
-		Task task = getItem(position);
-		byte[] iconBytes = task.getIcon();
+		Window task = getItem(position);
+		byte[] iconBytes = task.Icon;
 		Bitmap bitmap = BitmapFactory.decodeByteArray(iconBytes , 0, iconBytes.length);
 		holder.icon.setImageBitmap(bitmap);
-		holder.title.setText(task.getTitle());
+		holder.title.setText(task.Title);
 		
 		return convertView;
 	}

@@ -47,6 +47,8 @@
     <string name="dialog_exit_connections_list_message">Are you sure you want to exit?</string>
     <string name="dialog_exit_connections_list_positive_text">YES</string>
     <string name="dialog_exit_connections_list_negative_text">NO</string>
+    <string name="dialog_network_connection_issue_message">Please check your network connection?</string>
+    <string name="dialog_network_connection_issue_positive_text">OK</string>
     
     <!-- Arrays -->
     <string-array name="connection_mode_options">

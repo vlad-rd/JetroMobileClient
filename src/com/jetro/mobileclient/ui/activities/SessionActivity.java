@@ -7,7 +7,7 @@
    If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
-package com.jetro.mobileclient.ui;
+package com.jetro.mobileclient.ui.activities;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -29,7 +29,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -72,39 +71,41 @@ import com.freerdp.freerdpcore.domain.ManualBookmark;
 import com.freerdp.freerdpcore.presentation.ScrollView2D;
 import com.freerdp.freerdpcore.presentation.TouchPointerView;
 import com.freerdp.freerdpcore.services.LibFreeRDP;
-import com.freerdp.freerdpcore.sharedobjects.Application;
-import com.freerdp.freerdpcore.sharedobjects.ISocketListener;
-import com.freerdp.freerdpcore.sharedobjects.SocketManager;
-import com.freerdp.freerdpcore.sharedobjects.Task;
-import com.freerdp.freerdpcore.sharedobjects.controller_messages.GetTsMsg;
-import com.freerdp.freerdpcore.sharedobjects.controller_messages.GetTsMsg.GetTsMsgResponse;
-import com.freerdp.freerdpcore.sharedobjects.controller_messages.LogoutMsg.LogoutMsgResponse;
-import com.freerdp.freerdpcore.sharedobjects.controller_messages.MyApplicationsMsg;
-import com.freerdp.freerdpcore.sharedobjects.controller_messages.MyApplicationsMsg.MyAppsResponse;
-import com.freerdp.freerdpcore.sharedobjects.controller_messages.SessionReadyMsg.SessionReadyMsgResponse;
-import com.freerdp.freerdpcore.sharedobjects.controller_messages.ShowKeyBoardMsg.ShowKeyBoardMsgResponse;
-import com.freerdp.freerdpcore.sharedobjects.controller_messages.ShowTaskListMsg.ShowTaskListMsgResponse;
-import com.freerdp.freerdpcore.sharedobjects.controller_messages.ShowWindowMsg;
-import com.freerdp.freerdpcore.sharedobjects.controller_messages.ShowWindowMsg.ShowWindowMsgResponse;
-import com.freerdp.freerdpcore.sharedobjects.controller_messages.StartApplicationMsg;
-import com.freerdp.freerdpcore.sharedobjects.controller_messages.StartApplicationMsg.StartApplicationMsgResponse;
-import com.freerdp.freerdpcore.sharedobjects.controller_messages.WindowCreatedMsg.WindowCreatedMsgResponse;
-import com.freerdp.freerdpcore.sharedobjects.protocol.BaseMsg;
-import com.freerdp.freerdpcore.sharedobjects.protocol.BaseResponse;
-import com.freerdp.freerdpcore.sharedobjects.protocol.MessagesValues;
 import com.freerdp.freerdpcore.utils.ClipboardManagerProxy;
 import com.freerdp.freerdpcore.utils.KeyboardMapper;
 import com.freerdp.freerdpcore.utils.Mouse;
 import com.jetro.mobileclient.R;
+import com.jetro.mobileclient.model.beans.Host;
 import com.jetro.mobileclient.ui.adapters.TasksAdapter;
+import com.jetro.mobileclient.ui.widgets.SessionView;
+import com.jetro.mobileclient.utils.Config;
+import com.jetro.protocol.Core.BaseMsg;
+import com.jetro.protocol.Core.ClassID;
+import com.jetro.protocol.Core.IMessageSubscriber;
+import com.jetro.protocol.Core.Net.ClientChannel;
+import com.jetro.protocol.Protocols.Controller.Application;
+import com.jetro.protocol.Protocols.Controller.GetTsMsg;
+import com.jetro.protocol.Protocols.Controller.LogoutMsg;
+import com.jetro.protocol.Protocols.Controller.MyApplicationsMsg;
+import com.jetro.protocol.Protocols.Generic.ErrorMsg;
+import com.jetro.protocol.Protocols.TsSession.SessionReadyMsg;
+import com.jetro.protocol.Protocols.TsSession.ShowKeyBoardMsg;
+import com.jetro.protocol.Protocols.TsSession.ShowTaskListMsg;
+import com.jetro.protocol.Protocols.TsSession.ShowWindowMsg;
+import com.jetro.protocol.Protocols.TsSession.StartApplicationMsg;
+import com.jetro.protocol.Protocols.TsSession.Window;
+import com.jetro.protocol.Protocols.TsSession.WindowCreatedMsg;
 
 
 public class SessionActivity extends Activity
 	implements LibFreeRDP.UIEventListener, KeyboardView.OnKeyboardActionListener, ScrollView2D.ScrollView2DListener, 
 			   KeyboardMapper.KeyProcessingListener, SessionView.SessionViewListener, TouchPointerView.TouchPointerListener,
 			   ClipboardManagerProxy.OnClipboardChangedListener,
-			   ISocketListener
-{	
+			   IMessageSubscriber
+{
+	
+	private static final String TAG = SessionActivity.class.getSimpleName();
+	
 	private class UIHandler extends Handler {
 		
 		public static final int REFRESH_SESSIONVIEW = 1;
@@ -355,11 +356,11 @@ public class SessionActivity extends Activity
 			convertView = inflater.inflate(R.layout.grid_item_layout, null);
 
 			((TextView) convertView.findViewById(R.id.applicationName))
-					.setText(apps[position].getName());
+					.setText(apps[position].Name);
 
 			proccessApplicationIcon(
 					((ImageView) convertView.findViewById(R.id.applicationIcon)),
-					apps[position].getIcon());
+					apps[position].Icon);
 
 			return convertView;
 		}
@@ -431,8 +432,6 @@ public class SessionActivity extends Activity
 
 	private LibFreeRDPBroadcastReceiver libFreeRDPBroadcastReceiver;
 
-	private static final String TAG = "FreeRDP.SessionActivity";
-
 	private ScrollView2D scrollView;
 
 	// keyboard visibility flags
@@ -447,7 +446,8 @@ public class SessionActivity extends Activity
 	private ClipboardManagerProxy mClipboardManager;
 	
 	// desktop member variables
-	private SocketManager socketManager;
+	private ClientChannel mClientChannel;
+	private Host mHost;
 	private ApplicationsGridAdapter appsAdapter;
 	private GridView appsGrid;
 	private ImageView dissconnectSessionButton;
@@ -460,18 +460,36 @@ public class SessionActivity extends Activity
 	private ListView tasks;
 	
 	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		Log.d(TAG, TAG + "#onSaveInstanceState(...) ENTER");
+		
+		// Save the user's current game state
+		outState.putSerializable(Config.Extras.EXTRA_HOST, mHost);
+		
+		// Always call the superclass so it can save the view hierarchy state
+		super.onSaveInstanceState(outState);
+	}
+
+	@Override
 	public void onCreate(Bundle savedInstanceState)
-	{				
+	{
+		Log.d(TAG, TAG + "#onCreate(...) ENTER");
 		super.onCreate(savedInstanceState);
+		
+		// Check whether we're recreating a previously destroyed instance
+		if (savedInstanceState != null) {
+			// Restore value of members from saved state
+			mHost = (Host) savedInstanceState.getSerializable(Config.Extras.EXTRA_HOST);
+		} else {
+			// Probably initialize members with default values for a new instance
+			Intent intent = getIntent();
+			mHost = (Host) intent.getSerializableExtra(Config.Extras.EXTRA_HOST);
+		}
 
 		// show status bar or make fullscreen?
 		if(GlobalSettings.getHideStatusBar())
 			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		this.setContentView(R.layout.new_desktop_activity_layout);
-		
-		socketManager = GlobalApp.getSocketManager(this);
-		
-		Log.v(TAG, "Session.onCreate");
 		
 		// ATTENTION: We use the onGlobalLayout notification to start our session.
 		// This is because only then we can know the exact size of our session when using fit screen
@@ -575,18 +593,16 @@ public class SessionActivity extends Activity
 				}
 			}
 		});
-		tasksAdapter = new TasksAdapter(SessionActivity.this, R.layout.list_item_task, new ArrayList<Task>());
+		tasksAdapter = new TasksAdapter(SessionActivity.this, R.layout.list_item_task, new ArrayList<Window>());
 		tasks = (ListView) findViewById(R.id.list_tasks);
 		tasks.setAdapter(tasksAdapter);
 		tasks.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				Task task = tasksAdapter.getItem(position);
-				sendShowWindowMsg(task.getPID(), task.getHWND());
+				Window task = tasksAdapter.getItem(position);
+				sendShowWindowMsg(task.PID, task.HWND);
 			}
 		});
-        
-        sendMyApplicationsMsg(GlobalApp.getSessionTicket());
 	}
 
 	@Override
@@ -603,14 +619,26 @@ public class SessionActivity extends Activity
 
 	@Override
 	protected void onResume() {
-		super.onResume();
 		Log.v(TAG, "Session.onResume");
+		super.onResume();
+		
+		mClientChannel = ClientChannel.getInstance();
+		if (mClientChannel != null) {
+			mClientChannel.AddListener(SessionActivity.this);
+		}
+		
+		sendMyApplicationsMsg(GlobalApp.getSessionTicket());
 	}
 
 	@Override
 	protected void onPause() {
-		super.onPause();
 		Log.v(TAG, "Session.onPause");
+		super.onPause();
+		
+		mClientChannel = ClientChannel.getInstance();
+		if (mClientChannel != null) {
+			mClientChannel.RemoveListener(SessionActivity.this);
+		}
 
 		// hide any visible keyboards
 		showKeyboard(false, false);
@@ -626,8 +654,6 @@ public class SessionActivity extends Activity
 	protected void onDestroy() {
 		super.onDestroy();
 		Log.v(TAG, "Session.onDestroy");
-		
-		socketManager.closeSocket();
 
 		// Cancel running disconnect timers.
 		GlobalApp.cancelDisconnectTimer();
@@ -1089,9 +1115,9 @@ public class SessionActivity extends Activity
 	public void OnSettingsChanged(int width, int height, int bpp) {
 
 		if (bpp > 16)
-			bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
+			bitmap = Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.ARGB_8888);
 		else
-			bitmap = Bitmap.createBitmap(width, height, Config.RGB_565);
+			bitmap = Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.RGB_565);
 
 		session.setSurface(new BitmapDrawable(bitmap));
 			
@@ -1121,9 +1147,9 @@ public class SessionActivity extends Activity
 	{
 		// replace bitmap
 		if (bpp > 16)
-			bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
+			bitmap = Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.ARGB_8888);
 		else
-			bitmap = Bitmap.createBitmap(width, height, Config.RGB_565);
+			bitmap = Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.RGB_565);
 		session.setSurface(new BitmapDrawable(bitmap));
 		
 		/* since sessionView can only be modified from the UI thread
@@ -1175,45 +1201,50 @@ public class SessionActivity extends Activity
 	public boolean OnAuthenticate(StringBuilder username, StringBuilder domain, StringBuilder password) {
 		Log.d(TAG, "OnAuthenticate(...) ENTER");
 		
-		// provide the user's credentials to the RDP authentication step
-		username.append(GlobalApp.GetConnectionPoint().getUserName());
-		password.append("Welcome!");
-		domain.append(GlobalApp.GetConnectionPoint().getDomain());
+		// provide the user credentials from host to the RDP authentication step
+		username.append(mHost.getUserName());
+		password.append(mHost.getPassword());
+		domain.append(mHost.getDomain());
 
 		return true;
 	}
 
+//	@Override
+//	public boolean OnVerifiyCertificate(String subject, String issuer, String fingerprint) {
+//
+//		// see if global settings says accept all
+//		if(GlobalSettings.getAcceptAllCertificates())
+//			return true;
+//		
+//		// this is where the return code of our dialog will be stored
+//		callbackDialogResult = false;
+//
+//		// set message
+//		String msg = getResources().getString(R.string.dlg_msg_verify_certificate);
+//		msg = msg + "\n\nSubject: " + subject + "\nIssuer: " + issuer + "\nFingerprint: " + fingerprint;
+//		dlgVerifyCertificate.setMessage(msg);
+//		
+//		// start dialog in UI thread		
+//		uiHandler.sendMessage(Message.obtain(null, UIHandler.SHOW_DIALOG, dlgVerifyCertificate));
+//		
+//		// wait for result
+//		try
+//		{		
+//			synchronized(dlgVerifyCertificate)
+//			{				
+//				dlgVerifyCertificate.wait();
+//			}
+//		}
+//		catch(InterruptedException e)
+//		{			
+//		}
+//		
+//		return callbackDialogResult;
+//	}
+	
 	@Override
 	public boolean OnVerifiyCertificate(String subject, String issuer, String fingerprint) {
-
-		// see if global settings says accept all
-		if(GlobalSettings.getAcceptAllCertificates())
-			return true;
-		
-		// this is where the return code of our dialog will be stored
-		callbackDialogResult = false;
-
-		// set message
-		String msg = getResources().getString(R.string.dlg_msg_verify_certificate);
-		msg = msg + "\n\nSubject: " + subject + "\nIssuer: " + issuer + "\nFingerprint: " + fingerprint;
-		dlgVerifyCertificate.setMessage(msg);
-		
-		// start dialog in UI thread		
-		uiHandler.sendMessage(Message.obtain(null, UIHandler.SHOW_DIALOG, dlgVerifyCertificate));
-		
-		// wait for result
-		try
-		{		
-			synchronized(dlgVerifyCertificate)
-			{				
-				dlgVerifyCertificate.wait();
-			}
-		}
-		catch(InterruptedException e)
-		{			
-		}
-		
-		return callbackDialogResult;
+		return true;
 	}
 	
 	@Override
@@ -1351,30 +1382,15 @@ public class SessionActivity extends Activity
 	}
 
 	// ****************************************************************************
-	// ISocketListener implementation
+	// IMessageSubscriber implementation
 	@Override
-	public void OnSocketCreated() {
-		Log.d(TAG, "SessionActivity#OnSocketCreated(...) ENTER");
-	}
-
-	@Override
-	public void OnMessageReceived(BaseMsg msg) {
-		Log.d(TAG, "SessionActivity#OnMessageReceived(...) ENTER");
+	public void ProcessMsg(BaseMsg msg) {
+		Log.i(TAG, TAG + "#ProcessMsg(...)\n" + msg.getClass().getSimpleName() + "\n" + msg.serializeJson());
 		
-		if (msg == null || msg.getJsonResponse() == null) {
-			OnIOError("Message is null");
-			return;
-		}
-
-		if (msg.getJsonResponse().getDescription() != null) {
-		}
-
-		switch (msg.extraHeader.MsgClassID) {
-		case MessagesValues.ClassID.MyApplicationsMsg:
-			MyAppsResponse myAppsResponse = (MyAppsResponse) msg
-					.getJsonResponse();
-			appsAdapter = new ApplicationsGridAdapter(
-					myAppsResponse.getApplications());
+		if (msg.msgCalssID == ClassID.MyApplicationsMsg.ValueOf()) {
+			MyApplicationsMsg myApplicationsMsg = (MyApplicationsMsg) msg;
+		
+			appsAdapter = new ApplicationsGridAdapter(myApplicationsMsg.Applications);
 			appsGrid.setAdapter(appsAdapter);
 			appsGrid.setOnItemClickListener(new OnItemClickListener() {
 				@Override
@@ -1382,8 +1398,8 @@ public class SessionActivity extends Activity
 						int position, long id) {
 					Application selectedApp = (Application) appsAdapter
 							.getItem(position);
-					selectedAppId = selectedApp.getID();
-					Log.w(TAG, "Selected App Name: " + selectedApp.getName());
+					selectedAppId = selectedApp.ID;
+					Log.w(TAG, "Selected App Name: " + selectedApp.Name);
 					Log.w(TAG, "Selected App Id: " + selectedAppId);
 					if (!sessionRunning) {
 						sendGetTsMsg(GlobalApp.getSessionTicket());
@@ -1392,62 +1408,51 @@ public class SessionActivity extends Activity
 					}
 				}
 			});
-			break;
-		case MessagesValues.ClassID.GetTsMsg:
-			GetTsMsgResponse getTsResponse = (GetTsMsgResponse) msg.getJsonResponse();
+		} else if (msg.msgCalssID == ClassID.GetTsMsg.ValueOf()) {
+			GetTsMsg getTsMsg = (GetTsMsg) msg;
 			ScreenSettings screen_settings = new ScreenSettings();
 			screen_settings.setResolution(ScreenSettings.FITSCREEN);
 			ManualBookmark bookmark = new ManualBookmark();
-			bookmark.setHostname(getTsResponse.getAddress());
-			bookmark.setPort(getTsResponse.getPort());
+			bookmark.setHostname(getTsMsg.Address);
+			bookmark.setPort(getTsMsg.Port);
 			bookmark.setScreenSettings(screen_settings);
 			connect(bookmark);
 			sessionRunning = true;
-			break;
-		case MessagesValues.ClassID.SessionReadyMsg:
-			SessionReadyMsgResponse sessionReadyMsgResponse = (SessionReadyMsgResponse) msg.getJsonResponse();
+		} else if (msg.msgCalssID == ClassID.SessionReadyMsg.ValueOf()) {
+			SessionReadyMsg sessionReadyMsg = (SessionReadyMsg) msg;
 			sendStartApplicationMsg(selectedAppId);
-			break;
-		case MessagesValues.ClassID.ShowTaskListMsg:
-			ShowTaskListMsgResponse showTaskListMsgResponse = (ShowTaskListMsgResponse) msg
-					.getJsonResponse();
-			Task[] tasks = showTaskListMsgResponse.getTasks();
-			break;
-		case MessagesValues.ClassID.StartApplicationMsg:
-			StartApplicationMsgResponse startApplicationMsgResponse = (StartApplicationMsgResponse) msg.getJsonResponse();
-			break;
-		case MessagesValues.ClassID.WindowCreatedMsg:
-			WindowCreatedMsgResponse windowCreatedMsgResponse = (WindowCreatedMsgResponse) msg.getJsonResponse();
-			Task task = windowCreatedMsgResponse.getTask();
+		} else if (msg.msgCalssID == ClassID.ShowTaskListMsg.ValueOf()) {
+			ShowTaskListMsg showTaskListMsg = (ShowTaskListMsg) msg;
+			Window[] tasks = showTaskListMsg.Tasks;
+		} else if (msg.msgCalssID == ClassID.StartApplicationMsg.ValueOf()) {
+			StartApplicationMsg startApplicationMsg = (StartApplicationMsg) msg;
+		} else if (msg.msgCalssID == ClassID.WindowCreatedMsg.ValueOf()) {
+			WindowCreatedMsg windowCreatedMsg = (WindowCreatedMsg) msg;
+			Window task = windowCreatedMsg.Task;
 			tasksAdapter.add(task);
 			tasksAdapter.notifyDataSetChanged();
-			break;
-		case MessagesValues.ClassID.ShowWindowMsg:
-			ShowWindowMsgResponse showWindowMsgResponse = (ShowWindowMsgResponse) msg.getJsonResponse();
+		} else if (msg.msgCalssID == ClassID.ShowWindowMsg.ValueOf()) {
+			ShowWindowMsg showWindowMsg = (ShowWindowMsg) msg;
 			activityRootView.setVisibility(View.VISIBLE);
 			homeButton.setVisibility(View.VISIBLE);
 			sessionView.requestFocus();
-			break;
-		case MessagesValues.ClassID.ShowKeyBoardMsg:
-			ShowKeyBoardMsgResponse showKeyBoardMsgResponse = (ShowKeyBoardMsgResponse) msg.getJsonResponse();
-			if (showKeyBoardMsgResponse.isShow()) {
+		} else if (msg.msgCalssID == ClassID.ShowKeyBoardMsg.ValueOf()) {
+			ShowKeyBoardMsg showKeyBoardMsg = (ShowKeyBoardMsg) msg;
+			if (showKeyBoardMsg.Show) {
 				showKeyboard(true, false);
 			} else {
 				showKeyboard(false, false);
 			}
-			break;
-		case MessagesValues.ClassID.LogoutMsg:
-			LogoutMsgResponse logoutMsgRespons = (LogoutMsgResponse) msg.getJsonResponse();
-			break;
-		case MessagesValues.ClassID.Error:
-			BaseResponse baseResponse = (BaseResponse) msg.getJsonResponse();
-			break;
+		} else if (msg.msgCalssID == ClassID.LogoutMsg.ValueOf()) {
+			LogoutMsg logoutMsg = (LogoutMsg) msg;
+		} else if (msg.msgCalssID == ClassID.Error.ValueOf()) {
+			ErrorMsg errorMsg = (ErrorMsg) msg;
 		}
 	}
 
 	@Override
-	public void OnIOError(String exception) {
-		Log.d(TAG, "SessionActivity#OnIOError(...) ENTER");
+	public void ConnectionIsBroken() {
+		Log.d(TAG, TAG + "#ConnectionIsBroken(...) ENTER");
 		
 		finish();
 	}
@@ -1455,26 +1460,32 @@ public class SessionActivity extends Activity
 	private void sendMyApplicationsMsg(String ticket) {
 		Log.d(TAG, "sendMyApplicationsMsg(...) ENTER");
 
-		MyApplicationsMsg msg = new MyApplicationsMsg(ticket);
-		Log.i(TAG, "Message: " + msg);
-		socketManager.sendMessage(msg);
+		MyApplicationsMsg myApplicationsMsg = new MyApplicationsMsg();
+		myApplicationsMsg.Ticket = ticket;
+		mClientChannel.SendAsync(myApplicationsMsg);
 	}
 
 	private void sendGetTsMsg(String ticket) {
 		Log.d(TAG, "NewDesktopActivity#sendGetTsMsg(...) ENTER");
-
-		socketManager.sendMessage(new GetTsMsg(ticket));
+		GetTsMsg getTsMsg = new GetTsMsg();
+		getTsMsg.Ticket = ticket;
+		mClientChannel.SendReceiveAsync(getTsMsg);
 	}
 	
 	private void sendStartApplicationMsg(String appToStartId) {
 		Log.d(TAG, "JetroSessionActivity#sendStartApplicationMsg(...) ENTER");
 		
-		socketManager.sendMessage(new StartApplicationMsg(appToStartId));
+		StartApplicationMsg startApplicationMsg = new StartApplicationMsg();
+		startApplicationMsg.ID = appToStartId;
+		mClientChannel.SendReceiveAsync(startApplicationMsg);
 	}
 	
 	private void sendShowWindowMsg(int pId, int hwnd) {
 		Log.d(TAG, "SessionActivity#sendShowWindowMsg(...) ENTER");
 		
-		socketManager.sendMessage(new ShowWindowMsg(pId, hwnd));
+		ShowWindowMsg showWindowMsg = new ShowWindowMsg();
+		showWindowMsg.PID = pId;
+		showWindowMsg.HWND = hwnd;
+		mClientChannel.SendReceiveAsync(showWindowMsg);
 	}
 }

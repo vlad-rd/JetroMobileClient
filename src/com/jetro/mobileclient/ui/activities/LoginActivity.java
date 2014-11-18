@@ -20,7 +20,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-import com.freerdp.freerdpcore.presentation.SessionActivity;
+import com.freerdp.freerdpcore.application.GlobalApp;
 import com.jetro.mobileclient.R;
 import com.jetro.mobileclient.model.beans.Host;
 import com.jetro.mobileclient.repository.ConnectionsDB;
@@ -31,6 +31,7 @@ import com.jetro.protocol.Core.BaseMsg;
 import com.jetro.protocol.Core.ClassID;
 import com.jetro.protocol.Core.IMessageSubscriber;
 import com.jetro.protocol.Core.Net.ClientChannel;
+import com.jetro.protocol.Protocols.Controller.ConnectionPoint;
 import com.jetro.protocol.Protocols.Controller.LoginMsg;
 
 /**
@@ -72,6 +73,8 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
+		Log.d(TAG, TAG + "#onSaveInstanceState(...) ENTER");
+		
 		// Save the user's current game state
 		outState.putSerializable(Config.Extras.EXTRA_HOST, mHost);
 		
@@ -218,30 +221,20 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		mHost.setDomain(domain);
 		ConnectionsDB.getInstance(getApplicationContext()).saveHost(mHost);
 		
-		// Gets device info
-		String model = Build.MODEL;
-		String deviceId = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
-		
-		// Sends LoginMsg
-		LoginMsg loginMsg = new LoginMsg();
-		loginMsg.setName(username);
-		loginMsg.setPassword(password);
-		loginMsg.setDomain(domain);
-		loginMsg.setDeviceModel(model);
-		loginMsg.setDeviceId(deviceId);
-		mClientChannel.SendReceive(loginMsg, ClientChannel.TIME_OUT);
+		sendLoginMsg();
 	}
 
 	@Override
 	public void ProcessMsg(BaseMsg msg) {
-		Log.i(TAG, TAG + "#ProcessMsg(...)\n" + msg.serializeJson());
+		Log.i(TAG, TAG + "#ProcessMsg(...)\n" + msg.getClass().getSimpleName() + "\n" + msg.serializeJson());
 		
 		// Receives LoginMsg
 		if (msg.msgCalssID == ClassID.LoginMsg.ValueOf()) {
 			LoginMsg loginMsg = (LoginMsg) msg;
-			int returnCode = loginMsg.getReturnCode();
-			if (returnCode == LoginMsg.LOGIN_SUCCESS) {
+			if (loginMsg.returnCode == LoginMsg.LOGIN_SUCCESS) {
+				GlobalApp.setSessionTicket(loginMsg.Ticket);
 				Intent intent = new Intent(LoginActivity.this, SessionActivity.class);
+				intent.putExtra(Config.Extras.EXTRA_HOST, mHost);
 				startActivity(intent);
 				finish();
 			}
@@ -251,6 +244,40 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 	@Override
 	public void ConnectionIsBroken() {
 		// TODO Auto-generated method stub
+		
+	}
+	
+	private void sendLoginMsg() {
+		// Gets device info
+		String deviceModel = Build.MODEL;
+		String deviceId = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
+		// Sends LoginMsg
+		LoginMsg loginMsg = new LoginMsg();
+		loginMsg.name = mHost.getUserName();
+		loginMsg.password = mHost.getPassword();
+		loginMsg.domain = mHost.getDomain();
+		loginMsg.deviceModel = deviceModel;
+		loginMsg.deviceId = deviceId;
+		
+		if (mClientChannel == null) {
+			ConnectionPoint connectionPoint = null;
+			if (mIsWAN) {
+				connectionPoint = mHost.getWANs().iterator().next();
+			} else {
+				connectionPoint = mHost.getLANs().iterator().next();
+			}
+			boolean isCreated = ClientChannel.Create(connectionPoint.IP, connectionPoint.Port, ClientChannel.TIME_OUT);
+			if (isCreated) {
+				mClientChannel = ClientChannel.getInstance();
+				mClientChannel.AddListener(LoginActivity.this);
+				mClientChannel.SendReceiveAsync(loginMsg);
+			} else {
+				stopLoadingScreen();
+				DialogLauncher.launchNetworkConnectionIssueDialog(LoginActivity.this, null);
+			}
+		} else {
+			mClientChannel.SendReceive(loginMsg, ClientChannel.TIME_OUT);
+		}
 		
 	}
 	

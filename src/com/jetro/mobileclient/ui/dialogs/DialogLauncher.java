@@ -47,5 +47,14 @@ public class DialogLauncher {
 				.setNegativeButton(R.string.dialog_delete_connection_negative_text, buttonClickListener)
 				.show();
 	}
+	
+	public static void launchNetworkConnectionIssueDialog(Activity activity,
+			DialogInterface.OnClickListener buttonClickListener) {
+		new AlertDialog.Builder(activity)
+				.setCancelable(false)
+				.setMessage(R.string.dialog_network_connection_issue_message)
+				.setPositiveButton(R.string.dialog_network_connection_issue_positive_text, buttonClickListener)
+				.show();
+	}
 
 }

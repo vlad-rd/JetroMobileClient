@@ -298,11 +298,11 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 
 	@Override
 	public void ProcessMsg(BaseMsg msg) {
-		if (msg.msgCalssID == ClassID.CockpitSiteInfoMsg.ValueOf()) {
-			Log.i("CallBack", "received CockpitSiteInfoMsg");
-			
+		Log.i(TAG, TAG + "#ProcessMsg(...)\n" + msg.getClass().getSimpleName() + "\n" + msg.serializeJson());
+		
+		if (msg.msgCalssID == ClassID.CockpitSiteInfoMsg.ValueOf()) {			
 			CockpitSiteInfoMsg cockpitSiteInfoMsg = (CockpitSiteInfoMsg) msg;
-			ConnectionPoint[] connectionPoints = cockpitSiteInfoMsg.getConnectionPoints();
+			ConnectionPoint[] connectionPoints = cockpitSiteInfoMsg.ConnectionPoints;
 			// Creates a new host
 			String hostName = mHostNameInput.getText().toString();
 			Host host = new Host();
