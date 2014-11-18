@@ -5,7 +5,9 @@ package com.jetro.mobileclient.ui.activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings.Secure;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -18,6 +20,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
+import com.freerdp.freerdpcore.presentation.SessionActivity;
 import com.jetro.mobileclient.R;
 import com.jetro.mobileclient.model.beans.Host;
 import com.jetro.mobileclient.repository.ConnectionsDB;
@@ -25,7 +28,10 @@ import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
 import com.jetro.mobileclient.ui.dialogs.DialogLauncher;
 import com.jetro.mobileclient.utils.Config;
 import com.jetro.protocol.Core.BaseMsg;
+import com.jetro.protocol.Core.ClassID;
 import com.jetro.protocol.Core.IMessageSubscriber;
+import com.jetro.protocol.Core.Net.ClientChannel;
+import com.jetro.protocol.Protocols.Controller.LoginMsg;
 
 /**
  * @author ran.h
@@ -34,6 +40,8 @@ import com.jetro.protocol.Core.IMessageSubscriber;
 public class LoginActivity extends HeaderActivity implements IMessageSubscriber {
 	
 	private static final String TAG = LoginActivity.class.getSimpleName();
+	
+	private ClientChannel mClientChannel;
 	
 	private Host mHost;
 	private boolean mIsWAN;
@@ -143,8 +151,27 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 	}
 
 	@Override
-	protected void setHeader() {
+	protected void onResume() {
+		super.onResume();
 		
+		mClientChannel = ClientChannel.getInstance();
+		if (mClientChannel != null) {
+			mClientChannel.AddListener(LoginActivity.this);
+		}
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		
+		mClientChannel = ClientChannel.getInstance();
+		if (mClientChannel != null) {
+			mClientChannel.RemoveListener(LoginActivity.this);
+		}
+	}
+
+	@Override
+	protected void setHeader() {
 	}
 	
 	/**
@@ -190,11 +217,35 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		mHost.setPassword(password);
 		mHost.setDomain(domain);
 		ConnectionsDB.getInstance(getApplicationContext()).saveHost(mHost);
+		
+		// Gets device info
+		String model = Build.MODEL;
+		String deviceId = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
+		
+		// Sends LoginMsg
+		LoginMsg loginMsg = new LoginMsg();
+		loginMsg.setName(username);
+		loginMsg.setPassword(password);
+		loginMsg.setDomain(domain);
+		loginMsg.setDeviceModel(model);
+		loginMsg.setDeviceId(deviceId);
+		mClientChannel.SendReceive(loginMsg, ClientChannel.TIME_OUT);
 	}
 
 	@Override
 	public void ProcessMsg(BaseMsg msg) {
+		Log.i(TAG, TAG + "#ProcessMsg(...)\n" + msg.serializeJson());
 		
+		// Receives LoginMsg
+		if (msg.msgCalssID == ClassID.LoginMsg.ValueOf()) {
+			LoginMsg loginMsg = (LoginMsg) msg;
+			int returnCode = loginMsg.getReturnCode();
+			if (returnCode == LoginMsg.LOGIN_SUCCESS) {
+				Intent intent = new Intent(LoginActivity.this, SessionActivity.class);
+				startActivity(intent);
+				finish();
+			}
+		}
 	}
 
 	@Override

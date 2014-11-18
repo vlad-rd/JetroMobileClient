@@ -221,6 +221,26 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 	}
 
 	@Override
+	protected void onResume() {
+		super.onResume();
+		
+		mClientChannel = ClientChannel.getInstance();
+		if (mClientChannel != null) {
+			mClientChannel.AddListener(ConnectionActivity.this);
+		}
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		
+		mClientChannel = ClientChannel.getInstance();
+		if (mClientChannel != null) {
+			mClientChannel.RemoveListener(ConnectionActivity.this);
+		}
+	}
+
+	@Override
 	protected void setHeader() {
 	}
 	
@@ -278,7 +298,7 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 
 	@Override
 	public void ProcessMsg(BaseMsg msg) {
-		if(msg.msgCalssID == ClassID.CockpitSiteInfoMsg.ValueOf()) {
+		if (msg.msgCalssID == ClassID.CockpitSiteInfoMsg.ValueOf()) {
 			Log.i("CallBack", "received CockpitSiteInfoMsg");
 			
 			CockpitSiteInfoMsg cockpitSiteInfoMsg = (CockpitSiteInfoMsg) msg;
@@ -292,6 +312,12 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 			}
 			// Save the new host
 			ConnectionsDB.getInstance(getApplicationContext()).saveHost(host);
+			// Launches the login activity
+			Intent intent = new Intent(ConnectionActivity.this, LoginActivity.class);
+			intent.putExtra(Config.Extras.EXTRA_HOST, mHost);
+			startActivity(intent);
+			
+			stopLoadingScreen();
 		}
 	}
 
