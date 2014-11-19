@@ -15,11 +15,11 @@ import com.jetro.protocol.Protocols.Controller.ConnectionPoint;
  * @author ran.h
  *
  */
-public class Host implements Serializable {
+public class Connection implements Serializable {
 	
 	private static final long serialVersionUID = 1188781886078062688L;
 
-	private String hostName;
+	private String name;
 	
 	private String userName;
 	
@@ -27,20 +27,22 @@ public class Host implements Serializable {
 	
 	private String domain;
 	
+	private ConnectionPoint lastConnectionPoint;
+	
 	private Set<ConnectionPoint> LANs = new HashSet<ConnectionPoint>();
 	
 	private Set<ConnectionPoint> WANs = new HashSet<ConnectionPoint>();
 
-	public Host() {
+	public Connection() {
 		super();
 	}
 
-	public String getHostName() {
-		return hostName;
+	public String getName() {
+		return name;
 	}
 
-	public void setHostName(String hostName) {
-		this.hostName = hostName;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public String getUserName() {
@@ -65,6 +67,14 @@ public class Host implements Serializable {
 
 	public void setDomain(String domain) {
 		this.domain = domain;
+	}
+
+	public ConnectionPoint getLastConnectionPoint() {
+		return lastConnectionPoint;
+	}
+
+	public void setLastConnectionPoint(ConnectionPoint lastConnectionPoint) {
+		this.lastConnectionPoint = lastConnectionPoint;
 	}
 
 	public Set<ConnectionPoint> getLANs() {
@@ -112,27 +122,6 @@ public class Host implements Serializable {
 	public String toString() {
 		Gson gson = GsonHelper.getInstance().getGson();
 		return gson.toJson(this);
-//		JsonObject hostJsonObject = new JsonObject();
-//		hostJsonObject.addProperty("hostName", hostName);
-//		hostJsonObject.addProperty("userName", userName);
-//		hostJsonObject.addProperty("password", password);
-//		hostJsonObject.addProperty("domain", domain);
-//		hostJsonObject.addProperty("LANs", getConnectionPoints(LANs));
-//		hostJsonObject.addProperty("WANs", getConnectionPoints(WANs));
-//		return hostJsonObject.toString();
 	}
-	
-//	private String getConnectionPoints(Set<ConnectionPoint> connectionPoints) {
-//		JsonArray connectionsJsonArray = new JsonArray();
-//		for (ConnectionPoint cp : connectionPoints) {
-//			JsonObject cpJsonObject = new JsonObject();
-//			cpJsonObject.addProperty("IP", cp.IP);
-//			cpJsonObject.addProperty("Port", cp.Port);
-//			cpJsonObject.addProperty("WAN", cp.WAN);
-//			cpJsonObject.addProperty("SSL", cp.SSL);
-//			connectionsJsonArray.add(cpJsonObject);
-//		}
-//		return connectionsJsonArray.toString();
-//	}
 	
 }

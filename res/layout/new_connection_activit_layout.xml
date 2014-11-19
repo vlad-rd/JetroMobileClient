@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" >
 
-            <!-- Host Name - Label -->
+            <!-- Connection Name - Label -->
 
             <LinearLayout
                 android:id="@+id/wrapper_vertical"
@@ -28,7 +28,7 @@
                 android:orientation="horizontal" >
 
                 <ImageView
-                    android:id="@+id/host_name_star"
+                    android:id="@+id/connection_name_star"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
@@ -40,20 +40,20 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="@string/host_name_lbl"
+                    android:text="@string/connection_name_lbl"
                     android:textColor="@color/black"
                     android:textSize="@dimen/edittext_lbl" />
             </LinearLayout>
 
-            <!-- Host Name - Edit Text -->
+            <!-- Connection Name - Edit Text -->
 
             <EditText
-                android:id="@+id/host_name_input"
+                android:id="@+id/connection_name_input"
                 style="@style/GrayBorderEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:cursorVisible="true"
-                android:hint="@string/host_name_hint"
+                android:hint="@string/connection_name_hint"
                 android:inputType="text"
                 android:singleLine="true"
                 android:textCursorDrawable="@null"

@@ -12,24 +12,24 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import com.jetro.mobileclient.model.beans.Host;
+import com.jetro.mobileclient.model.beans.Connection;
 import com.jetro.mobileclient.model.helpers.GsonHelper;
 
 public class ConnectionsDB {
 	
 	private static final String TAG = ConnectionsDB.class.getSimpleName();
 
-	private final static String HOSTS_DB = "hosts_db";
-	private final static String HOSTS_NAMES_LIST = "hosts_names_list";
+	private final static String CONNECTIONS_DB = "connections_db";
+	private final static String CONNECTIONS_NAMES = "connections_names";
 	
-	private SharedPreferences hosts;
+	private SharedPreferences connections;
 	
 	private static ConnectionsDB instance;
 
 	private ConnectionsDB(Context context) {
 		Log.d(TAG, TAG + "#ConnectionsDB(...) ENTER");
 		
-		hosts = context.getSharedPreferences(HOSTS_DB, Context.MODE_PRIVATE);
+		connections = context.getSharedPreferences(CONNECTIONS_DB, Context.MODE_PRIVATE);
 	}
 
 	public static ConnectionsDB getInstance(Context context) {
@@ -42,79 +42,79 @@ public class ConnectionsDB {
 		return instance;
 	}
 
-	public void saveHost(Host host) {
-		Log.d(TAG, TAG + "#saveHost(...) ENTER");
-		Log.i(TAG, TAG + "#saveHost(...) host: " + host);
+	public void saveConnection(Connection connection) {
+		Log.d(TAG, TAG + "#saveConnection(...) ENTER");
+		Log.i(TAG, TAG + "#saveConnection(...) connection: " + connection);
 		
-		String hostName = host.getHostName();
+		String connectionName = connection.getName();
 		
-		Editor edit = hosts.edit();
-		// Save the host as JSON
-		edit.putString(hostName, host.toString());
-		// Save the host name
-		Set<String> hostsNamesSet = getHostsNamesList();
-		hostsNamesSet.add(hostName);
-		edit.putStringSet(HOSTS_NAMES_LIST, hostsNamesSet);
+		Editor edit = connections.edit();
+		// Savesthe connection as JSON
+		edit.putString(connectionName, connection.toString());
+		// Saves the connection name
+		Set<String> connectionsNames = getConnectionsNames();
+		connectionsNames.add(connectionName);
+		edit.putStringSet(CONNECTIONS_NAMES, connectionsNames);
 		edit.commit();
 	}
 	
-	public Host getHost(String hostName) {
-		Log.d(TAG, TAG + "#getHost(...) ENTER");
+	public Connection getConnection(String connectionName) {
+		Log.d(TAG, TAG + "#getConnection(...) ENTER");
 		
-		String hostJson = hosts.getString(hostName, null);
+		String connectionJson = connections.getString(connectionName, null);
 		try {
 			Gson gson = GsonHelper.getInstance().getGson();
-			return gson.fromJson(hostJson, Host.class);
+			return gson.fromJson(connectionJson, Connection.class);
 		} catch (JsonSyntaxException e) {
 			Log.e(TAG, "ERROR: ", e);
 		}
 		return null;
 	}
 	
-	public boolean hasHosts() {
-		Log.d(TAG, TAG + "#hasHosts(...) ENTER");
+	public boolean hasConnections() {
+		Log.d(TAG, TAG + "#hasConnections(...) ENTER");
 		
-		return !getHostsNamesList().isEmpty();
+		return !getConnectionsNames().isEmpty();
 	}
 	
-	public List<Host> getAllHosts() {
-		Log.d(TAG, TAG + "#getAllHosts(...) ENTER");
+	public List<Connection> getAllConnections() {
+		Log.d(TAG, TAG + "#getAllConnections(...) ENTER");
 		
-		ArrayList<Host> hosts = new ArrayList<Host>();
+		ArrayList<Connection> connections = new ArrayList<Connection>();
 		
-		Set<String> hostsNamesSet = getHostsNamesList();
-		for (String hostName: hostsNamesSet) {
-			Host host = getHost(hostName);
-			hosts.add(host);
+		Set<String> connectionsNames = getConnectionsNames();
+		for (String connectionName: connectionsNames) {
+			Connection connection = getConnection(connectionName);
+			connections.add(connection);
 		}
 		
-		return hosts;
+		return connections;
 	}
 
-	public void deleteHost(String hostName) {
-		Log.d(TAG, TAG + "#deleteHost(...) ENTER");
+	public void deleteConnection(String connectionName) {
+		Log.d(TAG, TAG + "#deleteConnection(...) ENTER");
 		
-		// Deletes host from hosts
-		Editor edit = hosts.edit();
-		edit.remove(hostName);
+		// Deletes connection from connections
+		Editor edit = connections.edit();
+		edit.remove(connectionName);
 		edit.commit();
-		// Deletes host name from hosts names
-		Set<String> hosts = getHostsNamesList();
-		hosts.remove(hostName);
-		edit.putStringSet(HOSTS_NAMES_LIST, hosts);
+		// Deletes connection name from connections names
+		Set<String> connections = getConnectionsNames();
+		connections.remove(connectionName);
+		edit.putStringSet(CONNECTIONS_NAMES, connections);
 		edit.commit();
 	}
 
 	public boolean isDBEmpty() {
 		Log.d(TAG, "ConnectionsDB#isDBEmpty(...) ENTER");
 		
-		return instance != null && hosts != null
-				&& getHostsNamesList().size() == 0;		
+		return instance != null && connections != null
+				&& getConnectionsNames().size() == 0;		
 	}
 	
-	private Set<String> getHostsNamesList() {
-		Log.d(TAG, TAG + "#getHostsNamesList(...) ENTER");
+	private Set<String> getConnectionsNames() {
+		Log.d(TAG, TAG + "#getConnectionsNamesList(...) ENTER");
 		
-		return hosts.getStringSet(HOSTS_NAMES_LIST, new HashSet<String>());
+		return connections.getStringSet(CONNECTIONS_NAMES, new HashSet<String>());
 	}
 }

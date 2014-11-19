@@ -75,7 +75,7 @@ import com.freerdp.freerdpcore.utils.ClipboardManagerProxy;
 import com.freerdp.freerdpcore.utils.KeyboardMapper;
 import com.freerdp.freerdpcore.utils.Mouse;
 import com.jetro.mobileclient.R;
-import com.jetro.mobileclient.model.beans.Host;
+import com.jetro.mobileclient.model.beans.Connection;
 import com.jetro.mobileclient.ui.adapters.TasksAdapter;
 import com.jetro.mobileclient.ui.widgets.SessionView;
 import com.jetro.mobileclient.utils.Config;
@@ -273,7 +273,7 @@ public class SessionActivity extends Activity
 				progressDialog = null;
 			}
 			
-			// add hostname to history if quick connect was used
+			// add host name to history if quick connect was used
 			Bundle bundle = getIntent().getExtras();
 			if(bundle != null && bundle.containsKey(PARAM_CONNECTION_REFERENCE))
 			{		
@@ -447,7 +447,7 @@ public class SessionActivity extends Activity
 	
 	// desktop member variables
 	private ClientChannel mClientChannel;
-	private Host mHost;
+	private Connection mConnection;
 	private ApplicationsGridAdapter appsAdapter;
 	private GridView appsGrid;
 	private ImageView dissconnectSessionButton;
@@ -464,7 +464,7 @@ public class SessionActivity extends Activity
 		Log.d(TAG, TAG + "#onSaveInstanceState(...) ENTER");
 		
 		// Save the user's current game state
-		outState.putSerializable(Config.Extras.EXTRA_HOST, mHost);
+		outState.putSerializable(Config.Extras.EXTRA_CONNECTION, mConnection);
 		
 		// Always call the superclass so it can save the view hierarchy state
 		super.onSaveInstanceState(outState);
@@ -479,11 +479,11 @@ public class SessionActivity extends Activity
 		// Check whether we're recreating a previously destroyed instance
 		if (savedInstanceState != null) {
 			// Restore value of members from saved state
-			mHost = (Host) savedInstanceState.getSerializable(Config.Extras.EXTRA_HOST);
+			mConnection = (Connection) savedInstanceState.getSerializable(Config.Extras.EXTRA_CONNECTION);
 		} else {
 			// Probably initialize members with default values for a new instance
 			Intent intent = getIntent();
-			mHost = (Host) intent.getSerializableExtra(Config.Extras.EXTRA_HOST);
+			mConnection = (Connection) intent.getSerializableExtra(Config.Extras.EXTRA_CONNECTION);
 		}
 
 		// show status bar or make fullscreen?
@@ -670,8 +670,10 @@ public class SessionActivity extends Activity
 		mClipboardManager.removeClipboardboardChangedListener(this);
 
 		// free session
-		GlobalApp.freeSession(session.getInstance());
-		session = null;
+		if (session != null) {
+			GlobalApp.freeSession(session.getInstance());
+			session = null;
+		}
 	}
 		
 	@Override
@@ -1202,9 +1204,9 @@ public class SessionActivity extends Activity
 		Log.d(TAG, "OnAuthenticate(...) ENTER");
 		
 		// provide the user credentials from host to the RDP authentication step
-		username.append(mHost.getUserName());
-		password.append(mHost.getPassword());
-		domain.append(mHost.getDomain());
+		username.append(mConnection.getUserName());
+		password.append(mConnection.getPassword());
+		domain.append(mConnection.getDomain());
 
 		return true;
 	}
@@ -1469,7 +1471,7 @@ public class SessionActivity extends Activity
 		Log.d(TAG, "NewDesktopActivity#sendGetTsMsg(...) ENTER");
 		GetTsMsg getTsMsg = new GetTsMsg();
 		getTsMsg.Ticket = ticket;
-		mClientChannel.SendReceiveAsync(getTsMsg);
+		mClientChannel.SendAsync(getTsMsg);
 	}
 	
 	private void sendStartApplicationMsg(String appToStartId) {
@@ -1477,7 +1479,7 @@ public class SessionActivity extends Activity
 		
 		StartApplicationMsg startApplicationMsg = new StartApplicationMsg();
 		startApplicationMsg.ID = appToStartId;
-		mClientChannel.SendReceiveAsync(startApplicationMsg);
+		mClientChannel.SendAsync(startApplicationMsg);
 	}
 	
 	private void sendShowWindowMsg(int pId, int hwnd) {
@@ -1486,6 +1488,6 @@ public class SessionActivity extends Activity
 		ShowWindowMsg showWindowMsg = new ShowWindowMsg();
 		showWindowMsg.PID = pId;
 		showWindowMsg.HWND = hwnd;
-		mClientChannel.SendReceiveAsync(showWindowMsg);
+		mClientChannel.SendAsync(showWindowMsg);
 	}
 }

@@ -8,7 +8,7 @@
     <string name="search_settings_description">Secure Remote Applications</string>
 
     <!-- lables -->
-    <string name="host_name_lbl">Host Name</string>
+    <string name="connection_name_lbl">Connection Name</string>
     <string name="host_ip_lbl">Host IP</string>
     <string name="host_port_lbl">Host Port</string>
     <string name="connection_mode_lbl">Connection Mode</string>
@@ -26,7 +26,7 @@
     <string name="loading_text">Loading.... please wait.</string>
     
     <!-- Hints -->
-    <string name="host_name_hint">Host name here</string>
+    <string name="connection_name_hint">Connection name here</string>
     <string name="host_ip_hint">Host IP here</string>
     <string name="host_port_hint">Host Port here</string>
     <string name="connection_mode_hint">Choose connection mode</string>

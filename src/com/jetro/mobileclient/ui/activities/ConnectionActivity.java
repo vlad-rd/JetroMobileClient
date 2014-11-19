@@ -24,7 +24,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import com.jetro.mobileclient.R;
-import com.jetro.mobileclient.model.beans.Host;
+import com.jetro.mobileclient.model.beans.Connection;
 import com.jetro.mobileclient.repository.ConnectionsDB;
 import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
 import com.jetro.mobileclient.utils.Config;
@@ -45,11 +45,11 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 	
 	private ClientChannel mClientChannel;
 	
-	private Host mHost;
+	private Connection mConnection;
 	
 	private View mBaseContentLayout;
-	private ImageView mHostNameStar;
-	private EditText mHostNameInput;
+	private ImageView mConnectionNameStar;
+	private EditText mConnectionNameInput;
 	private ImageView mHostIpStar;
 	private EditText mHostIpInput;
 	private ImageView mHostPortStar;
@@ -98,7 +98,7 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 	protected void onSaveInstanceState(Bundle outState) {
 		// Save the user's current game state
 		outState.putSerializable(Config.Extras.EXTRA_CONNECTION_ACTIVITY_STATE, mState);
-		outState.putSerializable(Config.Extras.EXTRA_HOST, mHost);
+		outState.putSerializable(Config.Extras.EXTRA_CONNECTION, mConnection);
 		
 		// Always call the superclass so it can save the view hierarchy state
 	    super.onSaveInstanceState(outState);
@@ -113,20 +113,20 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 		if (savedInstanceState != null) {
 			// Restore value of members from saved state
 			mState = (State) savedInstanceState.getSerializable(Config.Extras.EXTRA_CONNECTION_ACTIVITY_STATE);
-			mHost = (Host) savedInstanceState.getSerializable(Config.Extras.EXTRA_HOST);
+			mConnection = (Connection) savedInstanceState.getSerializable(Config.Extras.EXTRA_CONNECTION);
 		} else {
 			// Probably initialize members with default values for a new instance
 			Intent intent = getIntent();
 			Bundle extras = intent.getExtras();
 			mState = (State) extras.getSerializable(Config.Extras.EXTRA_CONNECTION_ACTIVITY_STATE);
-			mHost = (Host) extras.getSerializable(Config.Extras.EXTRA_HOST);
+			mConnection = (Connection) extras.getSerializable(Config.Extras.EXTRA_CONNECTION);
 		}
 		
 		mConnectionsModes = getResources().getStringArray(R.array.connection_mode_options);
 		
 		mBaseContentLayout = setBaseContentView(R.layout.new_connection_activit_layout);
-		mHostNameInput = (EditText) mBaseContentLayout.findViewById(R.id.host_name_input);
-		mHostNameInput.addTextChangedListener(mInputTextWatcher);
+		mConnectionNameInput = (EditText) mBaseContentLayout.findViewById(R.id.connection_name_input);
+		mConnectionNameInput.addTextChangedListener(mInputTextWatcher);
 		mHostIpInput = (EditText) mBaseContentLayout.findViewById(R.id.host_ip_input);
 		mHostIpInput.addTextChangedListener(mInputTextWatcher);
 		mHostPortInput = (EditText) mBaseContentLayout.findViewById(R.id.host_port_input);
@@ -156,7 +156,7 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 		case ADD_CONNECTION:
 			// Sets the header title
 			setHeaderTitleText(R.string.header_title_AddConnection);
-			boolean hasHosts = ConnectionsDB.getInstance(getApplicationContext()).hasHosts();
+			boolean hasHosts = ConnectionsDB.getInstance(getApplicationContext()).hasConnections();
 			if (hasHosts) {
 				mHeaderBackButton.setVisibility(View.VISIBLE);
 			} else {
@@ -178,7 +178,7 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 			mConnectionModeInput.setVisibility(View.GONE);
 			
 			// TODO: remove this after debug
-			mHostNameInput.setText("Test environment");
+			mConnectionNameInput.setText("Test environment");
 			mHostIpInput.setText("212.199.106.213");
 			mHostPortInput.setText("13000");
 			break;
@@ -188,10 +188,10 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 			mHeaderBackButton.setVisibility(View.VISIBLE);
 			
 			// Hides the required input fields indicators (stars)
-			mHostNameStar = (ImageView) mBaseContentLayout.findViewById(R.id.host_name_star);
+			mConnectionNameStar = (ImageView) mBaseContentLayout.findViewById(R.id.connection_name_star);
 			mHostIpStar = (ImageView) mBaseContentLayout.findViewById(R.id.host_ip_star);
 			mHostPortStar = (ImageView) mBaseContentLayout.findViewById(R.id.host_port_star);
-			mHostNameStar.setVisibility(View.INVISIBLE);
+			mConnectionNameStar.setVisibility(View.INVISIBLE);
 			mHostIpStar.setVisibility(View.INVISIBLE);
 			mHostPortStar.setVisibility(View.INVISIBLE);
 			// Hides the connection mode spinner
@@ -199,14 +199,14 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 			mConnectionModeSpinnerWrapper.setVisibility(View.GONE);
 			
 			// Disables the input fields
-			mHostNameInput.setEnabled(false);
+			mConnectionNameInput.setEnabled(false);
 			mHostIpInput.setEnabled(false);
 			mHostPortInput.setEnabled(false);
 			mConnectionModeInput.setEnabled(false);
 			
 			// Fills the input fields
-			mHostNameInput.setText(mHost.getHostName());
-			Iterator<ConnectionPoint> iterator = mHost.getConnectionPoints().iterator();
+			mConnectionNameInput.setText(mConnection.getName());
+			Iterator<ConnectionPoint> iterator = mConnection.getConnectionPoints().iterator();
 			if (iterator.hasNext()) {
 				ConnectionPoint lastConnectionPoint = iterator.next();
 				mHostIpInput.setText(lastConnectionPoint.IP);
@@ -254,8 +254,8 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 		
 		boolean areInputFieldsValid = true;
 
-		if (TextUtils.isEmpty(mHostNameInput.getText())) {
-			mHostNameInput.setError(null);
+		if (TextUtils.isEmpty(mConnectionNameInput.getText())) {
+			mConnectionNameInput.setError(null);
 			areInputFieldsValid = false;
 		}
 
@@ -300,21 +300,21 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 	public void ProcessMsg(BaseMsg msg) {
 		Log.i(TAG, TAG + "#ProcessMsg(...)\n" + msg.getClass().getSimpleName() + "\n" + msg.serializeJson());
 		
-		if (msg.msgCalssID == ClassID.CockpitSiteInfoMsg.ValueOf()) {			
+		if (msg.msgCalssID == ClassID.CockpitSiteInfoMsg.ValueOf()) {
 			CockpitSiteInfoMsg cockpitSiteInfoMsg = (CockpitSiteInfoMsg) msg;
 			ConnectionPoint[] connectionPoints = cockpitSiteInfoMsg.ConnectionPoints;
 			// Creates a new host
-			String hostName = mHostNameInput.getText().toString();
-			Host host = new Host();
-			host.setHostName(hostName);
+			String hostName = mConnectionNameInput.getText().toString();
+			mConnection = new Connection();
+			mConnection.setName(hostName);
 			for (ConnectionPoint cp : connectionPoints) {
-				host.addConnectionPoint(cp);
+				mConnection.addConnectionPoint(cp);
 			}
 			// Save the new host
-			ConnectionsDB.getInstance(getApplicationContext()).saveHost(host);
+			ConnectionsDB.getInstance(getApplicationContext()).saveConnection(mConnection);
 			// Launches the login activity
 			Intent intent = new Intent(ConnectionActivity.this, LoginActivity.class);
-			intent.putExtra(Config.Extras.EXTRA_HOST, mHost);
+			intent.putExtra(Config.Extras.EXTRA_CONNECTION, mConnection);
 			startActivity(intent);
 			
 			stopLoadingScreen();

@@ -32,7 +32,7 @@ public class Config {
 		
 		public static final String EXTRA_CONNECTION_ACTIVITY_STATE = APP_PACKAGE + ".EXTRA_CONNECTION_ACTIVITY_STATE";
 		
-		public static final String EXTRA_HOST = APP_PACKAGE + ".EXTRA_HOST";
+		public static final String EXTRA_CONNECTION = APP_PACKAGE + ".EXTRA_HOST";
 		
 		public static final String EXTRA_IS_WAN = APP_PACKAGE + ".EXTRA_CONNECTION_MODE";
 		

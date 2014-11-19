@@ -22,7 +22,7 @@ import android.widget.TextView.OnEditorActionListener;
 
 import com.freerdp.freerdpcore.application.GlobalApp;
 import com.jetro.mobileclient.R;
-import com.jetro.mobileclient.model.beans.Host;
+import com.jetro.mobileclient.model.beans.Connection;
 import com.jetro.mobileclient.repository.ConnectionsDB;
 import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
 import com.jetro.mobileclient.ui.dialogs.DialogLauncher;
@@ -44,7 +44,7 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 	
 	private ClientChannel mClientChannel;
 	
-	private Host mHost;
+	private Connection mConnection;
 	private boolean mIsWAN;
 	
 	private View mBaseContentLayout;
@@ -76,7 +76,7 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		Log.d(TAG, TAG + "#onSaveInstanceState(...) ENTER");
 		
 		// Save the user's current game state
-		outState.putSerializable(Config.Extras.EXTRA_HOST, mHost);
+		outState.putSerializable(Config.Extras.EXTRA_CONNECTION, mConnection);
 		
 		// Always call the superclass so it can save the view hierarchy state
 		super.onSaveInstanceState(outState);
@@ -90,12 +90,12 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		// Check whether we're recreating a previously destroyed instance
 		if (savedInstanceState != null) {
 			// Restore value of members from saved state
-			mHost = (Host) savedInstanceState.getSerializable(Config.Extras.EXTRA_HOST);
+			mConnection = (Connection) savedInstanceState.getSerializable(Config.Extras.EXTRA_CONNECTION);
 			mIsWAN = savedInstanceState.getBoolean(Config.Extras.EXTRA_IS_WAN);
 		} else {
 			// Probably initialize members with default values for a new instance
 			Intent intent = getIntent();
-			mHost = (Host) intent.getSerializableExtra(Config.Extras.EXTRA_HOST);
+			mConnection = (Connection) intent.getSerializableExtra(Config.Extras.EXTRA_CONNECTION);
 			mIsWAN = intent.getBooleanExtra(Config.Extras.EXTRA_IS_WAN, true);
 		}
 		
@@ -146,10 +146,10 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		});
 		
 		// Gets the user credentials from the host
-		if (mHost != null) {
-			mUsernameInput.setText(mHost.getUserName());
-			mPasswordInput.setText(mHost.getPassword());
-			mDomainInput.setText(mHost.getDomain());
+		if (mConnection != null) {
+			mUsernameInput.setText(mConnection.getUserName());
+			mPasswordInput.setText(mConnection.getPassword());
+			mDomainInput.setText(mConnection.getDomain());
 		}
 	}
 
@@ -216,10 +216,10 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		String domain = mDomainInput.getText().toString();
 		
 		// Saves user credentials to host
-		mHost.setUserName(username);
-		mHost.setPassword(password);
-		mHost.setDomain(domain);
-		ConnectionsDB.getInstance(getApplicationContext()).saveHost(mHost);
+		mConnection.setUserName(username);
+		mConnection.setPassword(password);
+		mConnection.setDomain(domain);
+		ConnectionsDB.getInstance(getApplicationContext()).saveConnection(mConnection);
 		
 		sendLoginMsg();
 	}
@@ -234,7 +234,7 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 			if (loginMsg.returnCode == LoginMsg.LOGIN_SUCCESS) {
 				GlobalApp.setSessionTicket(loginMsg.Ticket);
 				Intent intent = new Intent(LoginActivity.this, SessionActivity.class);
-				intent.putExtra(Config.Extras.EXTRA_HOST, mHost);
+				intent.putExtra(Config.Extras.EXTRA_CONNECTION, mConnection);
 				startActivity(intent);
 				finish();
 			}
@@ -253,30 +253,33 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		String deviceId = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
 		// Sends LoginMsg
 		LoginMsg loginMsg = new LoginMsg();
-		loginMsg.name = mHost.getUserName();
-		loginMsg.password = mHost.getPassword();
-		loginMsg.domain = mHost.getDomain();
+		loginMsg.name = mConnection.getUserName();
+		loginMsg.password = mConnection.getPassword();
+		loginMsg.domain = mConnection.getDomain();
 		loginMsg.deviceModel = deviceModel;
 		loginMsg.deviceId = deviceId;
 		
 		if (mClientChannel == null) {
 			ConnectionPoint connectionPoint = null;
 			if (mIsWAN) {
-				connectionPoint = mHost.getWANs().iterator().next();
+				connectionPoint = mConnection.getWANs().iterator().next();
 			} else {
-				connectionPoint = mHost.getLANs().iterator().next();
+				connectionPoint = mConnection.getLANs().iterator().next();
 			}
 			boolean isCreated = ClientChannel.Create(connectionPoint.IP, connectionPoint.Port, ClientChannel.TIME_OUT);
 			if (isCreated) {
 				mClientChannel = ClientChannel.getInstance();
 				mClientChannel.AddListener(LoginActivity.this);
 				mClientChannel.SendReceiveAsync(loginMsg);
+				// Saves this connection point as last used one
+				mConnection.setLastConnectionPoint(connectionPoint);
+				ConnectionsDB.getInstance(getApplicationContext()).saveConnection(mConnection);
 			} else {
 				stopLoadingScreen();
 				DialogLauncher.launchNetworkConnectionIssueDialog(LoginActivity.this, null);
 			}
 		} else {
-			mClientChannel.SendReceive(loginMsg, ClientChannel.TIME_OUT);
+			mClientChannel.SendAsync(loginMsg);
 		}
 		
 	}

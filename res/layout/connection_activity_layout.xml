@@ -41,7 +41,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="@string/host_name_lbl"
+                    android:text="@string/connection_name_lbl"
                     android:textColor="@color/black"
                     android:textSize="@dimen/edittext_lbl" />
             </LinearLayout>

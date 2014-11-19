@@ -23,7 +23,7 @@ import android.widget.TextView;
 
 import com.freerdp.freerdpcore.application.GlobalApp;
 import com.jetro.mobileclient.R;
-import com.jetro.mobileclient.model.beans.Host;
+import com.jetro.mobileclient.model.beans.Connection;
 import com.jetro.mobileclient.repository.ConnectionsDB;
 import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
 import com.jetro.mobileclient.ui.dialogs.DialogLauncher;
@@ -36,7 +36,7 @@ public class ConnectionsListActivity extends HeaderActivity {
 	
 	private ConnectionsDB mConnectionsDB;
 	
-	private List<Host> mHosts;
+	private List<Connection> mConnections;
 	
 	private View mBaseContentLayout;
 	private View mAddNewConnectionButton;
@@ -75,13 +75,13 @@ public class ConnectionsListActivity extends HeaderActivity {
 		Log.d(TAG, TAG + "#onResume(...) ENTER");
 		super.onResume();
 		
-		// If there are mHosts, list them
-		boolean hasHosts = mConnectionsDB.hasHosts();
+		// If there are mConnections, list them
+		boolean hasHosts = mConnectionsDB.hasConnections();
 		if (hasHosts) {
-			mHosts = mConnectionsDB.getAllHosts();
-			mConnectionsAdapter = new ConnectionsListAdapter(mHosts);
+			mConnections = mConnectionsDB.getAllConnections();
+			mConnectionsAdapter = new ConnectionsListAdapter(mConnections);
 			mConnectionsList.setAdapter(mConnectionsAdapter);
-		// If there are none mHosts, redirect to ConnectionActivity,
+		// If there are none mConnections, redirect to ConnectionActivity,
 		// to add the first connection
 		} else {
 			Intent intent = new Intent(ConnectionsListActivity.this, ConnectionActivity.class);
@@ -128,22 +128,22 @@ public class ConnectionsListActivity extends HeaderActivity {
 	 */
 	private class ConnectionsListAdapter extends BaseAdapter {
 
-		private List<Host> mHosts;
+		private List<Connection> mConnections;
 		private LayoutInflater mInflater;
 
-		public ConnectionsListAdapter(List<Host> hosts) {
-			mHosts = hosts;
+		public ConnectionsListAdapter(List<Connection> hosts) {
+			mConnections = hosts;
 			mInflater = getLayoutInflater();
 		}
 
 		@Override
 		public int getCount() {
-			return mHosts.size();
+			return mConnections.size();
 		}
 
 		@Override
 		public Object getItem(int position) {
-			return mHosts.get(position);
+			return mConnections.get(position);
 		}
 
 		@Override
@@ -154,9 +154,9 @@ public class ConnectionsListActivity extends HeaderActivity {
 		@Override
 		public View getView(final int position, View convertView, ViewGroup parent) {
 
-			final Host host = mHosts.get(position);
+			final Connection host = mConnections.get(position);
 			
-			String name = host.getHostName();
+			String name = host.getName();
 			Set<ConnectionPoint> connectionPoints = host.getConnectionPoints();
 			
 			convertView = mInflater.inflate(R.layout.connection_list_item_layout, parent, false);
@@ -192,7 +192,7 @@ public class ConnectionsListActivity extends HeaderActivity {
 			return convertView;
 		}
 		
-		private void launchConnectionTypesDialog(final Host host) {
+		private void launchConnectionTypesDialog(final Connection host) {
 			Log.d(TAG, TAG + "#launchConnectionTypesDialog(...) ENTER");
 
 			final String[] connectionsTypes = getResources().getStringArray(R.array.connection_types_options);
@@ -209,13 +209,13 @@ public class ConnectionsListActivity extends HeaderActivity {
 					if (connectionsTypes[0].equals(item)) {
 						Intent intent = new Intent(ConnectionsListActivity.this, LoginActivity.class);
 						intent.putExtra(Config.Extras.EXTRA_IS_WAN, false);
-						intent.putExtra(Config.Extras.EXTRA_HOST, host);
+						intent.putExtra(Config.Extras.EXTRA_CONNECTION, host);
 						startActivity(intent);
 					// Connection type WAN
 					} else if (connectionsTypes[1].equals(item)) {
 						Intent intent = new Intent(ConnectionsListActivity.this, LoginActivity.class);
 						intent.putExtra(Config.Extras.EXTRA_IS_WAN, true);
-						intent.putExtra(Config.Extras.EXTRA_HOST, host);
+						intent.putExtra(Config.Extras.EXTRA_CONNECTION, host);
 						startActivity(intent);
 					}
 					connectionsTypesDialog.dismiss();
@@ -224,7 +224,7 @@ public class ConnectionsListActivity extends HeaderActivity {
 			connectionsTypesDialog.show();
 		}
 		
-		private void launchConnectionActionsDialog(final Host host) {
+		private void launchConnectionActionsDialog(final Connection host) {
 			Log.d(TAG, TAG + "#launchConnectionActionsDialog(...) ENTER");
 
 			final Dialog dialog = new Dialog(ConnectionsListActivity.this);
@@ -240,13 +240,13 @@ public class ConnectionsListActivity extends HeaderActivity {
 					// Connection option connect
 					if (connectionActionsOptions[0].equals(connectionActionOption)) {
 						Intent intent = new Intent(ConnectionsListActivity.this, LoginActivity.class);
-						intent.putExtra(Config.Extras.EXTRA_HOST, host);
+						intent.putExtra(Config.Extras.EXTRA_CONNECTION, host);
 						startActivity(intent);
 					// Connection option details
 					} else if (connectionActionsOptions[1].equals(connectionActionOption)) {
 						Intent intent = new Intent(ConnectionsListActivity.this, ConnectionActivity.class);
 						intent.putExtra(Config.Extras.EXTRA_CONNECTION_ACTIVITY_STATE, ConnectionActivity.State.VIEW_CONNECTION);
-						intent.putExtra(Config.Extras.EXTRA_HOST, host);
+						intent.putExtra(Config.Extras.EXTRA_CONNECTION, host);
 						startActivity(intent);
 					// Connection option delete
 					} else if (connectionActionsOptions[2].equals(connectionActionOption)) {
@@ -258,7 +258,7 @@ public class ConnectionsListActivity extends HeaderActivity {
 			dialog.show();
 		}
 		
-		private void launchDeleteConnectionDialog(final Host host, final int position) {
+		private void launchDeleteConnectionDialog(final Connection host, final int position) {
 			Log.d(TAG, TAG + "#launchDeleteConnectionDialog(...) ENTER");
 			
 			DialogLauncher.launchDeleteConnectionDialog(
@@ -266,8 +266,8 @@ public class ConnectionsListActivity extends HeaderActivity {
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
 							if (which == DialogInterface.BUTTON_POSITIVE) {
-								mConnectionsDB.deleteHost(host.getHostName());
-								mHosts.remove(position);
+								mConnectionsDB.deleteConnection(host.getName());
+								mConnections.remove(position);
 								if (mConnectionsDB.isDBEmpty()) {
 									Intent intent = new Intent(ConnectionsListActivity.this, ConnectionActivity.class);
 									intent.putExtra(Config.Extras.EXTRA_CONNECTION_ACTIVITY_STATE, ConnectionActivity.State.ADD_CONNECTION);

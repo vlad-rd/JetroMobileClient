@@ -16,7 +16,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import com.jetro.mobileclient.R;
-import com.jetro.mobileclient.model.beans.Host;
+import com.jetro.mobileclient.model.beans.Connection;
 import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
 import com.jetro.mobileclient.utils.Config;
 
@@ -29,7 +29,7 @@ public class ResetPasswordActivity extends HeaderActivity {
 	private static final String TAG = ResetPasswordActivity.class
 			.getSimpleName();
 	
-	private Host mHost;
+	private Connection mConnection;
 	
 	private View mBaseContentLayout;
 	private EditText mOldPasswordInput;
@@ -59,7 +59,7 @@ public class ResetPasswordActivity extends HeaderActivity {
 		Log.d(TAG, TAG + "#onSaveInstanceState(...) ENTER");
 		
 		// Save the user's current game state
-		outState.putSerializable(Config.Extras.EXTRA_HOST, mHost);
+		outState.putSerializable(Config.Extras.EXTRA_CONNECTION, mConnection);
 		
 		// Always call the superclass so it can save the view hierarchy state
 		super.onSaveInstanceState(outState);
@@ -73,10 +73,10 @@ public class ResetPasswordActivity extends HeaderActivity {
 		// Check whether we're recreating a previously destroyed instance
 		if (savedInstanceState != null) {
 			// Restore value of members from saved state
-			mHost = (Host) savedInstanceState.getSerializable(Config.Extras.EXTRA_HOST);
+			mConnection = (Connection) savedInstanceState.getSerializable(Config.Extras.EXTRA_CONNECTION);
 		} else {
 			// Probably initialize members with default values for a new instance
-			mHost = (Host) getIntent().getSerializableExtra(Config.Extras.EXTRA_HOST);
+			mConnection = (Connection) getIntent().getSerializableExtra(Config.Extras.EXTRA_CONNECTION);
 		}
 		
 		setHeaderTitleText(R.string.header_title_ResetPassword);
@@ -101,8 +101,8 @@ public class ResetPasswordActivity extends HeaderActivity {
 		});
 		
 		// Loads old password from host
-		if (mHost != null) {
-			mOldPasswordInput.setText(mHost.getPassword());
+		if (mConnection != null) {
+			mOldPasswordInput.setText(mConnection.getPassword());
 		}
 	}
 	
@@ -146,8 +146,8 @@ public class ResetPasswordActivity extends HeaderActivity {
 		String oldPassword = mOldPasswordInput.getText().toString().trim();
 		String newPassword = mNewPasswordInput.getText().toString().trim();
 		
-		String userName = mHost.getUserName();
-		String domain = mHost.getDomain();
+		String userName = mConnection.getUserName();
+		String domain = mConnection.getDomain();
 		
 		// TODO: save the new password to host
 	}
