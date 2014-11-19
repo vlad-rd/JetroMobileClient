@@ -1,8 +1,6 @@
 package com.jetro.mobileclient.ui.activities;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -154,22 +152,23 @@ public class ConnectionsListActivity extends HeaderActivity {
 		@Override
 		public View getView(final int position, View convertView, ViewGroup parent) {
 
-			final Connection host = mConnections.get(position);
+			final Connection connection = mConnections.get(position);
 			
-			String name = host.getName();
-			Set<ConnectionPoint> connectionPoints = host.getConnectionPoints();
+			String connectionName = connection.getName();
+			ConnectionPoint lastConnectionPoint = connection.getLastConnectionPoint();
+			String connectionIp = (lastConnectionPoint != null) ? lastConnectionPoint.IP : null;
 			
-			convertView = mInflater.inflate(R.layout.connection_list_item_layout, parent, false);
-			TextView hostName = (TextView) convertView.findViewById(R.id.host_name);
-			hostName.setText(name);
+			convertView = mInflater.inflate(R.layout.list_item_connection, parent, false);
+			TextView hostName = (TextView) convertView.findViewById(R.id.connection_name);
+			hostName.setText(connectionName);
 			TextView hostIp = (TextView) convertView.findViewById(R.id.host_ip);
-			hostIp.setText(Arrays.toString(connectionPoints.toArray()));
+			hostIp.setText(connectionIp);
 
 			convertView.findViewById(R.id.itemBg).setOnClickListener(
 					new OnClickListener() {
 						@Override
 						public void onClick(View v) {
-							launchConnectionTypesDialog(host);
+							launchConnectionTypesDialog(connection);
 						}
 					});
 
@@ -177,7 +176,7 @@ public class ConnectionsListActivity extends HeaderActivity {
 					new OnLongClickListener() {
 						@Override
 						public boolean onLongClick(View v) {
-							launchConnectionActionsDialog(host);
+							launchConnectionActionsDialog(connection);
 							return true;
 						}
 					});
@@ -186,7 +185,7 @@ public class ConnectionsListActivity extends HeaderActivity {
 					new OnClickListener() {
 						@Override
 						public void onClick(View v) {
-							launchDeleteConnectionDialog(host, position);
+							launchDeleteConnectionDialog(connection, position);
 						}
 					});
 			return convertView;

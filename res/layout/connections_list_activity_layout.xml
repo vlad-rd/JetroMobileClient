@@ -10,7 +10,7 @@
     <RelativeLayout
         android:id="@+id/add_new_connection_button"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="100dp"
         android:layout_marginBottom="10dp"
         android:background="@drawable/orange_button_selector" >
 
