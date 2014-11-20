@@ -19,8 +19,8 @@ import android.widget.TextView;
 
 import com.freerdp.freerdpcore.sharedobjects.utils.Constants;
 import com.jetro.mobileclient.R;
+import com.jetro.mobileclient.config.Config;
 import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
-import com.jetro.mobileclient.utils.Config;
 
 public class AboutPopupActivity extends HeaderActivity {
 	

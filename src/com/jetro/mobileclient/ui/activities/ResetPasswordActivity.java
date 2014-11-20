@@ -16,9 +16,9 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import com.jetro.mobileclient.R;
+import com.jetro.mobileclient.config.Config;
 import com.jetro.mobileclient.model.beans.Connection;
 import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
-import com.jetro.mobileclient.utils.Config;
 
 /**
  * @author ran.h
@@ -82,7 +82,7 @@ public class ResetPasswordActivity extends HeaderActivity {
 		setHeaderTitleText(R.string.header_title_ResetPassword);
 		mHeaderBackButton.setVisibility(View.VISIBLE);
 		
-		mBaseContentLayout = setBaseContentView(R.layout.reset_password_activity_layout);
+		mBaseContentLayout = setBaseContentView(R.layout.activity_reset_password_layout);
 		mOldPasswordInput = (EditText) mBaseContentLayout.findViewById(R.id.old_password_input);
 		mOldPasswordInput.addTextChangedListener(mInputTextWatcher);
 		mNewPasswordInput = (EditText) mBaseContentLayout.findViewById(R.id.new_password_input);

@@ -1,7 +1,13 @@
 /**
  * 
  */
-package com.jetro.mobileclient.utils;
+package com.jetro.mobileclient.config;
+
+import java.io.File;
+
+import android.os.Environment;
+
+import com.jetro.mobileclient.application.GlobalApp;
 
 /**
  * @author ran.h
@@ -13,6 +19,28 @@ public class Config {
 	}
 	
 	public static final String APP_PACKAGE = "com.jetro.mobileclient";
+	
+	public static final String APP_NAME = "Jetro";
+	
+	public static class Paths {
+		
+		public static final String DIR_STORAGE_INTERNAL = GlobalApp
+				.getContext()
+				.getDir("data", 0).getPath();
+		
+		public static final String DIR_EXTERNAL_INTERNAL = Environment
+				.getExternalStorageDirectory().getPath()
+				+ File.separator
+				+ APP_NAME
+				+ File.separator
+				+ "data"
+				+ File.separator;
+		
+		public static final String DIR_IMAGES = DIR_EXTERNAL_INTERNAL + "images" + File.separator;
+		
+		public static final String FILE_LOGIN_IMAGE = DIR_EXTERNAL_INTERNAL + DIR_IMAGES + "login_image";
+		
+	}
 	
 	public static class Prefs {
 		

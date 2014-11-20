@@ -11,7 +11,7 @@
         android:id="@+id/scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/connect_button" >
+        android:layout_above="@+id/buttons_container" >
 
         <LinearLayout
             android:id="@+id/wrapper"
@@ -197,27 +197,51 @@
                 android:singleLine="true"
                 android:textCursorDrawable="@null"
                 android:textSize="@dimen/edittext_lbl" />
-
-            <!-- Login Screen Image -->
-
-            <ImageView
-                android:id="@+id/login_screen_image"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:src="@drawable/icon_jetro_launcher" />
         </LinearLayout>
     </ScrollView>
 
     <!-- Connect - Button -->
 
-    <TextView
-        android:id="@+id/connect_button"
-        style="@style/DefaultButtonState"
+
+    <!-- Buttons -->
+
+    <LinearLayout
+        android:id="@+id/buttons_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:text="@string/connect_lbl"
-        android:textSize="@dimen/button_text_lbl" />
+        android:orientation="horizontal" >
+
+        <!-- Cancel - Button -->
+
+        <TextView
+            android:id="@+id/cancel_button"
+            style="@style/DefaultButtonState"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:layout_weight="1"
+            android:background="@drawable/orange_button_selector"
+            android:text="@string/cancel_lbl"
+            android:textSize="@dimen/button_text_lbl" />
+
+        <ImageView
+            android:id="@+id/divider_horizontal"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.02" />
+
+        <!-- Login - Button -->
+
+        <TextView
+            android:id="@+id/connect_button"
+            style="@style/DefaultButtonState"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_weight="1"
+            android:text="@string/connect_lbl"
+            android:textSize="@dimen/button_text_lbl" />
+    </LinearLayout>
 
 </RelativeLayout>

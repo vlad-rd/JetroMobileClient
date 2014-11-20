@@ -19,13 +19,12 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.freerdp.freerdpcore.application.GlobalApp;
 import com.jetro.mobileclient.R;
+import com.jetro.mobileclient.config.Config;
 import com.jetro.mobileclient.model.beans.Connection;
 import com.jetro.mobileclient.repository.ConnectionsDB;
 import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
 import com.jetro.mobileclient.ui.dialogs.DialogLauncher;
-import com.jetro.mobileclient.utils.Config;
 import com.jetro.protocol.Protocols.Controller.ConnectionPoint;
 
 public class ConnectionsListActivity extends HeaderActivity {
@@ -52,7 +51,7 @@ public class ConnectionsListActivity extends HeaderActivity {
 		setHeaderTitleText(R.string.header_title_Connections);
 		mHeaderBackButton.setVisibility(View.INVISIBLE);
 		
-		mBaseContentLayout = setBaseContentView(R.layout.connections_list_activity_layout);
+		mBaseContentLayout = setBaseContentView(R.layout.activity_connections_list);
 		mAddNewConnectionButton = mBaseContentLayout.findViewById(R.id.add_new_connection_button);
 		mAddNewConnectionButton.setOnClickListener(new OnClickListener() {
 			@Override
@@ -62,7 +61,6 @@ public class ConnectionsListActivity extends HeaderActivity {
 				intent.putExtra(Config.Extras.EXTRA_CONNECTION_ACTIVITY_STATE,
 						ConnectionActivity.State.ADD_CONNECTION);
 				startActivity(intent);
-				finish();
 			}
 		});
 		mConnectionsList = (ListView) mBaseContentLayout.findViewById(R.id.connections_list);
@@ -104,16 +102,6 @@ public class ConnectionsListActivity extends HeaderActivity {
 						}
 					}
 				});
-	}
-
-	@Override
-	public void finish() {
-		Log.d(TAG, TAG + "#finish(...) ENTER");
-		
-		GlobalApp.getSocketManager(null).closeSocket();
-		Log.i(TAG, TAG + "#finish(...) Terminating the main socket");
-		
-		super.finish();
 	}
 
 	@Override

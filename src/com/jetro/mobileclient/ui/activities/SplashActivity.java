@@ -7,8 +7,8 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.jetro.mobileclient.R;
+import com.jetro.mobileclient.config.Config;
 import com.jetro.mobileclient.repository.ConnectionsDB;
-import com.jetro.mobileclient.utils.Config;
 
 public class SplashActivity extends Activity {
 	
@@ -23,7 +23,7 @@ public class SplashActivity extends Activity {
 		Log.d(TAG, TAG + "#onCreate(...) ENTER");
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.splash_activity_layout);
+		setContentView(R.layout.activity_splash);
 		
 		mConnectionsDB = ConnectionsDB.getInstance(getApplicationContext());
 

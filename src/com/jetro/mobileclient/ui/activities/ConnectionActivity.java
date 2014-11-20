@@ -3,9 +3,12 @@
  */
 package com.jetro.mobileclient.ui.activities;
 
+import java.io.File;
 import java.util.Iterator;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -24,16 +27,18 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import com.jetro.mobileclient.R;
+import com.jetro.mobileclient.config.Config;
 import com.jetro.mobileclient.model.beans.Connection;
 import com.jetro.mobileclient.repository.ConnectionsDB;
 import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
-import com.jetro.mobileclient.utils.Config;
+import com.jetro.mobileclient.utils.FilesUtils;
 import com.jetro.protocol.Core.BaseMsg;
 import com.jetro.protocol.Core.ClassID;
 import com.jetro.protocol.Core.IMessageSubscriber;
 import com.jetro.protocol.Core.Net.ClientChannel;
 import com.jetro.protocol.Protocols.Controller.CockpitSiteInfoMsg;
 import com.jetro.protocol.Protocols.Controller.ConnectionPoint;
+import com.jetro.protocol.Protocols.Controller.LoginScreenImageMsg;
 
 /**
  * @author ran.h
@@ -59,7 +64,8 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 	private Spinner mConnectionModeSpinner;
 	private EditText mConnectionModeInput;
 	private String mSelectedConnectionMode;
-	private ImageView mLoginScreenImage;
+	private TextView mCancelButton;
+	private View mDividerHorizontal;
 	private TextView mConnectButton;
 	
 	private TextWatcher mInputTextWatcher = new TextWatcher() {
@@ -124,7 +130,7 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 		
 		mConnectionsModes = getResources().getStringArray(R.array.connection_mode_options);
 		
-		mBaseContentLayout = setBaseContentView(R.layout.new_connection_activit_layout);
+		mBaseContentLayout = setBaseContentView(R.layout.activity_new_connection);
 		mConnectionNameInput = (EditText) mBaseContentLayout.findViewById(R.id.connection_name_input);
 		mConnectionNameInput.addTextChangedListener(mInputTextWatcher);
 		mHostIpInput = (EditText) mBaseContentLayout.findViewById(R.id.host_ip_input);
@@ -141,9 +147,9 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 				return false;
 			}
 		});
-		
 		mConnectionModeInput = (EditText) mBaseContentLayout.findViewById(R.id.connection_mode_input);
-		mLoginScreenImage = (ImageView) mBaseContentLayout.findViewById(R.id.login_screen_image);
+		mCancelButton = (TextView) mBaseContentLayout.findViewById(R.id.cancel_button);
+		mDividerHorizontal = (View) mBaseContentLayout.findViewById(R.id.divider_horizontal);
 		mConnectButton = (TextView) mBaseContentLayout.findViewById(R.id.connect_button);
 		mConnectButton.setOnClickListener(new OnClickListener() {
 			@Override
@@ -176,6 +182,10 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 			
 			// Hides view connection state specific widgets
 			mConnectionModeInput.setVisibility(View.GONE);
+			// Hides the cancel button
+			mCancelButton.setVisibility(View.GONE);
+			// Hides the horizontal divider between the buttons
+			mDividerHorizontal.setVisibility(View.GONE);
 			
 			// TODO: remove this after debug
 			mConnectionNameInput.setText("Test environment");
@@ -197,6 +207,13 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 			// Hides the connection mode spinner
 			mConnectionModeSpinnerWrapper = (ViewGroup) mBaseContentLayout.findViewById(R.id.connection_mode_spinner_wrapper);
 			mConnectionModeSpinnerWrapper.setVisibility(View.GONE);
+			// Shows the cancel button
+			mCancelButton.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					onBackPressed();
+				}
+			});
 			
 			// Disables the input fields
 			mConnectionNameInput.setEnabled(false);
@@ -278,8 +295,6 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 	private void openSocket() {
 		Log.d(TAG, TAG + "#openSocket(...) ENTER");
 		
-		startLoadingScreen();
-		
 		String hostIp = mHostIpInput.getText().toString();
 		int hostPort = Integer.valueOf(mHostPortInput.getText().toString());
 		
@@ -293,6 +308,7 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 			// Sends CockpitSiteInfoMsg
 			CockpitSiteInfoMsg msgCSI = new CockpitSiteInfoMsg();
 	    	mClientChannel.SendAsync(msgCSI);
+	    	startLoadingScreen();
 		}
 	}
 
@@ -302,28 +318,55 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 		
 		if (msg.msgCalssID == ClassID.CockpitSiteInfoMsg.ValueOf()) {
 			CockpitSiteInfoMsg cockpitSiteInfoMsg = (CockpitSiteInfoMsg) msg;
+			// Gets the connection points
 			ConnectionPoint[] connectionPoints = cockpitSiteInfoMsg.ConnectionPoints;
+			// Gets the login screen image
+			String loginImageName = FilesUtils.getFileName(cockpitSiteInfoMsg.LoginScreenImage, "\\");
+			// Gets the connection name from the input
+			String connectionName = mConnectionNameInput.getText().toString();
 			// Creates a new host
-			String hostName = mConnectionNameInput.getText().toString();
 			mConnection = new Connection();
-			mConnection.setName(hostName);
+			mConnection.setName(connectionName);
+			mConnection.setLoginImageName(loginImageName);
 			for (ConnectionPoint cp : connectionPoints) {
 				mConnection.addConnectionPoint(cp);
 			}
-			// Save the new host
 			ConnectionsDB.getInstance(getApplicationContext()).saveConnection(mConnection);
-			// Launches the login activity
-			Intent intent = new Intent(ConnectionActivity.this, LoginActivity.class);
-			intent.putExtra(Config.Extras.EXTRA_CONNECTION, mConnection);
-			startActivity(intent);
-			
-			stopLoadingScreen();
+//			String loginImageFilePath = Config.Paths.DIR_IMAGES + loginImageName;
+			Bitmap image = FilesUtils.readImage(loginImageName);
+			// If the image not found in client storage,
+			// fetch it from the server
+			if (image == null) {
+				// Sends LoginScreenImageMsg
+				LoginScreenImageMsg msgLIS = new LoginScreenImageMsg();
+				msgLIS.ImageName = ((CockpitSiteInfoMsg)msg).LoginScreenImage;
+				ClientChannel.getInstance().SendAsync(msgLIS);
+			} else {
+				launchConnectionActivity();
+			}
+		} else if (msg.msgCalssID == ClassID.LoginScreenImageMsg.ValueOf()) {
+			LoginScreenImageMsg loginScreenImageMsg = (LoginScreenImageMsg) msg;
+			Bitmap image = BitmapFactory.decodeByteArray(
+					loginScreenImageMsg.Image, 0,
+					loginScreenImageMsg.Image.length);
+			String loginImageName = FilesUtils.getFileName(loginScreenImageMsg.ImageName, "\\");
+//			String loginImageFilePath = Config.Paths.DIR_IMAGES + loginImageName;
+			FilesUtils.writeImage(loginImageName, image);
+			launchConnectionActivity();
 		}
 	}
-
+	
 	@Override
 	public void ConnectionIsBroken() {
 		// Do nothing
+	}
+	
+	private void launchConnectionActivity() {
+		// Launches the login activity
+		Intent intent = new Intent(ConnectionActivity.this, LoginActivity.class);
+		intent.putExtra(Config.Extras.EXTRA_CONNECTION, mConnection);
+		startActivity(intent);
+		stopLoadingScreen();
 	}
 
 }

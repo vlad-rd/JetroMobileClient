@@ -5,6 +5,7 @@ package com.jetro.mobileclient.ui.activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings.Secure;
@@ -17,16 +18,18 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import com.freerdp.freerdpcore.application.GlobalApp;
 import com.jetro.mobileclient.R;
+import com.jetro.mobileclient.config.Config;
 import com.jetro.mobileclient.model.beans.Connection;
 import com.jetro.mobileclient.repository.ConnectionsDB;
 import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
 import com.jetro.mobileclient.ui.dialogs.DialogLauncher;
-import com.jetro.mobileclient.utils.Config;
+import com.jetro.mobileclient.utils.FilesUtils;
 import com.jetro.protocol.Core.BaseMsg;
 import com.jetro.protocol.Core.ClassID;
 import com.jetro.protocol.Core.IMessageSubscriber;
@@ -51,6 +54,7 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 	private EditText mUsernameInput;
 	private EditText mPasswordInput;
 	private EditText mDomainInput;
+	private ImageView mLoginImage;
 	private TextView mCancelButton;
 	private TextView mLoginButton;
 	
@@ -102,7 +106,7 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		setHeaderTitleText(R.string.header_title_Login);
 		mHeaderBackButton.setVisibility(View.VISIBLE);
 		
-		mBaseContentLayout = setBaseContentView(R.layout.login_activity_layout);
+		mBaseContentLayout = setBaseContentView(R.layout.activity_login);
 		mUsernameInput = (EditText) mBaseContentLayout.findViewById(R.id.username_input);
 		mUsernameInput.addTextChangedListener(mInputTextWatcher);
 		mPasswordInput = (EditText) mBaseContentLayout.findViewById(R.id.password_input);
@@ -119,6 +123,7 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 				return false;
 			}
 		});
+		mLoginImage = (ImageView) mBaseContentLayout.findViewById(R.id.login_screen_image);
 		mCancelButton = (TextView) mBaseContentLayout.findViewById(R.id.cancel_button);
 		mCancelButton.setOnClickListener(new OnClickListener() {
 			@Override
@@ -150,6 +155,11 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 			mUsernameInput.setText(mConnection.getUserName());
 			mPasswordInput.setText(mConnection.getPassword());
 			mDomainInput.setText(mConnection.getDomain());
+			Bitmap loginImage = FilesUtils.readImage(mConnection.getLoginImageName());
+			if (loginImage != null) {				
+				mLoginImage.setImageBitmap(loginImage);
+				mLoginImage.setVisibility(View.VISIBLE);
+			}
 		}
 	}
 

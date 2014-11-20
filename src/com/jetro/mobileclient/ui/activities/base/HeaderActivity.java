@@ -18,8 +18,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.jetro.mobileclient.R;
+import com.jetro.mobileclient.config.Config;
 import com.jetro.mobileclient.ui.AboutPopupActivity;
-import com.jetro.mobileclient.utils.Config;
 import com.jetro.mobileclient.utils.ConnectivityUtils;
 
 public abstract class HeaderActivity extends Activity {
@@ -43,7 +43,7 @@ public abstract class HeaderActivity extends Activity {
 		Log.d(TAG, TAG + "#onCreate(...) ENTER");
 		super.onCreate(savedInstanceState);
 		
-		setContentView(R.layout.header_activity_layout);
+		setContentView(R.layout.activity_header);
 		
 		// Sets Header widgets
 		mHeaderBackButton = (ImageView) findViewById(R.id.header_back_button);

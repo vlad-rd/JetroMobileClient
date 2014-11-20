@@ -27,6 +27,8 @@ public class Connection implements Serializable {
 	
 	private String domain;
 	
+	private String loginImageName;
+	
 	private ConnectionPoint lastConnectionPoint;
 	
 	private Set<ConnectionPoint> LANs = new HashSet<ConnectionPoint>();
@@ -67,6 +69,14 @@ public class Connection implements Serializable {
 
 	public void setDomain(String domain) {
 		this.domain = domain;
+	}
+
+	public String getLoginImageName() {
+		return loginImageName;
+	}
+
+	public void setLoginImageName(String loginImageName) {
+		this.loginImageName = loginImageName;
 	}
 
 	public ConnectionPoint getLastConnectionPoint() {

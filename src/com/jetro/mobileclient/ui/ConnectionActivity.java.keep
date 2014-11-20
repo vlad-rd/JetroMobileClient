@@ -54,7 +54,7 @@ import com.freerdp.freerdpcore.sharedobjects.utils.Logger.LogLevel;
 import com.jetro.mobileclient.R;
 import com.jetro.mobileclient.application.GlobalApp;
 import com.jetro.mobileclient.repository.ConnectionsDB;
-import com.jetro.mobileclient.utils.Config;
+import com.jetro.mobileclient.config.Config;
 
 public class ConnectionActivity extends HeaderActivtiy implements TextWatcher {
 
