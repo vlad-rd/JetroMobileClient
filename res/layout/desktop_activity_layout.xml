@@ -10,29 +10,39 @@
         android:layout_height="match_parent"
         android:background="@drawable/bg_h" >
 
-        <!-- Header -->
+        <!-- Desktop Header - Image -->
 
         <ImageView
-            android:id="@+id/headerImg"
+            android:id="@+id/desktop_header_image"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/drawerDoorUp"
+            android:layout_toRightOf="@+id/drawer_dummy_handle"
             android:scaleType="fitXY"
             android:src="@drawable/desktop_header" />
+        
+        <!-- Desktop Header - Refresh Button -->
+
+        <ImageView
+            android:id="@+id/desktop_header_refresh_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:src="@drawable/refresh" />
 
         <!-- Applications grid -->
 
         <GridView
-            android:id="@+id/applicationsGrid"
+            android:id="@+id/applications_grid"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/headerImg"
-            android:layout_toRightOf="@+id/drawerDoorUp"
+            android:layout_below="@+id/desktop_header_image"
+            android:layout_toRightOf="@+id/drawer_dummy_handle"
             android:numColumns="5"
             android:verticalSpacing="5dp" >
         </GridView>
 
-        <!-- Footer -->
+        <!-- Desktop Footer -->
 
         <ImageView
             android:layout_width="match_parent"
@@ -41,28 +51,18 @@
             android:scaleType="fitXY"
             android:src="@drawable/desktop_footer" />
 
-        <!-- Side drawer -->
+        <!-- Side Drawer - Handle -->
 
         <ImageView
-            android:id="@+id/drawerDoorUp"
+            android:id="@+id/drawer_dummy_handle"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
             android:scaleType="fitXY"
             android:src="@drawable/door" />
-
-        <!-- Refresh button -->
-
-        <ImageView
-            android:id="@+id/imageView1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:src="@drawable/refresh" />
     </RelativeLayout>
 
-    <!-- The navigation drawer -->
+    <!-- Tasks Drawer -->
 
     <RelativeLayout
         android:layout_width="340dp"
@@ -71,7 +71,7 @@
         android:background="@color/light_blue" >
 
         <ImageView
-            android:id="@+id/drawerDoor"
+            android:id="@+id/tasks_drawer_handle"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_alignParentRight="true"
@@ -79,32 +79,32 @@
             android:src="@drawable/door" />
 
         <RelativeLayout
-            android:id="@+id/drawerHeader"
+            android:id="@+id/tasks_drawer_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="7.55dp" >
 
             <ImageView
-                android:id="@+id/homeBtn"
+                android:id="@+id/home_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/home" />
 
             <TextView
-                android:id="@+id/openApplicationsTitle"
+                android:id="@+id/tasks_drawer_header_title"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_alignBottom="@+id/disconnectBtn"
-                android:layout_alignTop="@+id/disconnectBtn"
-                android:layout_toLeftOf="@+id/disconnectBtn"
-                android:layout_toRightOf="@+id/homeBtn"
+                android:layout_alignBottom="@+id/disconnect_button"
+                android:layout_alignTop="@+id/disconnect_button"
+                android:layout_toLeftOf="@+id/disconnect_button"
+                android:layout_toRightOf="@+id/home_button"
                 android:gravity="center"
                 android:text="@string/header_title_open_applications"
                 android:textColor="@color/theme_orange"
                 android:textSize="18sp" />
 
             <ImageView
-                android:id="@+id/disconnectBtn"
+                android:id="@+id/disconnect_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
@@ -115,9 +115,9 @@
             android:id="@+id/leftDrawer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/drawerHeader"
+            android:layout_below="@+id/tasks_drawer_header"
             android:layout_gravity="start"
-            android:layout_toLeftOf="@+id/drawerDoor"
+            android:layout_toLeftOf="@+id/tasks_drawer_handle"
             android:background="#111"
             android:choiceMode="singleChoice"
             android:divider="@android:color/transparent"

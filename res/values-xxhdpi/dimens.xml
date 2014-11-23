@@ -15,9 +15,9 @@
     <dimen name="edittext_lbl">18sp</dimen>
 
     <!-- connection list activtiy -->
-    <dimen name="connection_list_item_name">18sp</dimen>
+    <dimen name="list_item_connection_name_text_size">18sp</dimen>
     <dimen name="connection_list_item_ip">16sp</dimen>
-    <dimen name="add_new_aconnection_btn">21sp</dimen>
+    <dimen name="button_add_new_aconnection_text_size">21sp</dimen>
     <dimen name="button_text_lbl">20sp</dimen>
 
 </resources>

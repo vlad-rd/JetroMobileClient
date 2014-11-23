@@ -27,15 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/theme_orange"
-            android:textSize="@dimen/connection_list_item_name" />
-
-        <TextView
-            android:id="@+id/host_ip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/connection_name"
-            android:textColor="@color/white"
-            android:textSize="@dimen/connection_list_item_ip" />
+            android:textSize="@dimen/list_item_connection_name_text_size" />
 
         <ImageView
             android:id="@+id/delete_select_press"

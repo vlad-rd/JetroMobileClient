@@ -70,11 +70,11 @@ public class DesktopActivity extends Activity implements ISocketListener {
 		
 		socketManager = GlobalApp.getSocketManager(this);
 
-		appsGrid = (GridView) findViewById(R.id.applicationsGrid);
+		appsGrid = (GridView) findViewById(R.id.applications_grid);
 
-		_off = (ImageView) findViewById(R.id.disconnectBtn);
+		_off = (ImageView) findViewById(R.id.disconnect_button);
 
-		_home = (ImageView) findViewById(R.id.homeBtn);
+		_home = (ImageView) findViewById(R.id.home_button);
 
 		// exit from the app
 		_off.setOnClickListener(new OnClickListener() {

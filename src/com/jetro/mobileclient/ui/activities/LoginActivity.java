@@ -103,7 +103,7 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 			mIsWAN = intent.getBooleanExtra(Config.Extras.EXTRA_IS_WAN, true);
 		}
 		
-		setHeaderTitleText(R.string.header_title_Login);
+		setHeaderTitleText(R.string.header_title_login);
 		mHeaderBackButton.setVisibility(View.VISIBLE);
 		
 		mBaseContentLayout = setBaseContentView(R.layout.activity_login);
@@ -258,6 +258,8 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 	}
 	
 	private void sendLoginMsg() {
+		Log.d(TAG, TAG + "#sendLoginMsg(...) ENTER");
+		
 		// Gets device info
 		String deviceModel = Build.MODEL;
 		String deviceId = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
@@ -270,6 +272,7 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		loginMsg.deviceId = deviceId;
 		
 		if (mClientChannel == null) {
+			Log.i(TAG, TAG + "#sendLoginMsg(...) ClientChannel = " + mClientChannel);
 			ConnectionPoint connectionPoint = null;
 			if (mIsWAN) {
 				connectionPoint = mConnection.getWANs().iterator().next();
@@ -277,6 +280,7 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 				connectionPoint = mConnection.getLANs().iterator().next();
 			}
 			boolean isCreated = ClientChannel.Create(connectionPoint.IP, connectionPoint.Port, ClientChannel.TIME_OUT);
+			Log.i(TAG, TAG + "#sendLoginMsg(...) ClientChannel isCreated = " + isCreated);
 			if (isCreated) {
 				mClientChannel = ClientChannel.getInstance();
 				mClientChannel.AddListener(LoginActivity.this);
@@ -289,6 +293,7 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 				DialogLauncher.launchNetworkConnectionIssueDialog(LoginActivity.this, null);
 			}
 		} else {
+			Log.i(TAG, TAG + "#sendLoginMsg(...) ClientChannel = " + mClientChannel);
 			mClientChannel.SendAsync(loginMsg);
 		}
 		

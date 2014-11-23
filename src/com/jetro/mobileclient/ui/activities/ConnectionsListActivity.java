@@ -25,7 +25,6 @@ import com.jetro.mobileclient.model.beans.Connection;
 import com.jetro.mobileclient.repository.ConnectionsDB;
 import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
 import com.jetro.mobileclient.ui.dialogs.DialogLauncher;
-import com.jetro.protocol.Protocols.Controller.ConnectionPoint;
 
 public class ConnectionsListActivity extends HeaderActivity {
 
@@ -48,7 +47,7 @@ public class ConnectionsListActivity extends HeaderActivity {
 		
 		mConnectionsDB = ConnectionsDB.getInstance(getApplicationContext());
 
-		setHeaderTitleText(R.string.header_title_Connections);
+		setHeaderTitleText(R.string.header_title_connections);
 		mHeaderBackButton.setVisibility(View.INVISIBLE);
 		
 		mBaseContentLayout = setBaseContentView(R.layout.activity_connections_list);
@@ -143,14 +142,10 @@ public class ConnectionsListActivity extends HeaderActivity {
 			final Connection connection = mConnections.get(position);
 			
 			String connectionName = connection.getName();
-			ConnectionPoint lastConnectionPoint = connection.getLastConnectionPoint();
-			String connectionIp = (lastConnectionPoint != null) ? lastConnectionPoint.IP : null;
 			
 			convertView = mInflater.inflate(R.layout.list_item_connection, parent, false);
 			TextView hostName = (TextView) convertView.findViewById(R.id.connection_name);
 			hostName.setText(connectionName);
-			TextView hostIp = (TextView) convertView.findViewById(R.id.host_ip);
-			hostIp.setText(connectionIp);
 
 			convertView.findViewById(R.id.itemBg).setOnClickListener(
 					new OnClickListener() {

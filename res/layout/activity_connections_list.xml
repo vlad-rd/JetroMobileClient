@@ -23,7 +23,7 @@
             android:gravity="center"
             android:text="@string/add_new_connection_lbl"
             android:textColor="@color/white"
-            android:textSize="@dimen/add_new_aconnection_btn" />
+            android:textSize="@dimen/button_add_new_aconnection_text_size" />
     </RelativeLayout>
 
     <ListView

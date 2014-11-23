@@ -3,7 +3,6 @@
  */
 package com.jetro.mobileclient.ui.activities;
 
-import java.io.File;
 import java.util.Iterator;
 
 import android.content.Intent;
@@ -161,7 +160,7 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 		switch (mState) {
 		case ADD_CONNECTION:
 			// Sets the header title
-			setHeaderTitleText(R.string.header_title_AddConnection);
+			setHeaderTitleText(R.string.header_title_add_connection);
 			boolean hasHosts = ConnectionsDB.getInstance(getApplicationContext()).hasConnections();
 			if (hasHosts) {
 				mHeaderBackButton.setVisibility(View.VISIBLE);
@@ -194,7 +193,7 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 			break;
 		case VIEW_CONNECTION:
 			// Sets the header title
-			setHeaderTitleText(R.string.header_title_ViewConnection);
+			setHeaderTitleText(R.string.header_title_last_connection_details);
 			mHeaderBackButton.setVisibility(View.VISIBLE);
 			
 			// Hides the required input fields indicators (stars)

@@ -79,7 +79,7 @@ public class ResetPasswordActivity extends HeaderActivity {
 			mConnection = (Connection) getIntent().getSerializableExtra(Config.Extras.EXTRA_CONNECTION);
 		}
 		
-		setHeaderTitleText(R.string.header_title_ResetPassword);
+		setHeaderTitleText(R.string.header_title_reset_password);
 		mHeaderBackButton.setVisibility(View.VISIBLE);
 		
 		mBaseContentLayout = setBaseContentView(R.layout.activity_reset_password_layout);

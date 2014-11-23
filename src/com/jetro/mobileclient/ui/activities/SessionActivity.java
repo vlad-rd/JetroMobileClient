@@ -489,7 +489,7 @@ public class SessionActivity extends Activity
 		// show status bar or make fullscreen?
 		if(GlobalSettings.getHideStatusBar())
 			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		this.setContentView(R.layout.new_desktop_activity_layout);
+		this.setContentView(R.layout.activity_desktop);
 		
 		// ATTENTION: We use the onGlobalLayout notification to start our session.
 		// This is because only then we can know the exact size of our session when using fit screen
@@ -573,17 +573,17 @@ public class SessionActivity extends Activity
         mClipboardManager.addClipboardChangedListener(this);
         
         // initialize the Desktop widgets
-        appsGrid = (GridView) findViewById(R.id.applicationsGrid);
+        appsGrid = (GridView) findViewById(R.id.applications_grid);
         
         // initialize the Tasks Drawer widgets
-        dissconnectSessionButton = (ImageView) findViewById(R.id.disconnectBtn);
+        dissconnectSessionButton = (ImageView) findViewById(R.id.disconnect_button);
 		dissconnectSessionButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				finish();
 			}
 		});
-		homeButton = (ImageView) findViewById(R.id.homeBtn);
+		homeButton = (ImageView) findViewById(R.id.home_button);
 		homeButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -594,7 +594,7 @@ public class SessionActivity extends Activity
 			}
 		});
 		tasksAdapter = new TasksAdapter(SessionActivity.this, R.layout.list_item_task, new ArrayList<Window>());
-		tasks = (ListView) findViewById(R.id.list_tasks);
+		tasks = (ListView) findViewById(R.id.tasks_list);
 		tasks.setAdapter(tasksAdapter);
 		tasks.setOnItemClickListener(new OnItemClickListener() {
 			@Override
