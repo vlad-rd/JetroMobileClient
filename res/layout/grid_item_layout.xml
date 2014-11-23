@@ -3,35 +3,24 @@
     android:layout_width="@dimen/grid_item_image"
     android:layout_height="@dimen/grid_item_image" >
 
-    <!-- <ImageView -->
-    <!-- android:id="@+id/runningIndicator" -->
-    <!-- android:layout_width="wrap_content" -->
-    <!-- android:layout_height="wrap_content" -->
-    <!-- android:layout_alignParentRight="true" -->
-    <!-- android:src="@drawable/icon_button_add" /> -->
+    <!-- Application Icon -->
 
-    <RelativeLayout
-        android:id="@+id/imageWrapper"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_centerInParent="true" >
+    <ImageView
+        android:id="@+id/application_icon"
+        android:layout_width="@dimen/grid_item_app_icon_size"
+        android:layout_height="@dimen/grid_item_app_icon_size"
+        android:layout_centerHorizontal="true"
+        android:scaleType="fitXY" />
 
-        <ImageView
-            android:id="@+id/applicationIcon"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="fitXY"
-            android:src="@drawable/icon_launcher_freerdp" />
-    </RelativeLayout>
+    <!-- Application Name -->
 
     <TextView
-        android:id="@+id/applicationName"
+        android:id="@+id/application_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/imageWrapper"
+        android:layout_below="@id/application_icon"
         android:gravity="center"
-        android:padding="3dp"
-        android:text="Application"
-        android:textColor="@color/white"/>
+        android:padding="8dp"
+        android:textColor="@color/white" />
 
 </RelativeLayout>

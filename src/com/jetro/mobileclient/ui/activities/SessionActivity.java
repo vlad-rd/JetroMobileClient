@@ -84,6 +84,7 @@ import com.jetro.protocol.Core.ClassID;
 import com.jetro.protocol.Core.IMessageSubscriber;
 import com.jetro.protocol.Core.Net.ClientChannel;
 import com.jetro.protocol.Protocols.Controller.Application;
+import com.jetro.protocol.Protocols.Controller.ApplicationIconMsg;
 import com.jetro.protocol.Protocols.Controller.GetTsMsg;
 import com.jetro.protocol.Protocols.Controller.LogoutMsg;
 import com.jetro.protocol.Protocols.Controller.MyApplicationsMsg;
@@ -347,43 +348,50 @@ public class SessionActivity extends Activity
 
 		@Override
 		public long getItemId(int position) {
-			return 0;
+			return position;
 		}
 
 		@Override
-		public View getView(final int position, View convertView,
-				ViewGroup parent) {
+		public View getView(final int position, View convertView, ViewGroup parent) {
+			Application currApp = apps[position];
+
 			convertView = inflater.inflate(R.layout.grid_item_layout, null);
+			TextView appName = (TextView) convertView.findViewById(R.id.application_name);
+			appName.setText(currApp.Name);
 
-			((TextView) convertView.findViewById(R.id.applicationName))
-					.setText(apps[position].Name);
-
-			proccessApplicationIcon(
-					((ImageView) convertView.findViewById(R.id.applicationIcon)),
-					apps[position].Icon);
+			ImageView appIcon = (ImageView) convertView.findViewById(R.id.application_icon);
+			if (currApp.Icon != null) {
+				proccessAppIconInBackground(appIcon, currApp.Icon);
+			}
 
 			return convertView;
 		}
+		
+		public Application getItem(String appId) {
+			for (Application app : apps) {
+				if (app.ID.equals(appId)) {
+					return app;
+				}
+			}
+			return null;
+		}
 
-		private void proccessApplicationIcon(final ImageView iv,
-				final byte[] iconAsBytes) {
+		private void proccessAppIconInBackground(final ImageView imageView, final byte[] iconAsBytes) {
 			new AsyncTask<Void, Void, Bitmap>() {
-
 				@Override
 				protected Bitmap doInBackground(Void... params) {
-					Bitmap result = null;
+					Bitmap bitmap = null;
 					try {
-						result = BitmapFactory.decodeByteArray(iconAsBytes, 0,
-								iconAsBytes.length);
+						bitmap = BitmapFactory.decodeByteArray(iconAsBytes, 0, iconAsBytes.length);
 					} catch (Exception e) {
 						Log.e(TAG, "ERROR: ", e);
 					}
-					return result;
+					return bitmap;
 				}
 
 				@Override
 				protected void onPostExecute(Bitmap result) {
-					iv.setImageBitmap(result);
+					imageView.setImageBitmap(result);
 				};
 			}.execute();
 		}
@@ -1410,6 +1418,17 @@ public class SessionActivity extends Activity
 					}
 				}
 			});
+			// Fetches async applications icons
+			for (Application app : myApplicationsMsg.Applications) {
+				sendApplicationIconMsg(app.ID);
+			}
+		} else if (msg.msgCalssID == ClassID.ApplicationIconMsg.ValueOf()) {
+			ApplicationIconMsg applicationIconMsg = (ApplicationIconMsg) msg;
+			Application foundApp = appsAdapter.getItem(applicationIconMsg.ID);
+			if (foundApp != null) {
+				foundApp.Icon = applicationIconMsg.Icon;
+				appsAdapter.notifyDataSetChanged();
+			}
 		} else if (msg.msgCalssID == ClassID.GetTsMsg.ValueOf()) {
 			GetTsMsg getTsMsg = (GetTsMsg) msg;
 			ScreenSettings screen_settings = new ScreenSettings();
@@ -1465,6 +1484,12 @@ public class SessionActivity extends Activity
 		MyApplicationsMsg myApplicationsMsg = new MyApplicationsMsg();
 		myApplicationsMsg.Ticket = ticket;
 		mClientChannel.SendAsync(myApplicationsMsg);
+	}
+	
+	private void sendApplicationIconMsg(String appId) {
+		ApplicationIconMsg applicationIconMsg = new ApplicationIconMsg();
+		applicationIconMsg.ID = appId;
+		ClientChannel.getInstance().SendAsync(applicationIconMsg);
 	}
 
 	private void sendGetTsMsg(String ticket) {
