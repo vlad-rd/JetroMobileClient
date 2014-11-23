@@ -70,7 +70,7 @@ public class DesktopActivity extends Activity implements ISocketListener {
 		
 		socketManager = GlobalApp.getSocketManager(this);
 
-		appsGrid = (GridView) findViewById(R.id.applications_grid);
+		appsGrid = (GridView) findViewById(R.id.desktop_applications_grid);
 
 		_off = (ImageView) findViewById(R.id.disconnect_button);
 
@@ -220,10 +220,10 @@ public class DesktopActivity extends Activity implements ISocketListener {
 		public View getView(final int position, View convertView, ViewGroup parent) {
 			convertView = inflater.inflate(R.layout.grid_item_layout, null);
 
-			((TextView) convertView.findViewById(R.id.application_name)).setText(apps[position].getName());
+			((TextView) convertView.findViewById(R.id.app_name)).setText(apps[position].getName());
 
 			proccessApplicationIcon(
-					((ImageView) convertView.findViewById(R.id.application_icon)),
+					((ImageView) convertView.findViewById(R.id.app_icon)),
 					apps[position].getIcon());
 			
 			return convertView;

@@ -33,7 +33,7 @@
         <!-- Applications grid -->
 
         <GridView
-            android:id="@+id/applications_grid"
+            android:id="@+id/desktop_applications_grid"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@+id/desktop_header_image"

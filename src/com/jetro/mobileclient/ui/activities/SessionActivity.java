@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -57,6 +58,7 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ZoomControls;
@@ -356,12 +358,17 @@ public class SessionActivity extends Activity
 			Application currApp = apps[position];
 
 			convertView = inflater.inflate(R.layout.grid_item_layout, null);
-			TextView appName = (TextView) convertView.findViewById(R.id.application_name);
+			ProgressBar appIconLoding = (ProgressBar) convertView.findViewById(R.id.progress_loading);
+			ImageView appIcon = (ImageView) convertView.findViewById(R.id.app_icon);
+			ImageView appActiveIndicator = (ImageView) convertView.findViewById(R.id.app_active_indicator);
+			TextView appName = (TextView) convertView.findViewById(R.id.app_name);
+			
 			appName.setText(currApp.Name);
-
-			ImageView appIcon = (ImageView) convertView.findViewById(R.id.application_icon);
-			if (currApp.Icon != null) {
+			if (currApp.Icon != null && currApp.Icon.length > 0) {
+				appIconLoding.setVisibility(View.GONE);
 				proccessAppIconInBackground(appIcon, currApp.Icon);
+			} else {
+				appIconLoding.setVisibility(View.VISIBLE);
 			}
 
 			return convertView;
@@ -456,12 +463,13 @@ public class SessionActivity extends Activity
 	// desktop member variables
 	private ClientChannel mClientChannel;
 	private Connection mConnection;
-	private ApplicationsGridAdapter appsAdapter;
-	private GridView appsGrid;
-	private ImageView dissconnectSessionButton;
-	private ImageView homeButton;
-	private boolean isChecked = false;
-	private String selectedAppId;
+	private Map<String, Integer> mActiveApps;
+	private ApplicationsGridAdapter mAppsAdapter;
+	private GridView mAppsGrid;
+	private ImageView mRefreshButton;
+	private ImageView mDissconnectSessionButton;
+	private ImageView mHomeButton;
+	private String mSelectedAppId;
 	
 	// Tasks drawer
 	private TasksAdapter tasksAdapter;
@@ -581,23 +589,30 @@ public class SessionActivity extends Activity
         mClipboardManager.addClipboardChangedListener(this);
         
         // initialize the Desktop widgets
-        appsGrid = (GridView) findViewById(R.id.applications_grid);
+        mAppsGrid = (GridView) findViewById(R.id.desktop_applications_grid);
+        mRefreshButton = (ImageView) findViewById(R.id.desktop_header_refresh_button);
+        mRefreshButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				sendMyApplicationsMsg(GlobalApp.getSessionTicket());
+			}
+		});
         
         // initialize the Tasks Drawer widgets
-        dissconnectSessionButton = (ImageView) findViewById(R.id.disconnect_button);
-		dissconnectSessionButton.setOnClickListener(new OnClickListener() {
+        mDissconnectSessionButton = (ImageView) findViewById(R.id.disconnect_button);
+		mDissconnectSessionButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				finish();
 			}
 		});
-		homeButton = (ImageView) findViewById(R.id.home_button);
-		homeButton.setOnClickListener(new OnClickListener() {
+		mHomeButton = (ImageView) findViewById(R.id.home_button);
+		mHomeButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				if (activityRootView.isShown()) {
 					activityRootView.setVisibility(View.INVISIBLE);
-					homeButton.setVisibility(View.INVISIBLE);
+					mHomeButton.setVisibility(View.INVISIBLE);
 				}
 			}
 		});
@@ -1019,7 +1034,7 @@ public class SessionActivity extends Activity
 			showKeyboard(false, false);
 		} else if (activityRootView.isShown()) {
 			activityRootView.setVisibility(View.INVISIBLE);
-			homeButton.setVisibility(View.INVISIBLE);
+			mHomeButton.setVisibility(View.INVISIBLE);
 		} else {
 			//keyboardMapper.sendAltF4();
 			super.onBackPressed();
@@ -1400,21 +1415,21 @@ public class SessionActivity extends Activity
 		if (msg.msgCalssID == ClassID.MyApplicationsMsg.ValueOf()) {
 			MyApplicationsMsg myApplicationsMsg = (MyApplicationsMsg) msg;
 		
-			appsAdapter = new ApplicationsGridAdapter(myApplicationsMsg.Applications);
-			appsGrid.setAdapter(appsAdapter);
-			appsGrid.setOnItemClickListener(new OnItemClickListener() {
+			mAppsAdapter = new ApplicationsGridAdapter(myApplicationsMsg.Applications);
+			mAppsGrid.setAdapter(mAppsAdapter);
+			mAppsGrid.setOnItemClickListener(new OnItemClickListener() {
 				@Override
 				public void onItemClick(AdapterView<?> parent, View view,
 						int position, long id) {
-					Application selectedApp = (Application) appsAdapter
+					Application selectedApp = (Application) mAppsAdapter
 							.getItem(position);
-					selectedAppId = selectedApp.ID;
+					mSelectedAppId = selectedApp.ID;
 					Log.w(TAG, "Selected App Name: " + selectedApp.Name);
-					Log.w(TAG, "Selected App Id: " + selectedAppId);
+					Log.w(TAG, "Selected App Id: " + mSelectedAppId);
 					if (!sessionRunning) {
 						sendGetTsMsg(GlobalApp.getSessionTicket());
 					} else {
-						sendStartApplicationMsg(selectedAppId);
+						sendStartApplicationMsg(mSelectedAppId);
 					}
 				}
 			});
@@ -1424,10 +1439,10 @@ public class SessionActivity extends Activity
 			}
 		} else if (msg.msgCalssID == ClassID.ApplicationIconMsg.ValueOf()) {
 			ApplicationIconMsg applicationIconMsg = (ApplicationIconMsg) msg;
-			Application foundApp = appsAdapter.getItem(applicationIconMsg.ID);
+			Application foundApp = mAppsAdapter.getItem(applicationIconMsg.ID);
 			if (foundApp != null) {
 				foundApp.Icon = applicationIconMsg.Icon;
-				appsAdapter.notifyDataSetChanged();
+				mAppsAdapter.notifyDataSetChanged();
 			}
 		} else if (msg.msgCalssID == ClassID.GetTsMsg.ValueOf()) {
 			GetTsMsg getTsMsg = (GetTsMsg) msg;
@@ -1441,7 +1456,7 @@ public class SessionActivity extends Activity
 			sessionRunning = true;
 		} else if (msg.msgCalssID == ClassID.SessionReadyMsg.ValueOf()) {
 			SessionReadyMsg sessionReadyMsg = (SessionReadyMsg) msg;
-			sendStartApplicationMsg(selectedAppId);
+			sendStartApplicationMsg(mSelectedAppId);
 		} else if (msg.msgCalssID == ClassID.ShowTaskListMsg.ValueOf()) {
 			ShowTaskListMsg showTaskListMsg = (ShowTaskListMsg) msg;
 			Window[] tasks = showTaskListMsg.Tasks;
@@ -1455,7 +1470,7 @@ public class SessionActivity extends Activity
 		} else if (msg.msgCalssID == ClassID.ShowWindowMsg.ValueOf()) {
 			ShowWindowMsg showWindowMsg = (ShowWindowMsg) msg;
 			activityRootView.setVisibility(View.VISIBLE);
-			homeButton.setVisibility(View.VISIBLE);
+			mHomeButton.setVisibility(View.VISIBLE);
 			sessionView.requestFocus();
 		} else if (msg.msgCalssID == ClassID.ShowKeyBoardMsg.ValueOf()) {
 			ShowKeyBoardMsg showKeyBoardMsg = (ShowKeyBoardMsg) msg;

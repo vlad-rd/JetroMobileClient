@@ -3,22 +3,52 @@
     android:layout_width="@dimen/grid_item_image"
     android:layout_height="@dimen/grid_item_image" >
 
-    <!-- Application Icon -->
+    <!-- App Icon -->
 
-    <ImageView
-        android:id="@+id/application_icon"
+    <RelativeLayout
+        android:id="@+id/app_icon_wrapper"
         android:layout_width="@dimen/grid_item_app_icon_size"
         android:layout_height="@dimen/grid_item_app_icon_size"
-        android:layout_centerHorizontal="true"
-        android:scaleType="fitXY" />
+        android:layout_centerHorizontal="true" >
 
-    <!-- Application Name -->
+        <!-- App Icon Loading -->
+
+        <include
+            android:id="@+id/progress_loading"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            layout="@layout/progress_loading"
+            android:background="#FF0000" />
+
+        <!-- App Icon Image -->
+
+        <ImageView
+            android:id="@+id/app_icon"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:scaleType="fitXY" />
+
+        <!-- App Active Indicator -->
+
+        <ImageView
+            android:id="@+id/app_active_indicator"
+            android:layout_width="@dimen/grid_item_app_active_idicator_size"
+            android:layout_height="@dimen/grid_item_app_active_idicator_size"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:background="@android:color/transparent"
+            android:scaleType="fitXY"
+            android:visibility="gone" />
+    </RelativeLayout>
+
+    <!-- App Name -->
 
     <TextView
-        android:id="@+id/application_name"
+        android:id="@+id/app_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/application_icon"
+        android:layout_below="@id/app_icon_wrapper"
         android:gravity="center"
         android:padding="8dp"
         android:textColor="@color/white" />
