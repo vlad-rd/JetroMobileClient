@@ -218,7 +218,7 @@ public class DesktopActivity extends Activity implements ISocketListener {
 
 		@Override
 		public View getView(final int position, View convertView, ViewGroup parent) {
-			convertView = inflater.inflate(R.layout.grid_item_layout, null);
+			convertView = inflater.inflate(R.layout.grid_item_app, null);
 
 			((TextView) convertView.findViewById(R.id.app_name)).setText(apps[position].getName());
 

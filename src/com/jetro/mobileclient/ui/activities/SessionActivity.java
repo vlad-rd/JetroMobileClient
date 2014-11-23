@@ -15,6 +15,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -357,7 +359,7 @@ public class SessionActivity extends Activity
 		public View getView(final int position, View convertView, ViewGroup parent) {
 			Application currApp = apps[position];
 
-			convertView = inflater.inflate(R.layout.grid_item_layout, null);
+			convertView = inflater.inflate(R.layout.grid_item_app, null);
 			ProgressBar appIconLoding = (ProgressBar) convertView.findViewById(R.id.progress_loading);
 			ImageView appIcon = (ImageView) convertView.findViewById(R.id.app_icon);
 			ImageView appActiveIndicator = (ImageView) convertView.findViewById(R.id.app_active_indicator);
@@ -369,6 +371,11 @@ public class SessionActivity extends Activity
 				proccessAppIconInBackground(appIcon, currApp.Icon);
 			} else {
 				appIconLoding.setVisibility(View.VISIBLE);
+			}
+			if (currApp.IsActive) {
+				appActiveIndicator.setVisibility(View.VISIBLE);
+			} else {
+				appActiveIndicator.setVisibility(View.INVISIBLE);
 			}
 
 			return convertView;
@@ -460,20 +467,22 @@ public class SessionActivity extends Activity
 	
 	private ClipboardManagerProxy mClipboardManager;
 	
-	// desktop member variables
+	// Desktop
 	private ClientChannel mClientChannel;
 	private Connection mConnection;
-	private Map<String, Integer> mActiveApps;
+	private DrawerLayout mDrawerLayout;
+	private ViewGroup mDrawerLeft;
+	private Map<String, Integer> mActiveTasks;
 	private ApplicationsGridAdapter mAppsAdapter;
 	private GridView mAppsGrid;
 	private ImageView mRefreshButton;
-	private ImageView mDissconnectSessionButton;
 	private ImageView mHomeButton;
+	private ImageView mDissconnectSessionButton;
 	private String mSelectedAppId;
 	
 	// Tasks drawer
-	private TasksAdapter tasksAdapter;
-	private ListView tasks;
+	private TasksAdapter mTasksAdapter;
+	private ListView mTasksList;
 	
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
@@ -588,7 +597,10 @@ public class SessionActivity extends Activity
 		mClipboardManager = ClipboardManagerProxy.getClipboardManager(this);
         mClipboardManager.addClipboardChangedListener(this);
         
+        
         // initialize the Desktop widgets
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerLeft = (ViewGroup) findViewById(R.id.left_drawer);
         mAppsGrid = (GridView) findViewById(R.id.desktop_applications_grid);
         mRefreshButton = (ImageView) findViewById(R.id.desktop_header_refresh_button);
         mRefreshButton.setOnClickListener(new OnClickListener() {
@@ -599,6 +611,18 @@ public class SessionActivity extends Activity
 		});
         
         // initialize the Tasks Drawer widgets
+        mHomeButton = (ImageView) findViewById(R.id.home_button);
+        mHomeButton.setVisibility(View.INVISIBLE);
+        mHomeButton.setOnClickListener(new OnClickListener() {
+        	@Override
+        	public void onClick(View v) {
+        		if (activityRootView.isShown()) {
+        			activityRootView.setVisibility(View.INVISIBLE);
+        			mHomeButton.setVisibility(View.INVISIBLE);
+        			mDrawerLayout.closeDrawer(mDrawerLeft);
+        		}
+        	}
+        });
         mDissconnectSessionButton = (ImageView) findViewById(R.id.disconnect_button);
 		mDissconnectSessionButton.setOnClickListener(new OnClickListener() {
 			@Override
@@ -606,23 +630,13 @@ public class SessionActivity extends Activity
 				finish();
 			}
 		});
-		mHomeButton = (ImageView) findViewById(R.id.home_button);
-		mHomeButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (activityRootView.isShown()) {
-					activityRootView.setVisibility(View.INVISIBLE);
-					mHomeButton.setVisibility(View.INVISIBLE);
-				}
-			}
-		});
-		tasksAdapter = new TasksAdapter(SessionActivity.this, R.layout.list_item_task, new ArrayList<Window>());
-		tasks = (ListView) findViewById(R.id.tasks_list);
-		tasks.setAdapter(tasksAdapter);
-		tasks.setOnItemClickListener(new OnItemClickListener() {
+		mTasksAdapter = new TasksAdapter(SessionActivity.this, R.layout.list_item_task, new ArrayList<Window>());
+		mTasksList = (ListView) findViewById(R.id.tasks_list);
+		mTasksList.setAdapter(mTasksAdapter);
+		mTasksList.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				Window task = tasksAdapter.getItem(position);
+				Window task = mTasksAdapter.getItem(position);
 				sendShowWindowMsg(task.PID, task.HWND);
 			}
 		});
@@ -697,6 +711,8 @@ public class SessionActivity extends Activity
 			GlobalApp.freeSession(session.getInstance());
 			session = null;
 		}
+		
+		stopClientChannel();
 	}
 		
 	@Override
@@ -1410,7 +1426,8 @@ public class SessionActivity extends Activity
 	// IMessageSubscriber implementation
 	@Override
 	public void ProcessMsg(BaseMsg msg) {
-		Log.i(TAG, TAG + "#ProcessMsg(...)\n" + msg.getClass().getSimpleName() + "\n" + msg.serializeJson());
+//		Log.i(TAG, TAG + "#ProcessMsg(...)\n" + msg.getClass().getSimpleName() + "\n" + msg.serializeJson());
+		Log.i(TAG, TAG + "#ProcessMsg(...)\n" + msg.getClass().getSimpleName());
 		
 		if (msg.msgCalssID == ClassID.MyApplicationsMsg.ValueOf()) {
 			MyApplicationsMsg myApplicationsMsg = (MyApplicationsMsg) msg;
@@ -1433,8 +1450,10 @@ public class SessionActivity extends Activity
 					}
 				}
 			});
-			// Fetches async applications icons
+			// Initialize applications
+			mActiveTasks = new HashMap<String, Integer>();
 			for (Application app : myApplicationsMsg.Applications) {
+				mActiveTasks.put(app.ID, 0);
 				sendApplicationIconMsg(app.ID);
 			}
 		} else if (msg.msgCalssID == ClassID.ApplicationIconMsg.ValueOf()) {
@@ -1465,8 +1484,21 @@ public class SessionActivity extends Activity
 		} else if (msg.msgCalssID == ClassID.WindowCreatedMsg.ValueOf()) {
 			WindowCreatedMsg windowCreatedMsg = (WindowCreatedMsg) msg;
 			Window task = windowCreatedMsg.Task;
-			tasksAdapter.add(task);
-			tasksAdapter.notifyDataSetChanged();
+			// Update Tasks adapter
+			mTasksAdapter.add(task);
+			mTasksAdapter.notifyDataSetChanged();
+			// Update Apps adapter
+			Log.i(TAG, TAG + "#ProcessMsg(...) AppID = " + task.AppID);
+			Integer numOfTasks = mActiveTasks.get(task.AppID);
+			if (numOfTasks != null) {
+				if (++numOfTasks == 1) {
+					Application activeApp = mAppsAdapter.getItem(task.AppID);
+					if (activeApp != null) {
+						activeApp.IsActive = true;
+						mAppsAdapter.notifyDataSetChanged();
+					}
+				}
+			}
 		} else if (msg.msgCalssID == ClassID.ShowWindowMsg.ValueOf()) {
 			ShowWindowMsg showWindowMsg = (ShowWindowMsg) msg;
 			activityRootView.setVisibility(View.VISIBLE);
@@ -1490,11 +1522,21 @@ public class SessionActivity extends Activity
 	public void ConnectionIsBroken() {
 		Log.d(TAG, TAG + "#ConnectionIsBroken(...) ENTER");
 		
+		stopClientChannel();
 		finish();
 	}
 	
+	private void stopClientChannel() {
+		// free client channel
+		if (mClientChannel != null) {
+			mClientChannel.RemoveListener(SessionActivity.this);
+			mClientChannel.Stop();
+			mClientChannel = null;
+		}
+	}
+	
 	private void sendMyApplicationsMsg(String ticket) {
-		Log.d(TAG, "sendMyApplicationsMsg(...) ENTER");
+		Log.d(TAG, TAG + "#sendMyApplicationsMsg(...) ENTER");
 
 		MyApplicationsMsg myApplicationsMsg = new MyApplicationsMsg();
 		myApplicationsMsg.Ticket = ticket;
@@ -1502,20 +1544,23 @@ public class SessionActivity extends Activity
 	}
 	
 	private void sendApplicationIconMsg(String appId) {
+		Log.d(TAG, TAG + "#sendApplicationIconMsg(...) ENTER");
+		
 		ApplicationIconMsg applicationIconMsg = new ApplicationIconMsg();
 		applicationIconMsg.ID = appId;
 		ClientChannel.getInstance().SendAsync(applicationIconMsg);
 	}
 
 	private void sendGetTsMsg(String ticket) {
-		Log.d(TAG, "NewDesktopActivity#sendGetTsMsg(...) ENTER");
+		Log.d(TAG, TAG + "#sendGetTsMsg(...) ENTER");
+		
 		GetTsMsg getTsMsg = new GetTsMsg();
 		getTsMsg.Ticket = ticket;
 		mClientChannel.SendAsync(getTsMsg);
 	}
 	
 	private void sendStartApplicationMsg(String appToStartId) {
-		Log.d(TAG, "JetroSessionActivity#sendStartApplicationMsg(...) ENTER");
+		Log.d(TAG, TAG + "#sendStartApplicationMsg(...) ENTER");
 		
 		StartApplicationMsg startApplicationMsg = new StartApplicationMsg();
 		startApplicationMsg.ID = appToStartId;
@@ -1523,7 +1568,7 @@ public class SessionActivity extends Activity
 	}
 	
 	private void sendShowWindowMsg(int pId, int hwnd) {
-		Log.d(TAG, "SessionActivity#sendShowWindowMsg(...) ENTER");
+		Log.d(TAG, TAG + "#sendShowWindowMsg(...) ENTER");
 		
 		ShowWindowMsg showWindowMsg = new ShowWindowMsg();
 		showWindowMsg.PID = pId;

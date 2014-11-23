@@ -253,8 +253,12 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 
 	@Override
 	public void ConnectionIsBroken() {
-		// TODO Auto-generated method stub
+		Log.d(TAG, TAG + "#ConnectionIsBroken(...) ENTER");
 		
+		// TODO: check this code
+		ClientChannel.getInstance().RemoveListener(LoginActivity.this);
+		ClientChannel.getInstance().Stop();
+		finish();
 	}
 	
 	private void sendLoginMsg() {

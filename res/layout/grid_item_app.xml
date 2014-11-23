@@ -39,6 +39,7 @@
             android:layout_alignParentTop="true"
             android:background="@android:color/transparent"
             android:scaleType="fitXY"
+            android:src="@drawable/open_app"
             android:visibility="gone" />
     </RelativeLayout>
 
@@ -51,6 +52,7 @@
         android:layout_below="@id/app_icon_wrapper"
         android:gravity="center"
         android:padding="8dp"
-        android:textColor="@color/white" />
+        android:textColor="@color/white"
+        android:textSize="@dimen/app_name_text_size" />
 
 </RelativeLayout>
