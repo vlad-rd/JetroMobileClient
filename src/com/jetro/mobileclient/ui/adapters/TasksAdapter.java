@@ -24,14 +24,18 @@ import com.jetro.protocol.Protocols.TsSession.Window;
  */
 public class TasksAdapter extends ArrayAdapter<Window> {
 	
+	public static final int NOT_FOUND = -1;
+	
 	private LayoutInflater mInflater;
 	private int mLayoutResourceId;
+	private List<Window> mTasks;
 
 	public TasksAdapter(Context context, int resource, List<Window> tasks) {
 		super(context, resource, tasks);
 		
 		mInflater = LayoutInflater.from(context);
 		mLayoutResourceId = resource;
+		mTasks = tasks;
 	}
 
 	@Override
@@ -55,6 +59,14 @@ public class TasksAdapter extends ArrayAdapter<Window> {
 		holder.title.setText(task.Title);
 		
 		return convertView;
+	}
+	
+	public void update(Window task) {
+		int indexOf = mTasks.indexOf(task);
+		if (indexOf != NOT_FOUND) {
+			Window foundTask = mTasks.get(indexOf);
+			foundTask.Title = task.Title;
+		}
 	}
 	
 	private class ViewHolder {

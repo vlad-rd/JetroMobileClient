@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -99,6 +98,7 @@ import com.jetro.protocol.Protocols.TsSession.ShowTaskListMsg;
 import com.jetro.protocol.Protocols.TsSession.ShowWindowMsg;
 import com.jetro.protocol.Protocols.TsSession.StartApplicationMsg;
 import com.jetro.protocol.Protocols.TsSession.Window;
+import com.jetro.protocol.Protocols.TsSession.WindowChangedMsg;
 import com.jetro.protocol.Protocols.TsSession.WindowCreatedMsg;
 import com.jetro.protocol.Protocols.TsSession.WindowDestroyedMsg;
 
@@ -473,7 +473,7 @@ public class SessionActivity extends Activity
 	private Connection mConnection;
 	private DrawerLayout mDrawerLayout;
 	private ViewGroup mDrawerLeft;
-	private Map<String, Integer> mActiveTasks;
+	private ActiveTasks mActiveTasks;
 	private ApplicationsGridAdapter mAppsAdapter;
 	private GridView mAppsGrid;
 	private ImageView mRefreshButton;
@@ -598,6 +598,7 @@ public class SessionActivity extends Activity
 		mClipboardManager = ClipboardManagerProxy.getClipboardManager(this);
         mClipboardManager.addClipboardChangedListener(this);
         
+        mActiveTasks = ActiveTasks.getInstance();
         
         // initialize the Desktop widgets
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -608,6 +609,7 @@ public class SessionActivity extends Activity
 			@Override
 			public void onClick(View v) {
 				sendMyApplicationsMsg(GlobalApp.getSessionTicket());
+				sendShowTaskListMsg();
 			}
 		});
         
@@ -1477,10 +1479,15 @@ public class SessionActivity extends Activity
 			sendStartApplicationMsg(mSelectedAppId);
 		} else if (msg.msgCalssID == ClassID.ShowTaskListMsg.ValueOf()) {
 			ShowTaskListMsg showTaskListMsg = (ShowTaskListMsg) msg;
+			// If none active tasks, hide window
+			int activeHWND = showTaskListMsg.ActiveHWND;
+			if (activeHWND == 0) {
+				activityRootView.setVisibility(View.INVISIBLE);
+			}
+			// Update active tasks
 			Window[] tasks = showTaskListMsg.Tasks;
-			ActiveTasks activeTasks = ActiveTasks.getInstance();
-			activeTasks.clear();
-			activeTasks.add(tasks);
+			mActiveTasks.clear();
+			mActiveTasks.add(tasks);
 		} else if (msg.msgCalssID == ClassID.StartApplicationMsg.ValueOf()) {
 			StartApplicationMsg startApplicationMsg = (StartApplicationMsg) msg;
 		} else if (msg.msgCalssID == ClassID.WindowCreatedMsg.ValueOf()) {
@@ -1491,8 +1498,8 @@ public class SessionActivity extends Activity
 			mTasksAdapter.add(task);
 			mTasksAdapter.notifyDataSetChanged();
 			// Update active Tasks
-			ActiveTasks activeTasks = ActiveTasks.getInstance();
-			boolean isAppGotActive = activeTasks.add(task);
+			
+			boolean isAppGotActive = mActiveTasks.add(task);
 			// Update Apps adapter
 			if (isAppGotActive) {
 				Application activeApp = mAppsAdapter.getItem(task.AppID);
@@ -1501,6 +1508,32 @@ public class SessionActivity extends Activity
 					mAppsAdapter.notifyDataSetChanged();
 				}
 			}
+		} else if (msg.msgCalssID == ClassID.WindowDestroyedMsg.ValueOf()) {
+			WindowDestroyedMsg windowDestroyedMsg = (WindowDestroyedMsg) msg;
+			Window task = new Window();
+			task.AppID = windowDestroyedMsg.AppID;
+			task.HWND = windowDestroyedMsg.HWND;
+			// Update Tasks adapter
+			mTasksAdapter.remove(task);
+			mTasksAdapter.notifyDataSetChanged();
+			// Update active Tasks
+			boolean isAppGotInactive = mActiveTasks.remove(task);
+			// Update Apps adapter
+			if (isAppGotInactive) {
+				Application activeApp = mAppsAdapter.getItem(task.AppID);
+				if (activeApp != null) {
+					activeApp.IsActive = false;
+					mAppsAdapter.notifyDataSetChanged();
+				}
+			}
+		} else if (msg.msgCalssID == ClassID.WindowChangedMsg.ValueOf()) {
+			WindowChangedMsg windowChangedMsg = (WindowChangedMsg) msg;
+			Window task = new Window();
+			task.HWND = windowChangedMsg.HWND;
+			task.Title = windowChangedMsg.Title;
+			// Update Tasks adapter
+			mTasksAdapter.update(task);
+			mTasksAdapter.notifyDataSetChanged();
 		} else if (msg.msgCalssID == ClassID.ShowWindowMsg.ValueOf()) {
 			ShowWindowMsg showWindowMsg = (ShowWindowMsg) msg;
 			activityRootView.setVisibility(View.VISIBLE);
@@ -1513,8 +1546,6 @@ public class SessionActivity extends Activity
 			} else {
 				showKeyboard(false, false);
 			}
-		} else if (msg.msgCalssID == ClassID.WindowDestroyedMsg.ValueOf()) {
-			WindowDestroyedMsg windowDestroyedMsg = (WindowDestroyedMsg) msg;
 		} else if (msg.msgCalssID == ClassID.LogoutMsg.ValueOf()) {
 			LogoutMsg logoutMsg = (LogoutMsg) msg;
 		} else if (msg.msgCalssID == ClassID.Error.ValueOf()) {
@@ -1552,7 +1583,14 @@ public class SessionActivity extends Activity
 		
 		ApplicationIconMsg applicationIconMsg = new ApplicationIconMsg();
 		applicationIconMsg.ID = appId;
-		ClientChannel.getInstance().SendAsync(applicationIconMsg);
+		mClientChannel.SendAsync(applicationIconMsg);
+	}
+	
+	private void sendShowTaskListMsg() {
+		Log.d(TAG, TAG + "#sendShowTaskListMsg(...) ENTER");
+		
+		ShowTaskListMsg showTaskListMsg = new ShowTaskListMsg();
+		mClientChannel.SendAsync(showTaskListMsg);
 	}
 
 	private void sendGetTsMsg(String ticket) {
