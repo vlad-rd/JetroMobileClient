@@ -15,7 +15,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -79,6 +78,7 @@ import com.freerdp.freerdpcore.utils.ClipboardManagerProxy;
 import com.freerdp.freerdpcore.utils.KeyboardMapper;
 import com.freerdp.freerdpcore.utils.Mouse;
 import com.jetro.mobileclient.R;
+import com.jetro.mobileclient.application.ActiveTasks;
 import com.jetro.mobileclient.config.Config;
 import com.jetro.mobileclient.model.beans.Connection;
 import com.jetro.mobileclient.ui.adapters.TasksAdapter;
@@ -100,6 +100,7 @@ import com.jetro.protocol.Protocols.TsSession.ShowWindowMsg;
 import com.jetro.protocol.Protocols.TsSession.StartApplicationMsg;
 import com.jetro.protocol.Protocols.TsSession.Window;
 import com.jetro.protocol.Protocols.TsSession.WindowCreatedMsg;
+import com.jetro.protocol.Protocols.TsSession.WindowDestroyedMsg;
 
 
 public class SessionActivity extends Activity
@@ -134,12 +135,12 @@ public class SessionActivity extends Activity
 					sessionView.onSurfaceChange(session);
 					scrollView.requestLayout();
 					break;
-				}			
+				}
 				case REFRESH_SESSIONVIEW:
 				{
 					sessionView.invalidateRegion();
 					break;
-				}					
+				}
 				case DISPLAY_TOAST:
 				{
 					Toast errorToast = Toast.makeText(getApplicationContext(), msg.obj.toString(), Toast.LENGTH_LONG);
@@ -155,7 +156,7 @@ public class SessionActivity extends Activity
 				{
 			    	LibFreeRDP.sendCursorEvent(session.getInstance(), msg.arg1, msg.arg2, Mouse.getMoveEvent());		
 					break;
-				}				
+				}
 				case SHOW_DIALOG:
 				{	
 					// create and show the dialog					
@@ -1450,10 +1451,8 @@ public class SessionActivity extends Activity
 					}
 				}
 			});
-			// Initialize applications
-			mActiveTasks = new HashMap<String, Integer>();
+			// Fetches async applications icons
 			for (Application app : myApplicationsMsg.Applications) {
-				mActiveTasks.put(app.ID, 0);
 				sendApplicationIconMsg(app.ID);
 			}
 		} else if (msg.msgCalssID == ClassID.ApplicationIconMsg.ValueOf()) {
@@ -1479,24 +1478,27 @@ public class SessionActivity extends Activity
 		} else if (msg.msgCalssID == ClassID.ShowTaskListMsg.ValueOf()) {
 			ShowTaskListMsg showTaskListMsg = (ShowTaskListMsg) msg;
 			Window[] tasks = showTaskListMsg.Tasks;
+			ActiveTasks activeTasks = ActiveTasks.getInstance();
+			activeTasks.clear();
+			activeTasks.add(tasks);
 		} else if (msg.msgCalssID == ClassID.StartApplicationMsg.ValueOf()) {
 			StartApplicationMsg startApplicationMsg = (StartApplicationMsg) msg;
 		} else if (msg.msgCalssID == ClassID.WindowCreatedMsg.ValueOf()) {
 			WindowCreatedMsg windowCreatedMsg = (WindowCreatedMsg) msg;
 			Window task = windowCreatedMsg.Task;
+			Log.i(TAG, TAG + "#ProcessMsg(...) AppID = " + task.AppID);
 			// Update Tasks adapter
 			mTasksAdapter.add(task);
 			mTasksAdapter.notifyDataSetChanged();
+			// Update active Tasks
+			ActiveTasks activeTasks = ActiveTasks.getInstance();
+			boolean isAppGotActive = activeTasks.add(task);
 			// Update Apps adapter
-			Log.i(TAG, TAG + "#ProcessMsg(...) AppID = " + task.AppID);
-			Integer numOfTasks = mActiveTasks.get(task.AppID);
-			if (numOfTasks != null) {
-				if (++numOfTasks == 1) {
-					Application activeApp = mAppsAdapter.getItem(task.AppID);
-					if (activeApp != null) {
-						activeApp.IsActive = true;
-						mAppsAdapter.notifyDataSetChanged();
-					}
+			if (isAppGotActive) {
+				Application activeApp = mAppsAdapter.getItem(task.AppID);
+				if (activeApp != null) {
+					activeApp.IsActive = true;
+					mAppsAdapter.notifyDataSetChanged();
 				}
 			}
 		} else if (msg.msgCalssID == ClassID.ShowWindowMsg.ValueOf()) {
@@ -1511,6 +1513,8 @@ public class SessionActivity extends Activity
 			} else {
 				showKeyboard(false, false);
 			}
+		} else if (msg.msgCalssID == ClassID.WindowDestroyedMsg.ValueOf()) {
+			WindowDestroyedMsg windowDestroyedMsg = (WindowDestroyedMsg) msg;
 		} else if (msg.msgCalssID == ClassID.LogoutMsg.ValueOf()) {
 			LogoutMsg logoutMsg = (LogoutMsg) msg;
 		} else if (msg.msgCalssID == ClassID.Error.ValueOf()) {
