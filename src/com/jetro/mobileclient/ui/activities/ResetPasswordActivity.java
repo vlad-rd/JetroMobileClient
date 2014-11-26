@@ -243,6 +243,17 @@ public class ResetPasswordActivity extends HeaderActivity implements IMessageSub
 							}
 						});
 				break;
+			case ErrorMsg.ERROR_UNEXPECTED:
+				DialogLauncher.launchServerErrorTwoButtonsDialog(ResetPasswordActivity.this,
+						errorMsg.Description, new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								if (which == DialogInterface.BUTTON_NEGATIVE) {
+									finish();
+								}
+							}
+						});
+				break;
 			}
 		}
 	}

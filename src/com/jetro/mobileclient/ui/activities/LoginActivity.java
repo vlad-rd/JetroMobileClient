@@ -295,6 +295,17 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 							}
 						});
 				break;
+			case ErrorMsg.ERROR_UNEXPECTED:
+				DialogLauncher.launchServerErrorTwoButtonsDialog(LoginActivity.this,
+						errorMsg.Description, new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								if (which == DialogInterface.BUTTON_NEGATIVE) {
+									finish();
+								}
+							}
+						});
+				break;
 			}
 		}
 	}

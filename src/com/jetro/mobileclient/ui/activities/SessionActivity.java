@@ -1567,6 +1567,17 @@ public class SessionActivity extends Activity
 				DialogLauncher.launchServerErrorOneButtonDialog(SessionActivity.this,
 						errorMsg.Description, null);
 				break;
+			case ErrorMsg.ERROR_UNEXPECTED:
+				DialogLauncher.launchServerErrorTwoButtonsDialog(SessionActivity.this,
+						errorMsg.Description, new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								if (which == DialogInterface.BUTTON_NEGATIVE) {
+									finish();
+								}
+							}
+						});
+				break;
 			}
 		}
 	}

@@ -5,6 +5,7 @@ package com.jetro.mobileclient.ui.activities;
 
 import java.util.Iterator;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -30,6 +31,7 @@ import com.jetro.mobileclient.config.Config;
 import com.jetro.mobileclient.model.beans.Connection;
 import com.jetro.mobileclient.repository.ConnectionsDB;
 import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
+import com.jetro.mobileclient.ui.dialogs.DialogLauncher;
 import com.jetro.mobileclient.utils.FilesUtils;
 import com.jetro.protocol.Core.BaseMsg;
 import com.jetro.protocol.Core.ClassID;
@@ -38,6 +40,7 @@ import com.jetro.protocol.Core.Net.ClientChannel;
 import com.jetro.protocol.Protocols.Controller.CockpitSiteInfoMsg;
 import com.jetro.protocol.Protocols.Controller.ConnectionPoint;
 import com.jetro.protocol.Protocols.Controller.LoginScreenImageMsg;
+import com.jetro.protocol.Protocols.Generic.ErrorMsg;
 
 /**
  * @author ran.h
@@ -315,6 +318,7 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 	public void ProcessMsg(BaseMsg msg) {
 		Log.i(TAG, TAG + "#ProcessMsg(...)\n" + msg.getClass().getSimpleName() + "\n" + msg.serializeJson());
 		
+		// Receives CockpitSiteInfoMsg
 		if (msg.msgCalssID == ClassID.CockpitSiteInfoMsg.ValueOf()) {
 			CockpitSiteInfoMsg cockpitSiteInfoMsg = (CockpitSiteInfoMsg) msg;
 			// Gets the connection points
@@ -343,6 +347,7 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 			} else {
 				launchConnectionActivity();
 			}
+		// Receives LoginScreenImageMsg
 		} else if (msg.msgCalssID == ClassID.LoginScreenImageMsg.ValueOf()) {
 			LoginScreenImageMsg loginScreenImageMsg = (LoginScreenImageMsg) msg;
 			Bitmap image = BitmapFactory.decodeByteArray(
@@ -352,6 +357,23 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 //			String loginImageFilePath = Config.Paths.DIR_IMAGES + loginImageName;
 			FilesUtils.writeImage(loginImageName, image);
 			launchConnectionActivity();
+		// Receives ErrorMsg
+		} else if (msg.msgCalssID == ClassID.Error.ValueOf()) {
+			stopLoadingScreen();
+			ErrorMsg errorMsg = (ErrorMsg) msg;
+			switch (errorMsg.Err) {
+			case ErrorMsg.ERROR_UNEXPECTED:
+				DialogLauncher.launchServerErrorTwoButtonsDialog(ConnectionActivity.this,
+						errorMsg.Description, new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								if (which == DialogInterface.BUTTON_NEGATIVE) {
+									finish();
+								}
+							}
+						});
+				break;
+			}
 		}
 	}
 	
