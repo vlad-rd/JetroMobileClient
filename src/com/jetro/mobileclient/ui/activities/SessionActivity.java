@@ -1571,6 +1571,17 @@ public class SessionActivity extends Activity
 				DialogLauncher.launchServerErrorOneButtonDialog(SessionActivity.this,
 						errorMsg.Description, null);
 				break;
+			case ErrorMsg.ERROR_NONE_AVAILABLE_TS:
+				DialogLauncher.launchServerErrorTwoButtonsDialog(SessionActivity.this,
+						errorMsg.Description, new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								if (which == DialogInterface.BUTTON_POSITIVE) {
+									sendGetTsMsg(GlobalApp.getSessionTicket());
+								}
+							}
+						});
+				break;
 			case ErrorMsg.ERROR_INVALID_TICKET:
 				DialogLauncher.launchServerErrorOneButtonDialog(SessionActivity.this,
 						errorMsg.Description, new DialogInterface.OnClickListener() {
