@@ -26,6 +26,10 @@ import com.jetro.mobileclient.repository.ConnectionsDB;
 import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
 import com.jetro.mobileclient.ui.dialogs.DialogLauncher;
 
+/**
+ * @author ran.h
+ *
+ */
 public class ConnectionsListActivity extends HeaderActivity {
 
 	private static final String TAG = ConnectionsListActivity.class.getSimpleName();

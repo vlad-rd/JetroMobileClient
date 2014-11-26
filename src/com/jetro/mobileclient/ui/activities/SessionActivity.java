@@ -105,6 +105,10 @@ import com.jetro.protocol.Protocols.TsSession.WindowCreatedMsg;
 import com.jetro.protocol.Protocols.TsSession.WindowDestroyedMsg;
 
 
+/**
+ * @author ran.h
+ *
+ */
 public class SessionActivity extends Activity
 	implements LibFreeRDP.UIEventListener, KeyboardView.OnKeyboardActionListener, ScrollView2D.ScrollView2DListener, 
 			   KeyboardMapper.KeyProcessingListener, SessionView.SessionViewListener, TouchPointerView.TouchPointerListener,
@@ -1566,6 +1570,15 @@ public class SessionActivity extends Activity
 			case ErrorMsg.ERROR_START_APPLICATION_FAILURE:
 				DialogLauncher.launchServerErrorOneButtonDialog(SessionActivity.this,
 						errorMsg.Description, null);
+				break;
+			case ErrorMsg.ERROR_INVALID_TICKET:
+				DialogLauncher.launchServerErrorOneButtonDialog(SessionActivity.this,
+						errorMsg.Description, new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								finish();
+							}
+						});
 				break;
 			case ErrorMsg.ERROR_UNEXPECTED:
 				DialogLauncher.launchServerErrorTwoButtonsDialog(SessionActivity.this,
