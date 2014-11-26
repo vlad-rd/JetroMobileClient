@@ -3,15 +3,13 @@
 
     <color name="theme_orange">#F68500</color>
     <color name="theme_orange_pressed">#CD5812</color>
-    <color name="transparent">#00000000</color>
-    <color name="white">#FFFFFF</color>
-    <color name="black">#000000</color>
-    <color name="gray_text">#cccccc</color>
-    <color name="gray_border">#bbbbbb</color>
     <color name="theme_blue">#1A366A</color>
     <color name="theme_blue_pressed">#092B4D</color>
+    <color name="text_gray">#cccccc</color>
+    <color name="border_gray">#bbbbbb</color>
     <color name="spinner_item_background">#BBBBBB</color>
     <color name="spinner_item_background_pressed">#707070</color>
     <color name="button_disabled_color">#E3E3E3</color>
     <color name="light_blue">#23466C</color>
+
 </resources>

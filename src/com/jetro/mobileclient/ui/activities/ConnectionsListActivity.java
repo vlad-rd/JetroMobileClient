@@ -144,10 +144,12 @@ public class ConnectionsListActivity extends HeaderActivity {
 			String connectionName = connection.getName();
 			
 			convertView = mInflater.inflate(R.layout.list_item_connection, parent, false);
+			View listItem = convertView.findViewById(R.id.list_item);
 			TextView hostName = (TextView) convertView.findViewById(R.id.connection_name);
-			hostName.setText(connectionName);
+			View deleteButton = convertView.findViewById(R.id.delete_button);
+			
 
-			convertView.findViewById(R.id.itemBg).setOnClickListener(
+			listItem.setOnClickListener(
 					new OnClickListener() {
 						@Override
 						public void onClick(View v) {
@@ -155,7 +157,7 @@ public class ConnectionsListActivity extends HeaderActivity {
 						}
 					});
 
-			convertView.findViewById(R.id.itemBg).setOnLongClickListener(
+			listItem.setOnLongClickListener(
 					new OnLongClickListener() {
 						@Override
 						public boolean onLongClick(View v) {
@@ -163,14 +165,17 @@ public class ConnectionsListActivity extends HeaderActivity {
 							return true;
 						}
 					});
+			
+			hostName.setText(connectionName);
 
-			convertView.findViewById(R.id.delete_button).setOnClickListener(
+			deleteButton.setOnClickListener(
 					new OnClickListener() {
 						@Override
 						public void onClick(View v) {
 							launchDeleteConnectionDialog(connection, position);
 						}
 					});
+			
 			return convertView;
 		}
 		

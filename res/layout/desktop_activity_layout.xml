@@ -19,7 +19,7 @@
             android:layout_toRightOf="@+id/drawer_dummy_handle"
             android:scaleType="fitXY"
             android:src="@drawable/desktop_header" />
-        
+
         <!-- Desktop Header - Refresh Button -->
 
         <ImageView

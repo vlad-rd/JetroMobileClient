@@ -10,8 +10,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -29,13 +31,37 @@ public class TasksAdapter extends ArrayAdapter<Window> {
 	private LayoutInflater mInflater;
 	private int mLayoutResourceId;
 	private List<Window> mTasks;
+	
+	/**
+	 * @author ran.h
+	 *
+	 */
+	public interface Listener {
+		
+		public void onTaskDeleted(Window task);
+		
+	}
+	
+	private Listener mListener;
+	
+	private OnClickListener mOnClickListener = new OnClickListener() {
+		@Override
+		public void onClick(View view) {
+			int position = (Integer) view.getTag();
+			Window task = mTasks.get(position);
+			if (task != null) {
+				mListener.onTaskDeleted(task);
+			}
+		}
+	};
 
-	public TasksAdapter(Context context, int resource, List<Window> tasks) {
+	public TasksAdapter(Context context, int resource, List<Window> tasks, TasksAdapter.Listener listener) {
 		super(context, resource, tasks);
 		
 		mInflater = LayoutInflater.from(context);
 		mLayoutResourceId = resource;
 		mTasks = tasks;
+		mListener = listener;
 	}
 
 	@Override
@@ -45,8 +71,10 @@ public class TasksAdapter extends ArrayAdapter<Window> {
 		if (convertView == null) {
 			holder = new ViewHolder();
 			convertView = mInflater.inflate(mLayoutResourceId, parent, false);
-			holder.icon = (ImageView) convertView.findViewById(R.id.task_icon);
-			holder.title = (TextView) convertView.findViewById(R.id.task_title);
+			holder.taskIcon = (ImageView) convertView.findViewById(R.id.task_icon);
+			holder.taskTitle = (TextView) convertView.findViewById(R.id.task_title);
+			holder.deleteButton = (Button) convertView.findViewById(R.id.delete_button);
+			holder.deleteButton.setOnClickListener(mOnClickListener);
 			convertView.setTag(holder);
 		} else {
 			holder = (ViewHolder) convertView.getTag();
@@ -55,8 +83,9 @@ public class TasksAdapter extends ArrayAdapter<Window> {
 		Window task = getItem(position);
 		byte[] iconBytes = task.Icon;
 		Bitmap bitmap = BitmapFactory.decodeByteArray(iconBytes , 0, iconBytes.length);
-		holder.icon.setImageBitmap(bitmap);
-		holder.title.setText(task.Title);
+		holder.taskIcon.setImageBitmap(bitmap);
+		holder.taskTitle.setText(task.Title);
+		holder.deleteButton.setTag(position);
 		
 		return convertView;
 	}
@@ -70,8 +99,9 @@ public class TasksAdapter extends ArrayAdapter<Window> {
 	}
 	
 	private class ViewHolder {
-		ImageView icon;
-		TextView title;
+		ImageView taskIcon;
+		TextView taskTitle;
+		Button deleteButton;
 	}
 
 }

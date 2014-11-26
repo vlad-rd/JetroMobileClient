@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/transparent"
+    android:background="@android:color/transparent"
     android:orientation="vertical"
     android:padding="7dp"
     android:weightSum="100" >
@@ -22,7 +22,7 @@
             android:drawablePadding="12dp"
             android:gravity="center"
             android:text="@string/add_new_connection_lbl"
-            android:textColor="@color/white"
+            android:textColor="@android:color/white"
             android:textSize="@dimen/button_add_new_aconnection_text_size" />
     </RelativeLayout>
 
@@ -31,8 +31,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_weight="1"
-        android:background="@color/transparent"
-        android:divider="@color/transparent"
+        android:background="@android:color/transparent"
+        android:divider="@android:color/transparent"
         android:dividerHeight="1dp" />
 
 </LinearLayout>

@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@android:color/white"
     android:padding="10dp" >
 
     <!-- Connection Form - Wrapper -->
@@ -32,7 +32,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginRight="@dimen/star_image_right"
+                    android:layout_marginRight="@dimen/star_icon_size"
                     android:layout_marginTop="1dp"
                     android:src="@drawable/star" />
 
@@ -41,8 +41,8 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="@string/connection_name_lbl"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/edittext_lbl" />
+                    android:textColor="@android:color/black"
+                    android:textSize="@dimen/edit_text_label_text_size" />
             </LinearLayout>
 
             <!-- Connection Name - Edit Text -->
@@ -57,7 +57,7 @@
                 android:inputType="text"
                 android:singleLine="true"
                 android:textCursorDrawable="@null"
-                android:textSize="@dimen/edittext_lbl" />
+                android:textSize="@dimen/edit_text_label_text_size" />
 
             <!-- Host IP - Label -->
 
@@ -71,7 +71,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginRight="@dimen/star_image_right"
+                    android:layout_marginRight="@dimen/star_icon_size"
                     android:layout_marginTop="3dp"
                     android:background="@drawable/star" />
 
@@ -81,8 +81,8 @@
                     android:layout_marginTop="5dp"
                     android:gravity="center"
                     android:text="@string/host_ip_lbl"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/edittext_lbl" />
+                    android:textColor="@android:color/black"
+                    android:textSize="@dimen/edit_text_label_text_size" />
             </LinearLayout>
 
             <!-- Host IP - Edit Text -->
@@ -97,7 +97,7 @@
                 android:inputType="date"
                 android:singleLine="true"
                 android:textCursorDrawable="@null"
-                android:textSize="@dimen/edittext_lbl" />
+                android:textSize="@dimen/edit_text_label_text_size" />
 
             <!-- Host Port - Label -->
 
@@ -111,7 +111,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginRight="@dimen/star_image_right"
+                    android:layout_marginRight="@dimen/star_icon_size"
                     android:layout_marginTop="3dp"
                     android:background="@drawable/star" />
 
@@ -121,8 +121,8 @@
                     android:layout_marginTop="5dp"
                     android:gravity="center"
                     android:text="@string/host_port_lbl"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/edittext_lbl" />
+                    android:textColor="@android:color/black"
+                    android:textSize="@dimen/edit_text_label_text_size" />
             </LinearLayout>
 
             <!-- Host Port - Edit Text -->
@@ -138,7 +138,7 @@
                 android:inputType="number"
                 android:singleLine="true"
                 android:textCursorDrawable="@null"
-                android:textSize="@dimen/edittext_lbl" />
+                android:textSize="@dimen/edit_text_label_text_size" />
 
             <!-- Connection Mode - Label -->
 
@@ -150,8 +150,8 @@
                 android:gravity="center"
                 android:paddingLeft="14dp"
                 android:text="@string/connection_mode_lbl"
-                android:textColor="@color/black"
-                android:textSize="@dimen/edittext_lbl" />
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/edit_text_label_text_size" />
 
             <!-- Connection Mode - ComboBox -->
 
@@ -173,7 +173,7 @@
                     android:listSelector="@drawable/selector_back_button"
                     android:popupBackground="#bbbbbb"
                     android:spinnerMode="dropdown"
-                    android:textSize="@dimen/edittext_lbl" />
+                    android:textSize="@dimen/edit_text_label_text_size" />
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -196,7 +196,7 @@
                 android:inputType="date"
                 android:singleLine="true"
                 android:textCursorDrawable="@null"
-                android:textSize="@dimen/edittext_lbl" />
+                android:textSize="@dimen/edit_text_label_text_size" />
         </LinearLayout>
     </ScrollView>
 
@@ -223,7 +223,7 @@
             android:layout_weight="1"
             android:background="@drawable/orange_button_selector"
             android:text="@string/cancel_lbl"
-            android:textSize="@dimen/button_text_lbl" />
+            android:textSize="@dimen/button_label_text_size" />
 
         <ImageView
             android:id="@+id/divider_horizontal"
@@ -241,7 +241,7 @@
             android:layout_gravity="right"
             android:layout_weight="1"
             android:text="@string/connect_lbl"
-            android:textSize="@dimen/button_text_lbl" />
+            android:textSize="@dimen/button_label_text_size" />
     </LinearLayout>
 
 </RelativeLayout>

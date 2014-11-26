@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@android:color/white"
     android:padding="10dp" >
 
     <!-- Connection Form - Wrapper -->
@@ -32,7 +32,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginRight="@dimen/star_image_right"
+                    android:layout_marginRight="@dimen/star_icon_size"
                     android:layout_marginTop="1dp"
                     android:src="@drawable/star" />
 
@@ -42,8 +42,8 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="@string/user_name_lbl"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/edittext_lbl" />
+                    android:textColor="@android:color/black"
+                    android:textSize="@dimen/edit_text_label_text_size" />
             </LinearLayout>
 
             <!-- User Name - Edit Text -->
@@ -59,7 +59,7 @@
                 android:inputType="text"
                 android:singleLine="true"
                 android:textCursorDrawable="@null"
-                android:textSize="@dimen/edittext_lbl" />
+                android:textSize="@dimen/edit_text_label_text_size" />
 
             <!-- Password - Label -->
 
@@ -73,7 +73,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginRight="@dimen/star_image_right"
+                    android:layout_marginRight="@dimen/star_icon_size"
                     android:layout_marginTop="3dp"
                     android:background="@drawable/star" />
 
@@ -84,8 +84,8 @@
                     android:layout_marginTop="5dp"
                     android:gravity="center"
                     android:text="@string/password_lbl"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/edittext_lbl" />
+                    android:textColor="@android:color/black"
+                    android:textSize="@dimen/edit_text_label_text_size" />
             </LinearLayout>
 
             <!-- Password - Edit Text -->
@@ -101,7 +101,7 @@
                 android:inputType="text|textPassword"
                 android:singleLine="true"
                 android:textCursorDrawable="@null"
-                android:textSize="@dimen/edittext_lbl" />
+                android:textSize="@dimen/edit_text_label_text_size" />
 
             <!-- Domain - Label -->
 
@@ -115,7 +115,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginRight="@dimen/star_image_right"
+                    android:layout_marginRight="@dimen/star_icon_size"
                     android:layout_marginTop="3dp"
                     android:background="@drawable/star" />
 
@@ -126,8 +126,8 @@
                     android:layout_marginTop="5dp"
                     android:gravity="center"
                     android:text="@string/domain_lbl"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/edittext_lbl" />
+                    android:textColor="@android:color/black"
+                    android:textSize="@dimen/edit_text_label_text_size" />
             </LinearLayout>
 
             <!-- Domain - Edit Text -->
@@ -144,7 +144,7 @@
                 android:inputType="text"
                 android:singleLine="true"
                 android:textCursorDrawable="@null"
-                android:textSize="@dimen/edittext_lbl" />
+                android:textSize="@dimen/edit_text_label_text_size" />
 
             <!-- Login Screen Image -->
 
@@ -177,7 +177,7 @@
             android:layout_weight="0.99"
             android:background="@drawable/orange_button_selector"
             android:text="@string/cancel_lbl"
-            android:textSize="@dimen/button_text_lbl" />
+            android:textSize="@dimen/button_label_text_size" />
 
         <ImageView
             android:layout_width="0dip"
@@ -194,7 +194,7 @@
             android:layout_weight="0.99"
             android:background="@drawable/orange_button_selector"
             android:text="@string/login_lbl"
-            android:textSize="@dimen/button_text_lbl" />
+            android:textSize="@dimen/button_label_text_size" />
     </LinearLayout>
 
 </RelativeLayout>

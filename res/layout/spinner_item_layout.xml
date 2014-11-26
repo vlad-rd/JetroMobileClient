@@ -7,5 +7,5 @@
     android:padding="10dp"
     android:text="SSL"
     android:textColor="@color/light_blue"
-    android:textSize="@dimen/edittext_lbl" >
+    android:textSize="@dimen/edit_text_label_text_size" >
 </TextView>

@@ -3,6 +3,7 @@
  */
 package com.jetro.mobileclient.ui.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -10,24 +11,34 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
+import com.freerdp.freerdpcore.application.GlobalApp;
 import com.jetro.mobileclient.R;
 import com.jetro.mobileclient.config.Config;
 import com.jetro.mobileclient.model.beans.Connection;
+import com.jetro.mobileclient.repository.ConnectionsDB;
 import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
+import com.jetro.protocol.Core.BaseMsg;
+import com.jetro.protocol.Core.ClassID;
+import com.jetro.protocol.Core.IMessageSubscriber;
+import com.jetro.protocol.Core.Net.ClientChannel;
+import com.jetro.protocol.Protocols.Controller.ResetPasswordMsg;
 
 /**
  * @author ran.h
  *
  */
-public class ResetPasswordActivity extends HeaderActivity {
+public class ResetPasswordActivity extends HeaderActivity implements IMessageSubscriber {
 
 	private static final String TAG = ResetPasswordActivity.class
 			.getSimpleName();
+	
+	private ClientChannel mClientChannel;
 	
 	private Connection mConnection;
 	
@@ -99,13 +110,44 @@ public class ResetPasswordActivity extends HeaderActivity {
 				return false;
 			}
 		});
+		mResetButton = (TextView) mBaseContentLayout.findViewById(R.id.reset_button);
+		mResetButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				resetPassword();
+			}
+		});
 		
 		// Loads old password from host
 		if (mConnection != null) {
 			mOldPasswordInput.setText(mConnection.getPassword());
+			// TODO: delete after test
+			String NEW_PASSWORD = "Welcome2!";
+			mNewPasswordInput.setText(NEW_PASSWORD);
+			mConfirmPasswordInput.setText(NEW_PASSWORD);
 		}
 	}
 	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		
+		mClientChannel = ClientChannel.getInstance();
+		if (mClientChannel != null) {
+			mClientChannel.AddListener(ResetPasswordActivity.this);
+		}
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		
+		mClientChannel = ClientChannel.getInstance();
+		if (mClientChannel != null) {
+			mClientChannel.RemoveListener(ResetPasswordActivity.this);
+		}
+	}
+
 	@Override
 	protected void setHeader() {
 		// TODO Auto-generated method stub
@@ -143,13 +185,56 @@ public class ResetPasswordActivity extends HeaderActivity {
 	private void resetPassword() {
 		Log.d(TAG, TAG + "#resetPassword(...) ENTER");
 		
+		startLoadingScreen();
+		
 		String oldPassword = mOldPasswordInput.getText().toString().trim();
 		String newPassword = mNewPasswordInput.getText().toString().trim();
-		
 		String userName = mConnection.getUserName();
 		String domain = mConnection.getDomain();
 		
 		// TODO: save the new password to host
+		sendResetPasswordMsg(oldPassword, newPassword, userName, domain);
+	}
+	
+	public void sendResetPasswordMsg(String oldPassword, String newPassword, String userName, String domain) {
+		Log.d(TAG, TAG + "#sendResetPasswordMsg(...) ENTER");
+		
+		ResetPasswordMsg resetPasswordMsg = new ResetPasswordMsg();
+		resetPasswordMsg.OldPassword = oldPassword;
+		resetPasswordMsg.NewPassword = newPassword;
+		resetPasswordMsg.Name = userName;
+		resetPasswordMsg.Domain = domain;
+		mClientChannel.SendAsync(resetPasswordMsg);
+	}
+
+	@Override
+	public void ProcessMsg(BaseMsg msg) {
+		Log.d(TAG, TAG + "#ProcessMsg(...)\n" + msg.getClass().getSimpleName() + "\n" + msg.serializeJson());
+		
+		// Receives ResetPasswordMsg
+		if (msg.msgCalssID == ClassID.ResetPasswordMsg.ValueOf()) {
+			ResetPasswordMsg resetPasswordMsg = new ResetPasswordMsg();
+			// Saves the new password to the connection
+			// TODO: Zeev need to send the new password from the server
+			mConnection.setPassword(resetPasswordMsg.NewPassword);
+			ConnectionsDB.getInstance(getApplicationContext()).saveConnection(mConnection);
+			// Launches the SessionActivity
+			GlobalApp.setSessionTicket(resetPasswordMsg.Ticket);
+			Intent intent = new Intent(ResetPasswordActivity.this, SessionActivity.class);
+			intent.putExtra(Config.Extras.EXTRA_CONNECTION, mConnection);
+			startActivity(intent);
+			finish();
+		}
+	}
+
+	@Override
+	public void ConnectionIsBroken() {
+		Log.d(TAG, TAG + "#ConnectionIsBroken(...) ENTER");
+		
+		// TODO: check this code
+		ClientChannel.getInstance().RemoveListener(ResetPasswordActivity.this);
+		ClientChannel.getInstance().Stop();
+		finish();
 	}
 
 }

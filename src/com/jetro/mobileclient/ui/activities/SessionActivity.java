@@ -92,6 +92,7 @@ import com.jetro.protocol.Protocols.Controller.GetTsMsg;
 import com.jetro.protocol.Protocols.Controller.LogoutMsg;
 import com.jetro.protocol.Protocols.Controller.MyApplicationsMsg;
 import com.jetro.protocol.Protocols.Generic.ErrorMsg;
+import com.jetro.protocol.Protocols.TsSession.KillProcessMsg;
 import com.jetro.protocol.Protocols.TsSession.SessionReadyMsg;
 import com.jetro.protocol.Protocols.TsSession.ShowKeyBoardMsg;
 import com.jetro.protocol.Protocols.TsSession.ShowTaskListMsg;
@@ -364,7 +365,7 @@ public class SessionActivity extends Activity
 			ProgressBar appIconLoding = (ProgressBar) convertView.findViewById(R.id.progress_loading);
 			ImageView appIcon = (ImageView) convertView.findViewById(R.id.app_icon);
 			ImageView appActiveIndicator = (ImageView) convertView.findViewById(R.id.app_active_indicator);
-			TextView appName = (TextView) convertView.findViewById(R.id.app_name);
+			TextView appName = (TextView) convertView.findViewById(R.id.task_title);
 			
 			appName.setText(currApp.Name);
 			if (currApp.Icon != null && currApp.Icon.length > 0) {
@@ -633,7 +634,16 @@ public class SessionActivity extends Activity
 				finish();
 			}
 		});
-		mTasksAdapter = new TasksAdapter(SessionActivity.this, R.layout.list_item_task, new ArrayList<Window>());
+		mTasksAdapter = new TasksAdapter(
+				SessionActivity.this,
+				R.layout.list_item_task,
+				new ArrayList<Window>(),
+				new TasksAdapter.Listener() {
+					@Override
+					public void onTaskDeleted(Window task) {
+						sendkillProcessMsg(task.PID);
+					}
+				});
 		mTasksList = (ListView) findViewById(R.id.tasks_list);
 		mTasksList.setAdapter(mTasksAdapter);
 		mTasksList.setOnItemClickListener(new OnItemClickListener() {
@@ -1616,5 +1626,13 @@ public class SessionActivity extends Activity
 		showWindowMsg.PID = pId;
 		showWindowMsg.HWND = hwnd;
 		mClientChannel.SendAsync(showWindowMsg);
+	}
+	
+	private void sendkillProcessMsg(int pId) {
+		Log.d(TAG, TAG + "#sendkillProcessMsg(...) ENTER");
+		
+		KillProcessMsg killProcessMsg = new KillProcessMsg();
+		killProcessMsg.PID = pId;
+		mClientChannel.SendAsync(killProcessMsg);
 	}
 }

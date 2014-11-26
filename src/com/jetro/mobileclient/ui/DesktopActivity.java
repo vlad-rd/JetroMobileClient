@@ -220,7 +220,7 @@ public class DesktopActivity extends Activity implements ISocketListener {
 		public View getView(final int position, View convertView, ViewGroup parent) {
 			convertView = inflater.inflate(R.layout.grid_item_app, null);
 
-			((TextView) convertView.findViewById(R.id.app_name)).setText(apps[position].getName());
+			((TextView) convertView.findViewById(R.id.task_title)).setText(apps[position].getName());
 
 			proccessApplicationIcon(
 					((ImageView) convertView.findViewById(R.id.app_icon)),

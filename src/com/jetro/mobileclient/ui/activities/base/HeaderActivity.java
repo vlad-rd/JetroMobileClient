@@ -149,10 +149,10 @@ public abstract class HeaderActivity extends Activity {
 	}
 
 	/**
-	 * Sets the header title text.
+	 * Sets the header appName text.
 	 * 
 	 * @param stringResourceId
-	 *            - the title string resource id
+	 *            - the appName string resource id
 	 */
 	protected void setHeaderTitleText(int stringResourceId) {
 		mHeaderTitle.setText(stringResourceId);

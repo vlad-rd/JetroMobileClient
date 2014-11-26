@@ -225,7 +225,7 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		String password = mPasswordInput.getText().toString();
 		String domain = mDomainInput.getText().toString();
 		
-		// Saves user credentials to host
+		// Saves user credentials to connection
 		mConnection.setUserName(username);
 		mConnection.setPassword(password);
 		mConnection.setDomain(domain);
@@ -241,12 +241,25 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		// Receives LoginMsg
 		if (msg.msgCalssID == ClassID.LoginMsg.ValueOf()) {
 			LoginMsg loginMsg = (LoginMsg) msg;
-			if (loginMsg.returnCode == LoginMsg.LOGIN_SUCCESS) {
+			switch (loginMsg.returnCode) {
+			case LoginMsg.LOGIN_FAILURE: {
+				break;
+			}
+			case LoginMsg.LOGIN_SUCCESS: {
 				GlobalApp.setSessionTicket(loginMsg.Ticket);
 				Intent intent = new Intent(LoginActivity.this, SessionActivity.class);
 				intent.putExtra(Config.Extras.EXTRA_CONNECTION, mConnection);
 				startActivity(intent);
 				finish();
+				break;
+			}
+			case LoginMsg.LOGIN_RESET_PASSWORD: {
+				Intent intent = new Intent(LoginActivity.this, ResetPasswordActivity.class);
+				intent.putExtra(Config.Extras.EXTRA_CONNECTION, mConnection);
+				startActivity(intent);
+				finish();
+				break;
+			}
 			}
 		}
 	}

@@ -1,26 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/list_item"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:layout_margin="10dp" >
+
+    <!-- List Item - Background -->
 
     <ImageView
-        android:id="@+id/itemBg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/info_wrapper"
-        android:layout_alignLeft="@+id/info_wrapper"
-        android:layout_alignRight="@+id/info_wrapper"
-        android:layout_alignTop="@+id/info_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:alpha="0.2"
         android:clickable="true"
-        android:src="@drawable/connection_list_item_selector" />
+        android:src="@drawable/list_item_selector" />
+
+    <!-- List Item - Content -->
 
     <RelativeLayout
         android:id="@+id/info_wrapper"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/transparent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
         android:padding="10dp" >
+
+        <!-- List Item - Connection Name -->
 
         <TextView
             android:id="@+id/connection_name"
@@ -29,19 +32,22 @@
             android:textColor="@color/theme_orange"
             android:textSize="@dimen/list_item_connection_name_text_size" />
 
+        <!-- List Item - Delete Button Drawable -->
+
         <ImageView
-            android:id="@+id/delete_select_press"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:background="@drawable/selector_delete_button" />
+            android:background="@drawable/delete" />
     </RelativeLayout>
+
+    <!-- List Item - Delete Button -->
 
     <Button
         android:id="@+id/delete_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="60dp"
+        android:layout_height="match_parent"
         android:layout_alignParentRight="true"
-        android:background="@color/transparent" />
+        android:background="@android:color/transparent" />
 
 </RelativeLayout>

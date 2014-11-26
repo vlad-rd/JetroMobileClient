@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-
-    <!-- XHDPI -->
-    <dimen name="header_text">28sp</dimen>
-
-</resources>

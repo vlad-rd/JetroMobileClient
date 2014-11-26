@@ -8,7 +8,7 @@
         android:id="@+id/connection_types_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/gray_border"
+        android:background="@color/border_gray"
         android:entries="@array/connection_types_options" />
 
 </LinearLayout>

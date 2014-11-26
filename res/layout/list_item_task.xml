@@ -1,18 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal" >
+    android:orientation="horizontal"
+    android:padding="8dp" >
+
+    <!-- List Item - Background -->
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.2"
+        android:clickable="true"
+        android:src="@drawable/list_item_selector" />
+
+    <!-- List Item - Task Icon -->
 
     <ImageView
         android:id="@+id/task_icon"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="@dimen/list_item_task_icon_size"
+        android:layout_height="@dimen/list_item_task_icon_size"
         android:contentDescription="Task icon" />
+
+    <!-- List Item - Task Title -->
 
     <TextView
         android:id="@+id/task_title"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_margin="8dp"
+        android:layout_toRightOf="@id/task_icon"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:textSize="18sp" />
 
-</LinearLayout>
+    <!-- List Item - Delete Button Drawable -->
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/delete"
+        android:layout_margin="8dp" />
+
+    <!-- List Item - Delete Button -->
+
+    <Button
+        android:id="@+id/delete_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentRight="true"
+        android:background="@android:color/transparent" />
+
+</RelativeLayout>

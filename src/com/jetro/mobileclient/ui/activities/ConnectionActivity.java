@@ -159,7 +159,7 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 		
 		switch (mState) {
 		case ADD_CONNECTION:
-			// Sets the header title
+			// Sets the header appName
 			setHeaderTitleText(R.string.header_title_add_connection);
 			boolean hasHosts = ConnectionsDB.getInstance(getApplicationContext()).hasConnections();
 			if (hasHosts) {
@@ -192,7 +192,7 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 			mHostPortInput.setText("13000");
 			break;
 		case VIEW_CONNECTION:
-			// Sets the header title
+			// Sets the header appName
 			setHeaderTitleText(R.string.header_title_last_connection_details);
 			mHeaderBackButton.setVisibility(View.VISIBLE);
 			
