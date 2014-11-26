@@ -17,6 +17,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:scaleType="fitXY"
             android:src="@drawable/door" />
 
@@ -25,6 +26,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_toEndOf="@id/drawer_dummy_handle"
             android:layout_toRightOf="@id/drawer_dummy_handle"
             android:background="@drawable/bg_h" >
 
@@ -43,6 +45,7 @@
                 android:id="@+id/desktop_header_refresh_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
                 android:src="@drawable/refresh" />
@@ -54,6 +57,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_below="@id/desktop_header_image"
+                android:layout_margin="@dimen/grid_apps_margin"
                 android:numColumns="5"
                 android:verticalSpacing="5dp" >
             </GridView>
@@ -74,6 +78,7 @@
             android:id="@+id/session_root_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_toEndOf="@id/drawer_dummy_handle"
             android:layout_toRightOf="@id/drawer_dummy_handle"
             android:visibility="invisible" >
 
@@ -145,6 +150,7 @@
             android:id="@+id/tasks_drawer_handle"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:scaleType="fitXY"
             android:src="@drawable/door" />
@@ -155,6 +161,7 @@
             android:id="@+id/tasks_drawer_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/black_semi_transparent"
             android:padding="7.55dp" >
 
             <!-- Drawer Header - Home Button -->
@@ -164,6 +171,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
                 android:src="@drawable/home" />
 
             <!-- Drawer Header - Disconnect Button -->
@@ -172,6 +180,7 @@
                 android:id="@+id/disconnect_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
                 android:src="@drawable/disconnect" />
 
@@ -181,8 +190,10 @@
                 android:layout_height="match_parent"
                 android:layout_alignBottom="@id/disconnect_button"
                 android:layout_alignTop="@id/disconnect_button"
+                android:layout_toEndOf="@id/home_button"
                 android:layout_toLeftOf="@id/disconnect_button"
                 android:layout_toRightOf="@id/home_button"
+                android:layout_toStartOf="@id/disconnect_button"
                 android:gravity="center"
                 android:text="@string/header_title_open_applications"
                 android:textColor="@color/theme_orange"
@@ -197,11 +208,13 @@
             android:layout_height="match_parent"
             android:layout_below="@id/tasks_drawer_header"
             android:layout_gravity="start"
+            android:layout_margin="@dimen/list_tasks_margin"
             android:layout_toLeftOf="@id/tasks_drawer_handle"
+            android:layout_toStartOf="@id/tasks_drawer_handle"
             android:background="@android:color/transparent"
             android:choiceMode="singleChoice"
             android:divider="@android:color/transparent"
-            android:dividerHeight="0dp" />
+            android:dividerHeight="@dimen/list_tasks_divider_height" />
     </RelativeLayout>
 
 </android.support.v4.widget.DrawerLayout>

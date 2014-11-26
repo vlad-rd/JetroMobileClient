@@ -5,6 +5,8 @@
     <color name="theme_orange_pressed">#CD5812</color>
     <color name="theme_blue">#1A366A</color>
     <color name="theme_blue_pressed">#092B4D</color>
+    <color name="theme_blue_pressed_semi_transparent">#33092B4D</color>
+    <color name="black_semi_transparent">#33000000</color>
     <color name="text_gray">#cccccc</color>
     <color name="border_gray">#bbbbbb</color>
     <color name="spinner_item_background">#BBBBBB</color>

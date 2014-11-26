@@ -3,50 +3,37 @@
     android:id="@+id/list_item"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="10dp" >
+    android:background="@drawable/list_item_selector"
+    android:padding="@dimen/list_item_connection_padding" >
 
-    <!-- List Item - Background -->
+    <!-- List Item - Connection Name -->
+
+    <TextView
+        android:id="@+id/connection_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:textColor="@color/theme_orange"
+        android:textSize="@dimen/list_item_connection_name_text_size" />
+
+    <!-- List Item - Delete Button Drawable -->
 
     <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:alpha="0.2"
-        android:clickable="true"
-        android:src="@drawable/list_item_selector" />
-
-    <!-- List Item - Content -->
-
-    <RelativeLayout
-        android:id="@+id/info_wrapper"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:padding="10dp" >
-
-        <!-- List Item - Connection Name -->
-
-        <TextView
-            android:id="@+id/connection_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/theme_orange"
-            android:textSize="@dimen/list_item_connection_name_text_size" />
-
-        <!-- List Item - Delete Button Drawable -->
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:background="@drawable/delete" />
-    </RelativeLayout>
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/delete" />
 
     <!-- List Item - Delete Button -->
 
     <Button
         android:id="@+id/delete_button"
-        android:layout_width="60dp"
+        android:layout_width="@dimen/list_item_connection_delete_button_width"
         android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:background="@android:color/transparent" />
 

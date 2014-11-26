@@ -56,5 +56,16 @@ public class DialogLauncher {
 				.setPositiveButton(R.string.dialog_network_connection_issue_positive_text, buttonClickListener)
 				.show();
 	}
+	
+	public static void launchChangePasswordFailureDialog(Activity activity,
+			String message,
+			DialogInterface.OnClickListener buttonClickListener) {
+		new AlertDialog.Builder(activity)
+		.setCancelable(false)
+		.setMessage(message)
+		.setPositiveButton(R.string.dialog_change_password_failure_positive_text, buttonClickListener)
+		.setNegativeButton(R.string.dialog_change_password_failure_negative_text, buttonClickListener)
+		.show();
+	}
 
 }

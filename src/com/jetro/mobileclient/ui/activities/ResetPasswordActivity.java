@@ -3,6 +3,7 @@
  */
 package com.jetro.mobileclient.ui.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -23,11 +24,13 @@ import com.jetro.mobileclient.config.Config;
 import com.jetro.mobileclient.model.beans.Connection;
 import com.jetro.mobileclient.repository.ConnectionsDB;
 import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
+import com.jetro.mobileclient.ui.dialogs.DialogLauncher;
 import com.jetro.protocol.Core.BaseMsg;
 import com.jetro.protocol.Core.ClassID;
 import com.jetro.protocol.Core.IMessageSubscriber;
 import com.jetro.protocol.Core.Net.ClientChannel;
 import com.jetro.protocol.Protocols.Controller.ResetPasswordMsg;
+import com.jetro.protocol.Protocols.Generic.ErrorMsg;
 
 /**
  * @author ran.h
@@ -213,7 +216,7 @@ public class ResetPasswordActivity extends HeaderActivity implements IMessageSub
 		
 		// Receives ResetPasswordMsg
 		if (msg.msgCalssID == ClassID.ResetPasswordMsg.ValueOf()) {
-			ResetPasswordMsg resetPasswordMsg = new ResetPasswordMsg();
+			ResetPasswordMsg resetPasswordMsg = (ResetPasswordMsg) msg;
 			// Saves the new password to the connection
 			// TODO: Zeev need to send the new password from the server
 			mConnection.setPassword(resetPasswordMsg.NewPassword);
@@ -224,6 +227,26 @@ public class ResetPasswordActivity extends HeaderActivity implements IMessageSub
 			intent.putExtra(Config.Extras.EXTRA_CONNECTION, mConnection);
 			startActivity(intent);
 			finish();
+		// Receives ErrorMsg
+		} else if (msg.msgCalssID == ClassID.Error.ValueOf()) {
+			stopLoadingScreen();
+			ErrorMsg errorMsg = (ErrorMsg) msg;
+			switch (errorMsg.Err) {
+			case ErrorMsg.ERROR_PASSWORD_CHANGE_FAILURE:
+				DialogLauncher.launchChangePasswordFailureDialog(ResetPasswordActivity.this,
+						errorMsg.Description,
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								if (which == DialogInterface.BUTTON_NEGATIVE) {
+									finish();
+								}
+							}
+						});
+				break;
+			default:
+				break;
+			}
 		}
 	}
 

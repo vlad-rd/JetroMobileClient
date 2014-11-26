@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:background="@android:color/transparent"
     android:orientation="vertical"
-    android:padding="7dp"
+    android:padding="@dimen/activity_padding"
     android:weightSum="100" >
 
     <RelativeLayout

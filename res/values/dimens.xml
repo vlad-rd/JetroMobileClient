@@ -1,24 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    
+    <!-- activity -->
+    <dimen name="activity_padding">8dp</dimen>
+    
+    <!-- buttons -->
+    <dimen name="button_label_text_size">16sp</dimen>
+    
+    <!-- listview items -->
+    <dimen name="list_item_margin">8dp</dimen>
+    <dimen name="list_item_padding">4dp</dimen>
 
     <!-- header activity -->
-    <dimen name="header_text_size">20sp</dimen>
+    <dimen name="header_text_size">28sp</dimen>
     <dimen name="star_icon_size">5dp</dimen>
 
+    <!-- connection activity -->
+    <dimen name="edit_text_label_text_size">20sp</dimen>
+    
+    <!-- connection list activtiy -->
+    <dimen name="button_add_new_aconnection_text_size">22sp</dimen>
+    <dimen name="list_item_connection_padding">10dp</dimen>
+    <dimen name="list_item_connection_name_text_size">22sp</dimen>
+    <dimen name="list_item_connection_delete_button_width">60dp</dimen>
+    
     <!-- desktop activity -->
     <dimen name="tasks_drawer_width">320dp</dimen>
+    <dimen name="grid_apps_margin">16dp</dimen>
     <dimen name="grid_item_app_icon_size">90dp</dimen>
     <dimen name="grid_item_app_active_idicator_size">25dp</dimen>
     <dimen name="app_name_text_size">22sp</dimen>
 
     <!-- tasks drawer -->
+    <dimen name="list_tasks_divider_height">4dp</dimen>
+    <dimen name="list_tasks_margin">8dp</dimen>
     <dimen name="list_item_task_icon_size">48dp</dimen>
-    <!-- connection activity -->
-    <dimen name="edit_text_label_text_size">20sp</dimen>
-
-    <!-- connection list activtiy -->
-    <dimen name="list_item_connection_name_text_size">22sp</dimen>
-    <dimen name="button_add_new_aconnection_text_size">22sp</dimen>
-    <dimen name="button_label_text_size">16sp</dimen>
+    <dimen name="list_item_task_delete_button_image_margin">8dp</dimen>
+    <dimen name="list_item_task_delete_button_width">48dp</dimen>
 
 </resources>
