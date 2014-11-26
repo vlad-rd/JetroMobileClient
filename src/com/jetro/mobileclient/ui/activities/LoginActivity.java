@@ -334,30 +334,26 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		loginMsg.deviceModel = deviceModel;
 		loginMsg.deviceId = deviceId;
 		
-		if (mClientChannel == null) {
-			Log.i(TAG, TAG + "#sendLoginMsg(...) ClientChannel = " + mClientChannel);
-			ConnectionPoint connectionPoint = null;
-			if (mIsWAN) {
-				connectionPoint = mConnection.getWANs().iterator().next();
-			} else {
-				connectionPoint = mConnection.getLANs().iterator().next();
-			}
-			boolean isCreated = ClientChannel.Create(connectionPoint.IP, connectionPoint.Port, ClientChannel.TIME_OUT);
-			Log.i(TAG, TAG + "#sendLoginMsg(...) ClientChannel isCreated = " + isCreated);
-			if (isCreated) {
-				mClientChannel = ClientChannel.getInstance();
-				mClientChannel.AddListener(LoginActivity.this);
-				mClientChannel.SendReceiveAsync(loginMsg);
-				// Saves this connection point as last used one
-				mConnection.setLastConnectionPoint(connectionPoint);
-				ConnectionsDB.getInstance(getApplicationContext()).saveConnection(mConnection);
-			} else {
-				stopLoadingScreen();
-				DialogLauncher.launchNetworkConnectionIssueDialog(LoginActivity.this, null);
-			}
+		// TODO: client channel connection to host fallback logic
+		Log.i(TAG, TAG + "#sendLoginMsg(...) ClientChannel = " + mClientChannel);
+		ConnectionPoint connectionPoint = null;
+		if (mIsWAN) {
+			connectionPoint = mConnection.getWANs().iterator().next();
 		} else {
-			Log.i(TAG, TAG + "#sendLoginMsg(...) ClientChannel = " + mClientChannel);
-			mClientChannel.SendAsync(loginMsg);
+			connectionPoint = mConnection.getLANs().iterator().next();
+		}
+		boolean isCreated = ClientChannel.Create(connectionPoint.IP, connectionPoint.Port, ClientChannel.TIME_OUT);
+		Log.i(TAG, TAG + "#sendLoginMsg(...) ClientChannel isCreated = " + isCreated);
+		if (isCreated) {
+			mClientChannel = ClientChannel.getInstance();
+			mClientChannel.AddListener(LoginActivity.this);
+			mClientChannel.SendReceiveAsync(loginMsg);
+			// Saves this connection point as last used one
+			mConnection.setLastConnectionPoint(connectionPoint);
+			ConnectionsDB.getInstance(getApplicationContext()).saveConnection(mConnection);
+		} else {
+			stopLoadingScreen();
+			DialogLauncher.launchNetworkConnectionIssueDialog(LoginActivity.this, null);
 		}
 		
 	}

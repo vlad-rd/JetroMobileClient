@@ -33,6 +33,6 @@
         android:layout_weight="1"
         android:background="@android:color/transparent"
         android:divider="@android:color/transparent"
-        android:dividerHeight="1dp" />
+        android:dividerHeight="@dimen/list_item_padding" />
 
 </LinearLayout>

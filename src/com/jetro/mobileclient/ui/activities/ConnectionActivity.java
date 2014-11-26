@@ -345,7 +345,7 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 				msgLIS.ImageName = ((CockpitSiteInfoMsg)msg).LoginScreenImage;
 				ClientChannel.getInstance().SendAsync(msgLIS);
 			} else {
-				launchConnectionActivity();
+				launchLoginActivity();
 			}
 		// Receives LoginScreenImageMsg
 		} else if (msg.msgCalssID == ClassID.LoginScreenImageMsg.ValueOf()) {
@@ -356,7 +356,7 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 			String loginImageName = FilesUtils.getFileName(loginScreenImageMsg.ImageName, "\\");
 //			String loginImageFilePath = Config.Paths.DIR_IMAGES + loginImageName;
 			FilesUtils.writeImage(loginImageName, image);
-			launchConnectionActivity();
+			launchLoginActivity();
 		// Receives ErrorMsg
 		} else if (msg.msgCalssID == ClassID.Error.ValueOf()) {
 			stopLoadingScreen();
@@ -382,7 +382,7 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 		// Do nothing
 	}
 	
-	private void launchConnectionActivity() {
+	private void launchLoginActivity() {
 		// Launches the login activity
 		Intent intent = new Intent(ConnectionActivity.this, LoginActivity.class);
 		intent.putExtra(Config.Extras.EXTRA_CONNECTION, mConnection);
