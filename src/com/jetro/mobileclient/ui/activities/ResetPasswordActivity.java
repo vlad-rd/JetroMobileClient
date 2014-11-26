@@ -233,7 +233,7 @@ public class ResetPasswordActivity extends HeaderActivity implements IMessageSub
 			ErrorMsg errorMsg = (ErrorMsg) msg;
 			switch (errorMsg.Err) {
 			case ErrorMsg.ERROR_PASSWORD_CHANGE_FAILURE:
-				DialogLauncher.launchChangePasswordFailureDialog(ResetPasswordActivity.this,
+				DialogLauncher.launchServerErrorDialog(ResetPasswordActivity.this,
 						errorMsg.Description,
 						new DialogInterface.OnClickListener() {
 							@Override
@@ -243,8 +243,6 @@ public class ResetPasswordActivity extends HeaderActivity implements IMessageSub
 								}
 							}
 						});
-				break;
-			default:
 				break;
 			}
 		}

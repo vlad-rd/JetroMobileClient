@@ -36,6 +36,7 @@ import com.jetro.protocol.Core.IMessageSubscriber;
 import com.jetro.protocol.Core.Net.ClientChannel;
 import com.jetro.protocol.Protocols.Controller.ConnectionPoint;
 import com.jetro.protocol.Protocols.Controller.LoginMsg;
+import com.jetro.protocol.Protocols.Generic.ErrorMsg;
 
 /**
  * @author ran.h
@@ -260,6 +261,24 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 				finish();
 				break;
 			}
+			}
+		// Receives ErrorMsg
+		} else if (msg.msgCalssID == ClassID.Error.ValueOf()) {
+			stopLoadingScreen();
+			ErrorMsg errorMsg = (ErrorMsg) msg;
+			switch (errorMsg.Err) {
+			case ErrorMsg.ERROR_INVALID_USER_CREDENTIALS:
+				DialogLauncher.launchServerErrorDialog(LoginActivity.this,
+						errorMsg.Description,
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								if (which == DialogInterface.BUTTON_NEGATIVE) {
+									finish();
+								}
+							}
+						});
+				break;
 			}
 		}
 	}

@@ -57,14 +57,14 @@ public class DialogLauncher {
 				.show();
 	}
 	
-	public static void launchChangePasswordFailureDialog(Activity activity,
+	public static void launchServerErrorDialog(Activity activity,
 			String message,
 			DialogInterface.OnClickListener buttonClickListener) {
 		new AlertDialog.Builder(activity)
 		.setCancelable(false)
 		.setMessage(message)
-		.setPositiveButton(R.string.dialog_change_password_failure_positive_text, buttonClickListener)
-		.setNegativeButton(R.string.dialog_change_password_failure_negative_text, buttonClickListener)
+		.setPositiveButton(R.string.dialog_server_error_positive_text, buttonClickListener)
+		.setNegativeButton(R.string.dialog_server_error_negative_text, buttonClickListener)
 		.show();
 	}
 
