@@ -1565,13 +1565,7 @@ public class SessionActivity extends Activity
 			switch (errorMsg.Err) {
 			case ErrorMsg.ERROR_START_APPLICATION_FAILURE:
 				DialogLauncher.launchServerErrorOneButtonDialog(SessionActivity.this,
-						errorMsg.Description,
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								// Do nothing
-							}
-						});
+						errorMsg.Description, null);
 				break;
 			}
 		}
