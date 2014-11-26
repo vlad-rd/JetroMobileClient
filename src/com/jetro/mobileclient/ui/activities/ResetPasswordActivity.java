@@ -218,7 +218,6 @@ public class ResetPasswordActivity extends HeaderActivity implements IMessageSub
 		if (msg.msgCalssID == ClassID.ResetPasswordMsg.ValueOf()) {
 			ResetPasswordMsg resetPasswordMsg = (ResetPasswordMsg) msg;
 			// Saves the new password to the connection
-			// TODO: Zeev need to send the new password from the server
 			mConnection.setPassword(resetPasswordMsg.NewPassword);
 			ConnectionsDB.getInstance(getApplicationContext()).saveConnection(mConnection);
 			// Launches the SessionActivity
@@ -233,7 +232,7 @@ public class ResetPasswordActivity extends HeaderActivity implements IMessageSub
 			ErrorMsg errorMsg = (ErrorMsg) msg;
 			switch (errorMsg.Err) {
 			case ErrorMsg.ERROR_PASSWORD_CHANGE_FAILURE:
-				DialogLauncher.launchServerErrorDialog(ResetPasswordActivity.this,
+				DialogLauncher.launchServerErrorTwoButtonsDialog(ResetPasswordActivity.this,
 						errorMsg.Description,
 						new DialogInterface.OnClickListener() {
 							@Override

@@ -81,6 +81,7 @@ import com.jetro.mobileclient.application.ActiveTasks;
 import com.jetro.mobileclient.config.Config;
 import com.jetro.mobileclient.model.beans.Connection;
 import com.jetro.mobileclient.ui.adapters.TasksAdapter;
+import com.jetro.mobileclient.ui.dialogs.DialogLauncher;
 import com.jetro.mobileclient.ui.widgets.SessionView;
 import com.jetro.protocol.Core.BaseMsg;
 import com.jetro.protocol.Core.ClassID;
@@ -1558,8 +1559,21 @@ public class SessionActivity extends Activity
 			}
 		} else if (msg.msgCalssID == ClassID.LogoutMsg.ValueOf()) {
 			LogoutMsg logoutMsg = (LogoutMsg) msg;
+		// Receives ErrorMsg
 		} else if (msg.msgCalssID == ClassID.Error.ValueOf()) {
 			ErrorMsg errorMsg = (ErrorMsg) msg;
+			switch (errorMsg.Err) {
+			case ErrorMsg.ERROR_START_APPLICATION_FAILURE:
+				DialogLauncher.launchServerErrorOneButtonDialog(SessionActivity.this,
+						errorMsg.Description,
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								// Do nothing
+							}
+						});
+				break;
+			}
 		}
 	}
 

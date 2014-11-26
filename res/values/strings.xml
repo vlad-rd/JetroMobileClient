@@ -49,6 +49,7 @@
     <string name="dialog_exit_connections_list_negative_text">NO</string>
     <string name="dialog_network_connection_issue_message">Please check your network connection?</string>
     <string name="dialog_network_connection_issue_positive_text">OK</string>
+    <string name="dialog_server_error_normal_text">OK</string>
     <string name="dialog_server_error_positive_text">RETRY</string>
     <string name="dialog_server_error_negative_text">CANCEL</string>
     

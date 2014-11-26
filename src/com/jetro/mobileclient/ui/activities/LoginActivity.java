@@ -268,7 +268,7 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 			ErrorMsg errorMsg = (ErrorMsg) msg;
 			switch (errorMsg.Err) {
 			case ErrorMsg.ERROR_INVALID_USER_CREDENTIALS:
-				DialogLauncher.launchServerErrorDialog(LoginActivity.this,
+				DialogLauncher.launchServerErrorTwoButtonsDialog(LoginActivity.this,
 						errorMsg.Description,
 						new DialogInterface.OnClickListener() {
 							@Override

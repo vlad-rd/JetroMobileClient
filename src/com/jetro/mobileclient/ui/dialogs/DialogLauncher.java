@@ -57,7 +57,7 @@ public class DialogLauncher {
 				.show();
 	}
 	
-	public static void launchServerErrorDialog(Activity activity,
+	public static void launchServerErrorTwoButtonsDialog(Activity activity,
 			String message,
 			DialogInterface.OnClickListener buttonClickListener) {
 		new AlertDialog.Builder(activity)
@@ -65,6 +65,16 @@ public class DialogLauncher {
 		.setMessage(message)
 		.setPositiveButton(R.string.dialog_server_error_positive_text, buttonClickListener)
 		.setNegativeButton(R.string.dialog_server_error_negative_text, buttonClickListener)
+		.show();
+	}
+	
+	public static void launchServerErrorOneButtonDialog(Activity activity,
+			String message,
+			DialogInterface.OnClickListener buttonClickListener) {
+		new AlertDialog.Builder(activity)
+		.setCancelable(false)
+		.setMessage(message)
+		.setPositiveButton(R.string.dialog_server_error_normal_text, buttonClickListener)
 		.show();
 	}
 
