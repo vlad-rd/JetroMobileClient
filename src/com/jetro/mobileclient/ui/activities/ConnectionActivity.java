@@ -104,6 +104,8 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 	
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
+		Log.d(TAG, TAG + "#onSaveInstanceState(...) ENTER");
+		
 		// Save the user's current game state
 		outState.putSerializable(Config.Extras.EXTRA_CONNECTION_ACTIVITY_STATE, mState);
 		outState.putSerializable(Config.Extras.EXTRA_CONNECTION, mConnection);
@@ -396,6 +398,9 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 		Intent intent = new Intent(ConnectionActivity.this, LoginActivity.class);
 		intent.putExtra(Config.Extras.EXTRA_CONNECTION, mConnection);
 		startActivity(intent);
+		if (mState == State.ADD_CONNECTION) {
+			finish();
+		}
 		stopLoadingScreen();
 	}
 

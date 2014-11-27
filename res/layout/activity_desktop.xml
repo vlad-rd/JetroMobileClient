@@ -48,6 +48,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
+                android:layout_centerVertical="true"
                 android:src="@drawable/refresh" />
 
             <!-- Applications grid -->
@@ -161,8 +162,10 @@
             android:id="@+id/tasks_drawer_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/tasks_drawer_handle"
+            android:layout_toStartOf="@id/tasks_drawer_handle"
             android:background="@color/black_semi_transparent"
-            android:padding="7.55dp" >
+            android:padding="8dp" >
 
             <!-- Drawer Header - Home Button -->
 
@@ -195,7 +198,7 @@
                 android:layout_toRightOf="@id/home_button"
                 android:layout_toStartOf="@id/disconnect_button"
                 android:gravity="center"
-                android:text="@string/header_title_open_applications"
+                android:text="@string/header_title_open_tasks"
                 android:textColor="@color/theme_orange"
                 android:textSize="18sp" />
         </RelativeLayout>
@@ -208,13 +211,13 @@
             android:layout_height="match_parent"
             android:layout_below="@id/tasks_drawer_header"
             android:layout_gravity="start"
-            android:layout_margin="@dimen/list_tasks_margin"
             android:layout_toLeftOf="@id/tasks_drawer_handle"
             android:layout_toStartOf="@id/tasks_drawer_handle"
             android:background="@android:color/transparent"
             android:choiceMode="singleChoice"
             android:divider="@android:color/transparent"
-            android:dividerHeight="@dimen/list_tasks_divider_height" />
+            android:dividerHeight="@dimen/list_tasks_divider_height"
+            android:padding="@dimen/list_tasks_padding" />
     </RelativeLayout>
 
 </android.support.v4.widget.DrawerLayout>

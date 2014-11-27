@@ -153,9 +153,27 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		
 		// Gets the user credentials from the host
 		if (mConnection != null) {
-			mUsernameInput.setText(mConnection.getUserName());
-			mPasswordInput.setText(mConnection.getPassword());
-			mDomainInput.setText(mConnection.getDomain());
+			String userName = mConnection.getUserName();
+			String password = mConnection.getPassword();
+			String domain = mConnection.getDomain();
+			
+			// TODO: refactor this after test
+			if (!TextUtils.isEmpty(userName)) {
+				mUsernameInput.setText(userName);
+			} else {
+				mUsernameInput.setText("android_user");
+			}
+			if (!TextUtils.isEmpty(password)) {
+				mPasswordInput.setText(password);
+			} else {
+				mPasswordInput.setText("Welcome3!");
+			}
+			if (!TextUtils.isEmpty(domain)) {
+				mDomainInput.setText(domain);
+			} else {
+				mDomainInput.setText("jp");
+			}
+			
 			Bitmap loginImage = FilesUtils.readImage(mConnection.getLoginImageName());
 			if (loginImage != null) {				
 				mLoginImage.setImageBitmap(loginImage);
@@ -353,6 +371,12 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		Log.i(TAG, TAG + "#sendLoginMsg(...) ClientChannel isCreated = " + isCreated);
 		if (isCreated) {
 			mClientChannel = ClientChannel.getInstance();
+			if (mClientChannel == null) {
+				Log.i(TAG, TAG + "#sendLoginMsg(...) mClientChannel = " + mClientChannel);
+				stopLoadingScreen();
+				DialogLauncher.launchNetworkConnectionIssueDialog(LoginActivity.this, null);
+				return;
+			}
 			mClientChannel.AddListener(LoginActivity.this);
 			mClientChannel.SendReceiveAsync(loginMsg);
 			// Saves this connection point as last used one

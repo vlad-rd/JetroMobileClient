@@ -183,7 +183,7 @@ public class ConnectionsListActivity extends HeaderActivity {
 			return convertView;
 		}
 		
-		private void launchConnectionTypesDialog(final Connection host) {
+		private void launchConnectionTypesDialog(final Connection connection) {
 			Log.d(TAG, TAG + "#launchConnectionTypesDialog(...) ENTER");
 			
 			DialogLauncher.launchConnectionTypesDialog(
@@ -194,13 +194,13 @@ public class ConnectionsListActivity extends HeaderActivity {
 							if (which == DialogInterface.BUTTON_POSITIVE) {
 								Intent intent = new Intent(ConnectionsListActivity.this, LoginActivity.class);
 								intent.putExtra(Config.Extras.EXTRA_IS_WAN, false);
-								intent.putExtra(Config.Extras.EXTRA_CONNECTION, host);
+								intent.putExtra(Config.Extras.EXTRA_CONNECTION, connection);
 								startActivity(intent);
 							// Connection type WAN
 							} else if (which == DialogInterface.BUTTON_NEGATIVE) {
 								Intent intent = new Intent(ConnectionsListActivity.this, LoginActivity.class);
 								intent.putExtra(Config.Extras.EXTRA_IS_WAN, true);
-								intent.putExtra(Config.Extras.EXTRA_CONNECTION, host);
+								intent.putExtra(Config.Extras.EXTRA_CONNECTION, connection);
 								startActivity(intent);
 							}
 						}

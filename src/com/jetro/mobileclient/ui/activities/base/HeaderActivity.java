@@ -19,7 +19,7 @@ import android.widget.TextView;
 
 import com.jetro.mobileclient.R;
 import com.jetro.mobileclient.config.Config;
-import com.jetro.mobileclient.ui.AboutPopupActivity;
+import com.jetro.mobileclient.ui.WebViewActivity;
 import com.jetro.mobileclient.utils.ConnectivityUtils;
 
 public abstract class HeaderActivity extends Activity {
@@ -85,15 +85,15 @@ public abstract class HeaderActivity extends Activity {
 					if (!isConnected) {
 						launchNoInternetConnectionDialog();
 					} else {
-						String type = null;
 						if (item.getItemId() == R.id.header_menu_item_about) {
-							type = "About";
+							Intent intent = new Intent(HeaderActivity.this, WebViewActivity.class);
+							intent.putExtra(Config.Extras.EXTRA_TYPE, WebViewActivity.Type.ABOUT);
+							startActivity(intent);
 						} else if (item.getItemId() == R.id.header_menu_item_help) {
-							type = "Help";
+							Intent intent = new Intent(HeaderActivity.this, WebViewActivity.class);
+							intent.putExtra(Config.Extras.EXTRA_TYPE, WebViewActivity.Type.HELP);
+							startActivity(intent);
 						}
-						Intent intent = new Intent(HeaderActivity.this, AboutPopupActivity.class);
-						intent.putExtra(Config.Extras.EXTRA_TYPE, type);
-						startActivity(intent);
 					}
 					return true;
 				}

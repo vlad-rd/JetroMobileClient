@@ -503,8 +503,7 @@ public class SessionActivity extends Activity
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState)
-	{
+	public void onCreate(Bundle savedInstanceState) {
 		Log.d(TAG, TAG + "#onCreate(...) ENTER");
 		super.onCreate(savedInstanceState);
 		
@@ -662,19 +661,19 @@ public class SessionActivity extends Activity
 
 	@Override
 	protected void onStart() {
+		Log.d(TAG, TAG + "#onStart(...) ENTER");
 		super.onStart();
-		Log.v(TAG, "Session.onStart");
 	}
 
 	@Override
 	protected void onRestart() {
+		Log.d(TAG, TAG + "#onRestart(...) ENTER");
 		super.onRestart();
-		Log.v(TAG, "Session.onRestart");
 	}
 
 	@Override
 	protected void onResume() {
-		Log.v(TAG, "Session.onResume");
+		Log.d(TAG, TAG + "#onResume(...) ENTER");
 		super.onResume();
 		
 		mClientChannel = ClientChannel.getInstance();
@@ -687,7 +686,7 @@ public class SessionActivity extends Activity
 
 	@Override
 	protected void onPause() {
-		Log.v(TAG, "Session.onPause");
+		Log.d(TAG, TAG + "#onPause(...) ENTER");
 		super.onPause();
 		
 		mClientChannel = ClientChannel.getInstance();
@@ -701,14 +700,14 @@ public class SessionActivity extends Activity
 
 	@Override
 	protected void onStop() {
+		Log.d(TAG, TAG + "#onStop(...) ENTER");
 		super.onStop();
-		Log.v(TAG, "Session.onStop");
 	}
 
 	@Override
 	protected void onDestroy() {
+		Log.d(TAG, TAG + "#onDestroy(...) ENTER");
 		super.onDestroy();
-		Log.v(TAG, "Session.onDestroy");
 
 		// Cancel running disconnect timers.
 		GlobalApp.cancelDisconnectTimer();
@@ -735,6 +734,7 @@ public class SessionActivity extends Activity
 		
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
+		Log.d(TAG, TAG + "#onConfigurationChanged(...) ENTER");
 	    super.onConfigurationChanged(newConfig);
 	    	    
 	    // reload keyboard resources (changed from landscape)
@@ -867,7 +867,12 @@ public class SessionActivity extends Activity
 				    reachable = true;
 				    
 				} catch (UnknownHostException e) {
-				} catch (IOException e) { } 
+					Log.e(TAG, "ERROR: ", e);
+				} catch (IOException e) {
+					Log.e(TAG, "ERROR: ", e);
+				} catch (Exception e) {
+					Log.e(TAG, "ERROR: ", e);
+				}
 				finally 
 				{
 					// close the pinging socket
@@ -875,7 +880,9 @@ public class SessionActivity extends Activity
 			    		if (socket != null)
 			    			socket.close(); 
 				    }   
-			    	catch (IOException e) {}
+			    	catch (IOException e) {
+			    		Log.e(TAG, "ERROR: ", e);
+			    	}
 			    	
 			    	// now perform the actual RDP connection
 			    	// provided that the destination is reachable
@@ -1444,7 +1451,6 @@ public class SessionActivity extends Activity
 	// IMessageSubscriber implementation
 	@Override
 	public void ProcessMsg(BaseMsg msg) {
-//		Log.i(TAG, TAG + "#ProcessMsg(...)\n" + msg.getClass().getSimpleName() + "\n" + msg.serializeJson());
 		Log.i(TAG, TAG + "#ProcessMsg(...)\n" + msg.getClass().getSimpleName());
 		
 		if (msg.msgCalssID == ClassID.MyApplicationsMsg.ValueOf()) {

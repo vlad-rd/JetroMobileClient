@@ -27,13 +27,13 @@
     <!-- desktop activity -->
     <dimen name="tasks_drawer_width">320dp</dimen>
     <dimen name="grid_apps_margin">16dp</dimen>
-    <dimen name="grid_item_app_icon_size">90dp</dimen>
-    <dimen name="grid_item_app_active_idicator_size">25dp</dimen>
-    <dimen name="app_name_text_size">22sp</dimen>
+    <dimen name="grid_item_app_icon_size">60dp</dimen>
+    <dimen name="grid_item_app_active_idicator_size">15dp</dimen>
+    <dimen name="app_name_text_size">12sp</dimen>
 
     <!-- tasks drawer -->
     <dimen name="list_tasks_divider_height">4dp</dimen>
-    <dimen name="list_tasks_margin">8dp</dimen>
+    <dimen name="list_tasks_padding">8dp</dimen>
     <dimen name="list_item_task_icon_size">48dp</dimen>
     <dimen name="list_item_task_delete_button_image_margin">8dp</dimen>
     <dimen name="list_item_task_delete_button_width">48dp</dimen>

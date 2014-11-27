@@ -99,7 +99,7 @@
                 android:layout_toLeftOf="@+id/disconnect_button"
                 android:layout_toRightOf="@+id/home_button"
                 android:gravity="center"
-                android:text="@string/header_title_open_applications"
+                android:text="@string/header_title_open_tasks"
                 android:textColor="@color/theme_orange"
                 android:textSize="18sp" />
 

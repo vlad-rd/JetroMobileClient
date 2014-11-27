@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <!-- desktop activity -->
+    <dimen name="grid_item_app_icon_size">90dp</dimen>
+    <dimen name="grid_item_app_active_idicator_size">25dp</dimen>
+    <dimen name="app_name_text_size">18sp</dimen>
+
+</resources>

@@ -64,7 +64,7 @@ public class Config {
 		
 		public static final String EXTRA_IS_WAN = APP_PACKAGE + ".EXTRA_CONNECTION_MODE";
 		
-		public static final String EXTRA_TYPE = APP_PACKAGE + ".type";
+		public static final String EXTRA_TYPE = APP_PACKAGE + ".EXTRA_TYPE";
 		
 	}
 	
