@@ -382,6 +382,15 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 		// Do nothing
 	}
 	
+	private void stopClientChannel() {
+		// free client channel
+		if (mClientChannel != null) {
+			mClientChannel.RemoveListener(ConnectionActivity.this);
+			mClientChannel.Stop();
+			mClientChannel = null;
+		}
+	}
+	
 	private void launchLoginActivity() {
 		// Launches the login activity
 		Intent intent = new Intent(ConnectionActivity.this, LoginActivity.class);

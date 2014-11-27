@@ -314,10 +314,16 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 	public void ConnectionIsBroken() {
 		Log.d(TAG, TAG + "#ConnectionIsBroken(...) ENTER");
 		
-		// TODO: check this code
-		ClientChannel.getInstance().RemoveListener(LoginActivity.this);
-		ClientChannel.getInstance().Stop();
-		finish();
+		stopClientChannel();
+	}
+	
+	private void stopClientChannel() {
+		// free client channel
+		if (mClientChannel != null) {
+			mClientChannel.RemoveListener(LoginActivity.this);
+			mClientChannel.Stop();
+			mClientChannel = null;
+		}
 	}
 	
 	private void sendLoginMsg() {

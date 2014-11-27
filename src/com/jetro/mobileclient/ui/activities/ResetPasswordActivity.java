@@ -262,10 +262,17 @@ public class ResetPasswordActivity extends HeaderActivity implements IMessageSub
 	public void ConnectionIsBroken() {
 		Log.d(TAG, TAG + "#ConnectionIsBroken(...) ENTER");
 		
-		// TODO: check this code
-		ClientChannel.getInstance().RemoveListener(ResetPasswordActivity.this);
-		ClientChannel.getInstance().Stop();
+		stopClientChannel();
 		finish();
+	}
+	
+	private void stopClientChannel() {
+		// free client channel
+		if (mClientChannel != null) {
+			mClientChannel.RemoveListener(ResetPasswordActivity.this);
+			mClientChannel.Stop();
+			mClientChannel = null;
+		}
 	}
 
 }
