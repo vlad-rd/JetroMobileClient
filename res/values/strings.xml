@@ -38,6 +38,9 @@
     <string name="confirm_new_password_hint">Enter again new password here</string>
     
     <!-- Dialogs -->
+    <string name="dialog_connection_types_message">Are you at the office?</string>
+    <string name="dialog_connection_types_positive_text">YES</string>
+    <string name="dialog_connection_types_negative_text">NO</string>
     <string name="dialog_delete_connection_message">Are you sure you want to delete this connection?</string>
     <string name="dialog_delete_connection_positive_text">YES</string>
     <string name="dialog_delete_connection_negative_text">NO</string>
@@ -57,10 +60,6 @@
     <string-array name="connection_mode_options">
         <item>Direct</item>
         <item>SSL</item>
-    </string-array>
-    <string-array name="connection_types_options">
-        <item>I\'m in the office</item>
-        <item>I\'m away from the office</item>
     </string-array>
     <string-array name="connection_actions_options">
         <item>Connect</item>

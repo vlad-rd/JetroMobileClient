@@ -335,13 +335,14 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		loginMsg.deviceId = deviceId;
 		
 		// TODO: client channel connection to host fallback logic
-		Log.i(TAG, TAG + "#sendLoginMsg(...) ClientChannel = " + mClientChannel);
 		ConnectionPoint connectionPoint = null;
 		if (mIsWAN) {
 			connectionPoint = mConnection.getWANs().iterator().next();
 		} else {
 			connectionPoint = mConnection.getLANs().iterator().next();
 		}
+		Log.i(TAG, TAG + "#sendLoginMsg(...) Connecting to HOST IP: " + connectionPoint.IP);
+		Log.i(TAG, TAG + "#sendLoginMsg(...) Connecting to HOST PORT: " + connectionPoint.Port);
 		boolean isCreated = ClientChannel.Create(connectionPoint.IP, connectionPoint.Port, ClientChannel.TIME_OUT);
 		Log.i(TAG, TAG + "#sendLoginMsg(...) ClientChannel isCreated = " + isCreated);
 		if (isCreated) {

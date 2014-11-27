@@ -38,6 +38,16 @@ public class DialogLauncher {
 			.show();
 	}
 	
+	public static void launchConnectionTypesDialog(Activity activity,
+			DialogInterface.OnClickListener buttonClickListener) {
+		new AlertDialog.Builder(activity)
+				.setCancelable(false)
+				.setMessage(R.string.dialog_connection_types_message)
+				.setPositiveButton(R.string.dialog_connection_types_positive_text, buttonClickListener)
+				.setNegativeButton(R.string.dialog_connection_types_negative_text, buttonClickListener)
+				.show();
+	}
+	
 	public static void launchDeleteConnectionDialog(Activity activity,
 			DialogInterface.OnClickListener buttonClickListener) {
 		new AlertDialog.Builder(activity)

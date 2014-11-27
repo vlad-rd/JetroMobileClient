@@ -185,34 +185,26 @@ public class ConnectionsListActivity extends HeaderActivity {
 		
 		private void launchConnectionTypesDialog(final Connection host) {
 			Log.d(TAG, TAG + "#launchConnectionTypesDialog(...) ENTER");
-
-			final String[] connectionsTypes = getResources().getStringArray(R.array.connection_types_options);
-
-			final Dialog connectionsTypesDialog = new Dialog(ConnectionsListActivity.this);
-			connectionsTypesDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-			connectionsTypesDialog.setContentView(R.layout.dialog_connection_types_list);
-			ListView connectionsTypesList = (ListView) connectionsTypesDialog.findViewById(R.id.connection_types_list);
-			connectionsTypesList.setOnItemClickListener(new OnItemClickListener() {
-				@Override
-				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-					String item = ((TextView) view).getText().toString();
-					// Connection type LAN
-					if (connectionsTypes[0].equals(item)) {
-						Intent intent = new Intent(ConnectionsListActivity.this, LoginActivity.class);
-						intent.putExtra(Config.Extras.EXTRA_IS_WAN, false);
-						intent.putExtra(Config.Extras.EXTRA_CONNECTION, host);
-						startActivity(intent);
-					// Connection type WAN
-					} else if (connectionsTypes[1].equals(item)) {
-						Intent intent = new Intent(ConnectionsListActivity.this, LoginActivity.class);
-						intent.putExtra(Config.Extras.EXTRA_IS_WAN, true);
-						intent.putExtra(Config.Extras.EXTRA_CONNECTION, host);
-						startActivity(intent);
-					}
-					connectionsTypesDialog.dismiss();
-				}
-			});
-			connectionsTypesDialog.show();
+			
+			DialogLauncher.launchConnectionTypesDialog(
+					ConnectionsListActivity.this,
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							// Connection type LAN
+							if (which == DialogInterface.BUTTON_POSITIVE) {
+								Intent intent = new Intent(ConnectionsListActivity.this, LoginActivity.class);
+								intent.putExtra(Config.Extras.EXTRA_IS_WAN, false);
+								intent.putExtra(Config.Extras.EXTRA_CONNECTION, host);
+								startActivity(intent);
+							// Connection type WAN
+							} else if (which == DialogInterface.BUTTON_NEGATIVE) {
+								Intent intent = new Intent(ConnectionsListActivity.this, LoginActivity.class);
+								intent.putExtra(Config.Extras.EXTRA_IS_WAN, true);
+								intent.putExtra(Config.Extras.EXTRA_CONNECTION, host);
+								startActivity(intent);
+							}
+						}
+					});
 		}
 		
 		private void launchConnectionActionsDialog(final Connection host) {
