@@ -93,7 +93,7 @@ import com.jetro.protocol.Protocols.Controller.GetTsMsg;
 import com.jetro.protocol.Protocols.Controller.LogoutMsg;
 import com.jetro.protocol.Protocols.Controller.MyApplicationsMsg;
 import com.jetro.protocol.Protocols.Generic.ErrorMsg;
-import com.jetro.protocol.Protocols.TsSession.KillProcessMsg;
+import com.jetro.protocol.Protocols.TsSession.WindowCloseMsg;
 import com.jetro.protocol.Protocols.TsSession.SessionReadyMsg;
 import com.jetro.protocol.Protocols.TsSession.ShowKeyBoardMsg;
 import com.jetro.protocol.Protocols.TsSession.ShowTaskListMsg;
@@ -645,7 +645,7 @@ public class SessionActivity extends Activity
 				new TasksAdapter.Listener() {
 					@Override
 					public void onTaskDeleted(Window task) {
-						sendkillProcessMsg(task.PID);
+						sendWindowCloseMsg(task.HWND);
 					}
 				});
 		mTasksList = (ListView) findViewById(R.id.tasks_list);
@@ -1677,11 +1677,11 @@ public class SessionActivity extends Activity
 		mClientChannel.SendAsync(showWindowMsg);
 	}
 	
-	private void sendkillProcessMsg(int pId) {
-		Log.d(TAG, TAG + "#sendkillProcessMsg(...) ENTER");
+	private void sendWindowCloseMsg(int hwnd) {
+		Log.d(TAG, TAG + "#sendWindowCloseMsg(...) ENTER");
 		
-		KillProcessMsg killProcessMsg = new KillProcessMsg();
-		killProcessMsg.PID = pId;
-		mClientChannel.SendAsync(killProcessMsg);
+		WindowCloseMsg windowCloseMsg = new WindowCloseMsg();
+		windowCloseMsg.HWND = hwnd;
+		mClientChannel.SendAsync(windowCloseMsg);
 	}
 }
