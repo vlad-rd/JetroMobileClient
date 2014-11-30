@@ -77,6 +77,12 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 	};
 
 	@Override
+	protected void onNewIntent(Intent intent) {
+		Log.d(TAG, TAG + "#onNewIntent(...) ENTER");
+		super.onNewIntent(intent);
+	}
+
+	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		Log.d(TAG, TAG + "#onSaveInstanceState(...) ENTER");
 		

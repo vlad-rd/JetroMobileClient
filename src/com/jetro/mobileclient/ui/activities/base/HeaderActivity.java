@@ -1,7 +1,6 @@
 package com.jetro.mobileclient.ui.activities.base;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
@@ -19,7 +18,8 @@ import android.widget.TextView;
 
 import com.jetro.mobileclient.R;
 import com.jetro.mobileclient.config.Config;
-import com.jetro.mobileclient.ui.WebViewActivity;
+import com.jetro.mobileclient.ui.activities.WebViewActivity;
+import com.jetro.mobileclient.ui.dialogs.DialogLauncher;
 import com.jetro.mobileclient.utils.ConnectivityUtils;
 
 public abstract class HeaderActivity extends Activity {
@@ -83,7 +83,7 @@ public abstract class HeaderActivity extends Activity {
 				case R.id.header_menu_item_help: {
 					boolean isConnected = ConnectivityUtils.isNetworkConnected(HeaderActivity.this);
 					if (!isConnected) {
-						launchNoInternetConnectionDialog();
+						DialogLauncher.launchNoInternetConnection(HeaderActivity.this);
 					} else {
 						if (item.getItemId() == R.id.header_menu_item_about) {
 							Intent intent = new Intent(HeaderActivity.this, WebViewActivity.class);
@@ -98,7 +98,7 @@ public abstract class HeaderActivity extends Activity {
 					return true;
 				}
 				case R.id.header_menu_item_exit:
-					launchExitDialog();
+					DialogLauncher.launchAppExitDialog(HeaderActivity.this);
 					return true;
 				default:
 					return false;
@@ -106,28 +106,6 @@ public abstract class HeaderActivity extends Activity {
 			}
 		});
 		popup.show();
-	}
-	
-	private void launchNoInternetConnectionDialog() {
-		new AlertDialog.Builder(HeaderActivity.this)
-				.setCancelable(false)
-				.setMessage(R.string.dialog_no_internet_connection_message)
-				.setNegativeButton(R.string.dialog_no_internet_connection_negative_btn, null)
-				.show();
-	}
-
-	public void launchExitDialog() {
-		new AlertDialog.Builder(this)
-				.setCancelable(false)
-				.setMessage(R.string.dialog_exit_message)
-				.setPositiveButton(R.string.dialog_exit_positive_btn, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						finish();
-					}
-				})
-				.setNegativeButton(R.string.dialog_exit_negative_btn, null)
-				.show();
 	}
 
 	/**

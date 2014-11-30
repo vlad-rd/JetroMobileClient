@@ -42,6 +42,11 @@
     <string name="confirm_new_password_hint">Enter again new password here</string>
     
     <!-- Dialogs -->
+    <string name="dialog_app_exit_message">Are you sure you want to exit?</string>
+    <string name="dialog_app_exit_positive_btn">YES</string>
+    <string name="dialog_app_exit_negative_btn">NO</string>
+    <string name="dialog_no_internet_connection_message">There is no internet connection!</string>
+    <string name="dialog_no_internet_connection_negative_btn">Done</string>
     <string name="dialog_connection_types_message">Are you at the office?</string>
     <string name="dialog_connection_types_positive_text">YES</string>
     <string name="dialog_connection_types_negative_text">NO</string>
@@ -51,9 +56,6 @@
     <string name="dialog_cancel_login_message">Are you sure you want to cancel login?</string>
     <string name="dialog_cancel_login_positive_text">YES</string>
     <string name="dialog_cancel_login_negative_text">NO</string>
-    <string name="dialog_exit_connections_list_message">Are you sure you want to exit?</string>
-    <string name="dialog_exit_connections_list_positive_text">YES</string>
-    <string name="dialog_exit_connections_list_negative_text">NO</string>
     <string name="dialog_network_connection_issue_message">Please check your network connection?</string>
     <string name="dialog_network_connection_issue_positive_text">OK</string>
     <string name="dialog_server_error_normal_text">OK</string>
@@ -85,12 +87,5 @@
     <string name="header_menu_item_about">About</string>
     <string name="header_menu_item_help">Help</string>
     <string name="header_menu_item_exit">Exit</string>
-    
-    <!-- Dialogs -->
-    <string name="dialog_no_internet_connection_message">There is no internet connection!</string>
-    <string name="dialog_no_internet_connection_negative_btn">Done</string>
-    <string name="dialog_exit_message">Are you sure you want to exit?</string>
-    <string name="dialog_exit_positive_btn">YES</string>
-    <string name="dialog_exit_negative_btn">NO</string>
 
 </resources>

@@ -95,16 +95,7 @@ public class ConnectionsListActivity extends HeaderActivity {
 	public void onBackPressed() {
 		Log.d(TAG, TAG + "#onBackPressed(...) ENTER");
 		
-		DialogLauncher.launchExitConnectionsListDialog(
-				ConnectionsListActivity.this,
-				new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						if (which == DialogInterface.BUTTON_POSITIVE) {
-							finish();
-						}
-					}
-				});
+		DialogLauncher.launchAppExitDialog(ConnectionsListActivity.this);
 	}
 
 	@Override

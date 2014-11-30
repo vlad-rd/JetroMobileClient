@@ -1,8 +1,10 @@
-package com.jetro.mobileclient.ui;
+package com.jetro.mobileclient.ui.activities;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import com.jetro.mobileclient.R;
 import com.jetro.mobileclient.config.Config;
@@ -12,6 +14,7 @@ public class WebViewActivity extends HeaderActivity {
 	
 	private static final String TAG = WebViewActivity.class.getSimpleName();
 	
+	private View mBaseContentView;
 	private WebView mWebView;
 	
 	/**
@@ -43,8 +46,6 @@ public class WebViewActivity extends HeaderActivity {
 		Log.d(TAG, TAG + "#onCreate(...) ENTER");
 		super.onCreate(savedInstanceState);
 		
-		setBaseContentView(R.layout.activity_web_view);
-		
 		// Check whether we're recreating a previously destroyed instance
 		if (savedInstanceState != null) {
 			// Restore value of members from saved state
@@ -54,16 +55,22 @@ public class WebViewActivity extends HeaderActivity {
 			mType = (Type) getIntent().getSerializableExtra(Config.Extras.EXTRA_TYPE);
 		}
 
-		mWebView = (WebView) findViewById(R.id.webview);
+		mBaseContentView = setBaseContentView(R.layout.activity_web_view);
+		mWebView = (WebView) mBaseContentView.findViewById(R.id.webview);
+		mWebView.setWebViewClient(new WebViewClient());
 
 		switch (mType) {
 		case ABOUT:
 			setHeaderTitleText(R.string.header_title_about);
-			mWebView.loadUrl(getString(R.string.link_about));
+			String aboutUrl = getString(R.string.link_about);
+			Log.i(TAG, TAG + "#onCreate(...) about url = " + aboutUrl);
+			mWebView.loadUrl(aboutUrl);
 			break;
 		case HELP:
 			setHeaderTitleText(R.string.header_title_help);
-			mWebView.loadUrl(getString(R.string.link_help));			
+			String helpUrl = getString(R.string.link_help);
+			Log.i(TAG, TAG + "#onCreate(...) help url = " + helpUrl);
+			mWebView.loadUrl(helpUrl);
 			break;
 		}
 
