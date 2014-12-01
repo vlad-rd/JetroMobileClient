@@ -4,6 +4,8 @@
     <!-- activity -->
     <dimen name="activity_padding">8dp</dimen>
     <dimen name="list_padding">8dp</dimen>
+    <dimen name="button_icon_size">64dp</dimen>
+    <dimen name="button_icon_padding">12dp</dimen>
     
     <!-- buttons -->
     <dimen name="button_label_text_size">16sp</dimen>
@@ -33,7 +35,7 @@
     <dimen name="grid_item_app_active_idicator_size">15dp</dimen>
     <dimen name="app_name_text_size">12sp</dimen>
     <dimen name="input_controlls_menu_icon_size">48dp</dimen>
-    <dimen name="input_controlls_menu_icon_margin">12dp</dimen>
+    <dimen name="input_controlls_menu_icon_margin">20dp</dimen>
     <dimen name="input_controlls_menu_icon_padding">8dp</dimen>
     
     <!-- tasks drawer -->

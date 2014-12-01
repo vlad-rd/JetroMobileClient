@@ -33,6 +33,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
+                    android:layout_marginEnd="@dimen/star_icon_size"
                     android:layout_marginRight="@dimen/star_icon_size"
                     android:layout_marginTop="1dp"
                     android:src="@drawable/star" />
@@ -72,6 +73,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
+                    android:layout_marginEnd="@dimen/star_icon_size"
                     android:layout_marginRight="@dimen/star_icon_size"
                     android:layout_marginTop="3dp"
                     android:background="@drawable/star" />
@@ -112,6 +114,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
+                    android:layout_marginEnd="@dimen/star_icon_size"
                     android:layout_marginRight="@dimen/star_icon_size"
                     android:layout_marginTop="3dp"
                     android:background="@drawable/star" />
@@ -150,6 +153,7 @@
                 android:layout_marginTop="5dp"
                 android:gravity="center"
                 android:paddingLeft="14dp"
+                android:paddingStart="14dp"
                 android:text="@string/connection_mode_lbl"
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/edit_text_label_text_size" />
@@ -179,6 +183,7 @@
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:layout_margin="16dp"
@@ -218,7 +223,7 @@
             style="@style/DefaultButtonState"
             android:layout_width="0dip"
             android:layout_height="wrap_content"
-            android:layout_gravity="left"
+            android:layout_gravity="start"
             android:layout_weight="1"
             android:background="@drawable/orange_button_selector"
             android:text="@string/cancel_lbl"
@@ -237,7 +242,7 @@
             style="@style/DefaultButtonState"
             android:layout_width="0dip"
             android:layout_height="wrap_content"
-            android:layout_gravity="right"
+            android:layout_gravity="end"
             android:layout_weight="1"
             android:text="@string/connect_lbl"
             android:textSize="@dimen/button_label_text_size" />

@@ -5,8 +5,10 @@
     android:layout_height="match_parent"
     android:background="@drawable/trans_bg"
     android:orientation="vertical"
+    android:paddingEnd="50dp"
     android:paddingLeft="50dp"
-    android:paddingRight="50dp" >
+    android:paddingRight="50dp"
+    android:paddingStart="50dp" >
 
     <TextView
         android:layout_width="wrap_content"

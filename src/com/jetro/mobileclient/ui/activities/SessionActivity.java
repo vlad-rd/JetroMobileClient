@@ -95,7 +95,6 @@ import com.jetro.protocol.Protocols.Controller.GetTsMsg;
 import com.jetro.protocol.Protocols.Controller.LogoutMsg;
 import com.jetro.protocol.Protocols.Controller.MyApplicationsMsg;
 import com.jetro.protocol.Protocols.Generic.ErrorMsg;
-import com.jetro.protocol.Protocols.TsSession.WindowCloseMsg;
 import com.jetro.protocol.Protocols.TsSession.SessionReadyMsg;
 import com.jetro.protocol.Protocols.TsSession.ShowKeyBoardMsg;
 import com.jetro.protocol.Protocols.TsSession.ShowTaskListMsg;
@@ -103,6 +102,7 @@ import com.jetro.protocol.Protocols.TsSession.ShowWindowMsg;
 import com.jetro.protocol.Protocols.TsSession.StartApplicationMsg;
 import com.jetro.protocol.Protocols.TsSession.Window;
 import com.jetro.protocol.Protocols.TsSession.WindowChangedMsg;
+import com.jetro.protocol.Protocols.TsSession.WindowCloseMsg;
 import com.jetro.protocol.Protocols.TsSession.WindowCreatedMsg;
 import com.jetro.protocol.Protocols.TsSession.WindowDestroyedMsg;
 
@@ -1551,10 +1551,12 @@ public class SessionActivity extends Activity
 			sendStartApplicationMsg(mSelectedAppId);
 		} else if (msg.msgCalssID == ClassID.ShowTaskListMsg.ValueOf()) {
 			ShowTaskListMsg showTaskListMsg = (ShowTaskListMsg) msg;
-			// If none active tasks, hide window
+			// If none active tasks, hide window and home button
 			int activeHWND = showTaskListMsg.ActiveHWND;
 			if (activeHWND == 0) {
 				activityRootView.setVisibility(View.INVISIBLE);
+    			mHomeButton.setVisibility(View.INVISIBLE);
+    			mDrawerLayout.closeDrawer(mDrawerLeft);
 			}
 			// Update active tasks
 			Window[] tasks = showTaskListMsg.Tasks;
@@ -1570,7 +1572,6 @@ public class SessionActivity extends Activity
 			mTasksAdapter.add(task);
 			mTasksAdapter.notifyDataSetChanged();
 			// Update active Tasks
-			
 			boolean isAppGotActive = mActiveTasks.add(task);
 			// Update Apps adapter
 			if (isAppGotActive) {
@@ -1580,6 +1581,11 @@ public class SessionActivity extends Activity
 					mAppsAdapter.notifyDataSetChanged();
 				}
 			}
+		} else if (msg.msgCalssID == ClassID.ShowWindowMsg.ValueOf()) {
+			ShowWindowMsg showWindowMsg = (ShowWindowMsg) msg;
+			activityRootView.setVisibility(View.VISIBLE);
+			mHomeButton.setVisibility(View.VISIBLE);
+			sessionView.requestFocus();
 		} else if (msg.msgCalssID == ClassID.WindowDestroyedMsg.ValueOf()) {
 			WindowDestroyedMsg windowDestroyedMsg = (WindowDestroyedMsg) msg;
 			Window task = new Window();
@@ -1606,11 +1612,6 @@ public class SessionActivity extends Activity
 			// Update Tasks adapter
 			mTasksAdapter.update(task);
 			mTasksAdapter.notifyDataSetChanged();
-		} else if (msg.msgCalssID == ClassID.ShowWindowMsg.ValueOf()) {
-			ShowWindowMsg showWindowMsg = (ShowWindowMsg) msg;
-			activityRootView.setVisibility(View.VISIBLE);
-			mHomeButton.setVisibility(View.VISIBLE);
-			sessionView.requestFocus();
 		} else if (msg.msgCalssID == ClassID.ShowKeyBoardMsg.ValueOf()) {
 			ShowKeyBoardMsg showKeyBoardMsg = (ShowKeyBoardMsg) msg;
 			if (showKeyBoardMsg.Show) {

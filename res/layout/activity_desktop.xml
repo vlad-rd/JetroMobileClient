@@ -50,6 +50,7 @@
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
                 android:layout_centerVertical="true"
+                android:background="@drawable/item_selector_2"
                 android:src="@drawable/refresh" />
 
             <!-- Applications grid -->
@@ -141,7 +142,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
                 android:layout_margin="@dimen/input_controlls_menu_icon_margin"
-                android:background="@color/black_semi_transparent"
+                android:background="@drawable/item_selector_2"
                 android:padding="@dimen/input_controlls_menu_icon_padding"
                 android:src="@drawable/more_tap" />
 
@@ -194,6 +195,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
+                android:background="@drawable/item_selector_2"
                 android:src="@drawable/home" />
 
             <!-- Drawer Header - Disconnect Button -->
@@ -204,6 +206,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
+                android:background="@drawable/item_selector_2"
+                android:scaleType="center"
                 android:src="@drawable/disconnect" />
 
             <TextView
