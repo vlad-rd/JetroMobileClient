@@ -36,7 +36,8 @@
                 android:id="@+id/desktop_header_image"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:scaleType="fitXY"
+                android:background="@color/black_semi_transparent"
+                android:scaleType="center"
                 android:src="@drawable/desktop_header" />
 
             <!-- Desktop Header - Refresh button -->
@@ -58,9 +59,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_below="@id/desktop_header_image"
-                android:layout_margin="@dimen/grid_apps_margin"
-                android:numColumns="5"
-                android:verticalSpacing="5dp" >
+                android:columnWidth="@dimen/grid_item_app_size"
+                android:horizontalSpacing="20dp"
+                android:numColumns="auto_fit"
+                android:padding="@dimen/grid_apps_padding"
+                android:stretchMode="columnWidth"
+                android:verticalSpacing="20dp" >
             </GridView>
 
             <!-- Desktop Footer -->
@@ -69,7 +73,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
-                android:scaleType="fitXY"
+                android:background="@color/black_semi_transparent"
+                android:scaleType="center"
                 android:src="@drawable/desktop_footer" />
         </RelativeLayout>
 
@@ -125,6 +130,20 @@
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@id/sessionScrollView"
                 android:layout_centerHorizontal="true" />
+
+            <!-- Window - Controlls Menu -->
+
+            <ImageView
+                android:id="@+id/controlls_button"
+                android:layout_width="@dimen/input_controlls_menu_icon_size"
+                android:layout_height="@dimen/input_controlls_menu_icon_size"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_margin="@dimen/input_controlls_menu_icon_margin"
+                android:background="@color/black_semi_transparent"
+                android:padding="@dimen/input_controlls_menu_icon_padding"
+                android:src="@drawable/more_tap" />
 
             <android.inputmethodservice.KeyboardView
                 android:id="@+id/extended_keyboard_header"

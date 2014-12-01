@@ -16,7 +16,7 @@
             android:id="@+id/header_container"
             android:layout_width="match_parent"
             android:layout_height="70dp" >
-            
+
             <!-- Activity Header - Background -->
 
             <View
@@ -24,7 +24,7 @@
                 android:layout_height="match_parent"
                 android:alpha="0.2"
                 android:background="@android:color/black" />
-            
+
             <!-- Activity Header - Back Button -->
 
             <ImageView
@@ -36,7 +36,7 @@
                 android:background="@drawable/back"
                 android:padding="15dp"
                 android:textStyle="bold" />
-            
+
             <!-- Activity Header - Title -->
 
             <TextView
@@ -47,7 +47,7 @@
                 android:textColor="@color/theme_orange"
                 android:textSize="@dimen/header_text_size"
                 android:textStyle="bold" />
-            
+
             <!-- Activity Header - Menu Button -->
 
             <ImageView
@@ -65,8 +65,7 @@
         <RelativeLayout
             android:id="@+id/base_container"
             android:layout_width="match_parent"
-            android:layout_height="0dip"
-            android:layout_weight="1" >
+            android:layout_height="match_parent" >
         </RelativeLayout>
     </LinearLayout>
 

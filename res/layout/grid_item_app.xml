@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_width="@dimen/grid_item_app_size"
+    android:layout_height="@dimen/grid_item_app_size" >
 
     <!-- App Icon -->
 
@@ -9,7 +9,8 @@
         android:id="@+id/app_icon_wrapper"
         android:layout_width="@dimen/grid_item_app_icon_size"
         android:layout_height="@dimen/grid_item_app_icon_size"
-        android:layout_centerHorizontal="true" >
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp" >
 
         <!-- App Icon Loading -->
 
@@ -28,20 +29,21 @@
             android:layout_height="match_parent"
             android:background="@android:color/transparent"
             android:scaleType="fitXY" />
-
-        <!-- App Active Indicator -->
-
-        <ImageView
-            android:id="@+id/app_active_indicator"
-            android:layout_width="@dimen/grid_item_app_active_idicator_size"
-            android:layout_height="@dimen/grid_item_app_active_idicator_size"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:background="@android:color/transparent"
-            android:scaleType="fitXY"
-            android:src="@drawable/open_app"
-            android:visibility="gone" />
     </RelativeLayout>
+
+    <!-- App Active Indicator -->
+
+    <ImageView
+        android:id="@+id/app_active_indicator"
+        android:layout_width="@dimen/grid_item_app_active_idicator_size"
+        android:layout_height="@dimen/grid_item_app_active_idicator_size"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:background="@android:color/transparent"
+        android:scaleType="fitXY"
+        android:src="@drawable/open_app"
+        android:visibility="gone" />
 
     <!-- App Name -->
 

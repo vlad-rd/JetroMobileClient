@@ -58,6 +58,8 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.PopupMenu;
+import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -483,6 +485,7 @@ public class SessionActivity extends Activity
 	private ApplicationsGridAdapter mAppsAdapter;
 	private GridView mAppsGrid;
 	private ImageView mRefreshButton;
+	private ImageView mControllsButton;
 	private ImageView mHomeButton;
 	private ImageView mDissconnectSessionButton;
 	private String mSelectedAppId;
@@ -617,6 +620,54 @@ public class SessionActivity extends Activity
 				sendShowTaskListMsg();
 			}
 		});
+        
+        // initialize the Window widgets
+        mControllsButton = (ImageView) findViewById(R.id.controlls_button);
+        mControllsButton.setOnClickListener(new OnClickListener() {
+        	@Override
+        	public void onClick(View v) {
+        		PopupMenu inputControllsPopup = new PopupMenu(SessionActivity.this, v);
+        		inputControllsPopup.getMenuInflater().inflate(R.menu.session_menu, inputControllsPopup.getMenu());
+        		inputControllsPopup.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+					@Override
+					public boolean onMenuItemClick(MenuItem item) {
+						// refer to http://tools.android.com/tips/non-constant-fields why we can't use switch/case here ..
+						int itemId = item.getItemId();
+						
+						if (itemId == R.id.session_touch_pointer)
+						{
+							// toggle touch pointer
+							if(touchPointerView.getVisibility() == View.VISIBLE)
+							{
+								touchPointerView.setVisibility(View.INVISIBLE);
+								sessionView.setTouchPointerPadding(0, 0);
+							}
+							else
+							{
+								touchPointerView.setVisibility(View.VISIBLE);				
+								sessionView.setTouchPointerPadding(touchPointerView.getPointerWidth(), touchPointerView.getPointerHeight());
+							}
+						}
+						else if (itemId == R.id.session_sys_keyboard)
+						{
+							showKeyboard(!sysKeyboardVisible, false);
+						}
+						else if (itemId == R.id.session_ext_keyboard)
+						{
+							showKeyboard(false, !extKeyboardVisible);
+						}
+						else if (itemId == R.id.session_disconnect)
+						{
+							showKeyboard(false, false);
+							LibFreeRDP.disconnect(session.getInstance());
+						}
+						
+						return true;
+					}
+				});
+        		inputControllsPopup.show();
+        	}
+        });
         
         // initialize the Tasks Drawer widgets
         mHomeButton = (ImageView) findViewById(R.id.home_button);

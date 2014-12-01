@@ -4,8 +4,8 @@
     <string name="app_name">Cockpit5</string>
     
     <!-- Links -->
-    <string name="link_about">http://www.google.com</string>
-    <string name="link_help">http://www.yahoo.com</string>
+    <string name="link_about">http://jetroplatforms.com/appcontent/about_page/about.html</string>
+    <string name="link_help">http://jetroplatforms.com/appcontent/help_page/toolbar.html</string>
     
     <!-- Search strings -->
     <string name="search_label">Jetro Mobile Client</string>
