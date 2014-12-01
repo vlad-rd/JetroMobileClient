@@ -26,7 +26,7 @@ import com.jetro.protocol.Protocols.TsSession.Window;
  */
 public class TasksAdapter extends ArrayAdapter<Window> {
 	
-	public static final int NOT_FOUND = -1;
+	public static final int POSITION_NOT_FOUND = -1;
 	
 	private LayoutInflater mInflater;
 	private int mLayoutResourceId;
@@ -63,6 +63,11 @@ public class TasksAdapter extends ArrayAdapter<Window> {
 		mTasks = tasks;
 		mListener = listener;
 	}
+	
+	@Override
+	public int getPosition(Window task) {
+		return mTasks.indexOf(task);
+	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
@@ -89,10 +94,10 @@ public class TasksAdapter extends ArrayAdapter<Window> {
 		
 		return convertView;
 	}
-	
+
 	public void update(Window task) {
 		int indexOf = mTasks.indexOf(task);
-		if (indexOf != NOT_FOUND) {
+		if (indexOf != POSITION_NOT_FOUND) {
 			Window foundTask = mTasks.get(indexOf);
 			foundTask.Title = task.Title;
 		}

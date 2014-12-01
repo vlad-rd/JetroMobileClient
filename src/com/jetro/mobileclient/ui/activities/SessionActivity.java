@@ -1583,7 +1583,16 @@ public class SessionActivity extends Activity
 			}
 		} else if (msg.msgCalssID == ClassID.ShowWindowMsg.ValueOf()) {
 			ShowWindowMsg showWindowMsg = (ShowWindowMsg) msg;
+			// Highlights the active task at the tasks drawer
+			Window activeTask = new Window();
+			activeTask.HWND = showWindowMsg.HWND;
+			int activeTaskPosition = mTasksAdapter.getPosition(activeTask);
+			if (activeTaskPosition != TasksAdapter.POSITION_NOT_FOUND) {
+				mTasksList.setItemChecked(activeTaskPosition, true);
+			}
+			// Shows the task window
 			activityRootView.setVisibility(View.VISIBLE);
+			// Shows the home button at the tasks drawer
 			mHomeButton.setVisibility(View.VISIBLE);
 			sessionView.requestFocus();
 		} else if (msg.msgCalssID == ClassID.WindowDestroyedMsg.ValueOf()) {
