@@ -1561,7 +1561,9 @@ public class SessionActivity extends Activity
 			// Update active tasks
 			Window[] tasks = showTaskListMsg.Tasks;
 			mActiveTasks.clear();
-			mActiveTasks.add(tasks);
+			for (Window activeTask : tasks) {
+				updateActiveTask(activeTask);
+			}
 		} else if (msg.msgCalssID == ClassID.StartApplicationMsg.ValueOf()) {
 			StartApplicationMsg startApplicationMsg = (StartApplicationMsg) msg;
 		} else if (msg.msgCalssID == ClassID.WindowCreatedMsg.ValueOf()) {
@@ -1571,16 +1573,8 @@ public class SessionActivity extends Activity
 			// Update Tasks adapter
 			mTasksAdapter.add(task);
 			mTasksAdapter.notifyDataSetChanged();
-			// Update active Tasks
-			boolean isAppGotActive = mActiveTasks.add(task);
-			// Update Apps adapter
-			if (isAppGotActive) {
-				Application activeApp = mAppsAdapter.getItem(task.AppID);
-				if (activeApp != null) {
-					activeApp.IsActive = true;
-					mAppsAdapter.notifyDataSetChanged();
-				}
-			}
+			// Updates active task
+			updateActiveTask(task);
 		} else if (msg.msgCalssID == ClassID.ShowWindowMsg.ValueOf()) {
 			ShowWindowMsg showWindowMsg = (ShowWindowMsg) msg;
 			// Highlights the active task at the tasks drawer
@@ -1687,6 +1681,19 @@ public class SessionActivity extends Activity
 			mClientChannel.RemoveListener(SessionActivity.this);
 			mClientChannel.Stop();
 			mClientChannel = null;
+		}
+	}
+	
+	private void updateActiveTask(Window activeTask) {
+		// Update active Tasks
+		boolean isAppGotActive = mActiveTasks.add(activeTask);
+		// Update Apps adapter
+		if (isAppGotActive) {
+			Application activeApp = mAppsAdapter.getItem(activeTask.AppID);
+			if (activeApp != null) {
+				activeApp.IsActive = true;
+				mAppsAdapter.notifyDataSetChanged();
+			}
 		}
 	}
 	
