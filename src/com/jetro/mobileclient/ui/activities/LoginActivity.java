@@ -27,6 +27,7 @@ import com.jetro.mobileclient.R;
 import com.jetro.mobileclient.config.Config;
 import com.jetro.mobileclient.model.beans.Connection;
 import com.jetro.mobileclient.repository.ConnectionsDB;
+import com.jetro.mobileclient.ui.activities.ResetPasswordActivity.State;
 import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
 import com.jetro.mobileclient.ui.dialogs.DialogLauncher;
 import com.jetro.mobileclient.utils.FilesUtils;
@@ -267,22 +268,34 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		if (msg.msgCalssID == ClassID.LoginMsg.ValueOf()) {
 			LoginMsg loginMsg = (LoginMsg) msg;
 			switch (loginMsg.returnCode) {
-			case LoginMsg.LOGIN_FAILURE: {
-				break;
-			}
 			case LoginMsg.LOGIN_SUCCESS: {
 				GlobalApp.setSessionTicket(loginMsg.Ticket);
-				Intent intent = new Intent(LoginActivity.this, SessionActivity.class);
-				intent.putExtra(Config.Extras.EXTRA_CONNECTION, mConnection);
-				startActivity(intent);
-				finish();
+				launchSessionActivity();
 				break;
 			}
 			case LoginMsg.LOGIN_RESET_PASSWORD: {
-				Intent intent = new Intent(LoginActivity.this, ResetPasswordActivity.class);
-				intent.putExtra(Config.Extras.EXTRA_CONNECTION, mConnection);
-				startActivity(intent);
-				finish();
+				launchResetPasswordActivity(State.PASSWORD_RESET_REQUIRED);
+				break;
+			}
+			case LoginMsg.LOGIN_OPTIONAL_CHANGE_PASSWORD: {
+				stopLoadingScreen();
+				GlobalApp.setSessionTicket(loginMsg.Ticket);
+				DialogLauncher.launchOptionalChangePassword(
+						LoginActivity.this,
+						loginMsg.daysBeforePasswordExpiration,
+						new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						if (which == DialogInterface.BUTTON_POSITIVE) {
+							launchResetPasswordActivity(State.PASSWORD_RESET_OPTIONAL);
+						} else if (which == DialogInterface.BUTTON_NEGATIVE) {
+							launchSessionActivity();
+						}
+					}
+				});
+				break;
+			}
+			case LoginMsg.LOGIN_FAILURE: {
 				break;
 			}
 			}
@@ -348,6 +361,21 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 			mClientChannel.Stop();
 			mClientChannel = null;
 		}
+	}
+	
+	private void launchSessionActivity() {
+		Intent intent = new Intent(LoginActivity.this, SessionActivity.class);
+		intent.putExtra(Config.Extras.EXTRA_CONNECTION, mConnection);
+		startActivity(intent);
+		finish();
+	}
+	
+	private void launchResetPasswordActivity(ResetPasswordActivity.State activityState) {
+		Intent intent = new Intent(LoginActivity.this, ResetPasswordActivity.class);
+		intent.putExtra(Config.Extras.EXTRA_RESET_PASSWORD_ACTIVITY_STATE, activityState);
+		intent.putExtra(Config.Extras.EXTRA_CONNECTION, mConnection);
+		startActivity(intent);
+		finish();
 	}
 	
 	private void sendLoginMsg() {

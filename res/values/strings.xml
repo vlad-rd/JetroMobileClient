@@ -43,10 +43,13 @@
     
     <!-- Dialogs -->
     <string name="dialog_app_exit_message">Are you sure you want to exit?</string>
-    <string name="dialog_app_exit_positive_btn">YES</string>
-    <string name="dialog_app_exit_negative_btn">NO</string>
+    <string name="dialog_app_exit_positive_text">YES</string>
+    <string name="dialog_app_exit_negative_text">NO</string>
     <string name="dialog_no_internet_connection_message">There is no internet connection!</string>
-    <string name="dialog_no_internet_connection_negative_btn">Done</string>
+    <string name="dialog_no_internet_connection_negative_text">Done</string>
+    <string name="dialog_optional_change_password_message">Your password will exprie within %1$d days, do you want to change your password now?</string>
+    <string name="dialog_optional_change_password_positive_text">YES</string>
+    <string name="dialog_optional_change_password_negative_text">NO</string>
     <string name="dialog_connection_types_message">Are you at the office?</string>
     <string name="dialog_connection_types_positive_text">YES</string>
     <string name="dialog_connection_types_negative_text">NO</string>
@@ -60,7 +63,8 @@
     <string name="dialog_network_connection_issue_positive_text">OK</string>
     <string name="dialog_server_error_normal_text">OK</string>
     <string name="dialog_server_error_positive_text">RETRY</string>
-    <string name="dialog_server_error_negative_text">CANCEL</string>
+    <string name="dialog_server_error_negative_text_1">CANCEL</string>
+    <string name="dialog_server_error_negative_text_2">CONTINUE</string>
     
     <!-- Arrays -->
     <string-array name="connection_mode_options">

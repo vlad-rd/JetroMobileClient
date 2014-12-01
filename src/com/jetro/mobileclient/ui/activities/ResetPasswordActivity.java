@@ -68,11 +68,23 @@ public class ResetPasswordActivity extends HeaderActivity implements IMessageSub
 		}
 	};
 	
+	/**
+	 * @author ran.h
+	 *
+	 */
+	public enum State {
+		PASSWORD_RESET_REQUIRED,
+		PASSWORD_RESET_OPTIONAL
+	}
+	
+	private State mState;
+	
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		Log.d(TAG, TAG + "#onSaveInstanceState(...) ENTER");
 		
 		// Save the user's current game state
+		outState.putSerializable(Config.Extras.EXTRA_RESET_PASSWORD_ACTIVITY_STATE, mState);
 		outState.putSerializable(Config.Extras.EXTRA_CONNECTION, mConnection);
 		
 		// Always call the superclass so it can save the view hierarchy state
@@ -87,9 +99,11 @@ public class ResetPasswordActivity extends HeaderActivity implements IMessageSub
 		// Check whether we're recreating a previously destroyed instance
 		if (savedInstanceState != null) {
 			// Restore value of members from saved state
+			mState = (State) savedInstanceState.getSerializable(Config.Extras.EXTRA_RESET_PASSWORD_ACTIVITY_STATE);
 			mConnection = (Connection) savedInstanceState.getSerializable(Config.Extras.EXTRA_CONNECTION);
 		} else {
 			// Probably initialize members with default values for a new instance
+			mState = (State) getIntent().getSerializableExtra(Config.Extras.EXTRA_RESET_PASSWORD_ACTIVITY_STATE);
 			mConnection = (Connection) getIntent().getSerializableExtra(Config.Extras.EXTRA_CONNECTION);
 		}
 		
@@ -185,30 +199,6 @@ public class ResetPasswordActivity extends HeaderActivity implements IMessageSub
 		return areInputFieldsValid;
 	}
 	
-	private void resetPassword() {
-		Log.d(TAG, TAG + "#resetPassword(...) ENTER");
-		
-		startLoadingScreen();
-		
-		String oldPassword = mOldPasswordInput.getText().toString().trim();
-		String newPassword = mNewPasswordInput.getText().toString().trim();
-		String userName = mConnection.getUserName();
-		String domain = mConnection.getDomain();
-		
-		// TODO: save the new password to host
-		sendResetPasswordMsg(oldPassword, newPassword, userName, domain);
-	}
-	
-	public void sendResetPasswordMsg(String oldPassword, String newPassword, String userName, String domain) {
-		Log.d(TAG, TAG + "#sendResetPasswordMsg(...) ENTER");
-		
-		ResetPasswordMsg resetPasswordMsg = new ResetPasswordMsg();
-		resetPasswordMsg.OldPassword = oldPassword;
-		resetPasswordMsg.NewPassword = newPassword;
-		resetPasswordMsg.Name = userName;
-		resetPasswordMsg.Domain = domain;
-		mClientChannel.SendAsync(resetPasswordMsg);
-	}
 
 	@Override
 	public void ProcessMsg(BaseMsg msg) {
@@ -220,28 +210,42 @@ public class ResetPasswordActivity extends HeaderActivity implements IMessageSub
 			// Saves the new password to the connection
 			mConnection.setPassword(resetPasswordMsg.NewPassword);
 			ConnectionsDB.getInstance(getApplicationContext()).saveConnection(mConnection);
-			// Launches the SessionActivity
-			GlobalApp.setSessionTicket(resetPasswordMsg.Ticket);
-			Intent intent = new Intent(ResetPasswordActivity.this, SessionActivity.class);
-			intent.putExtra(Config.Extras.EXTRA_CONNECTION, mConnection);
-			startActivity(intent);
-			finish();
+			// If the password reset is required then reset the ticket to the new one
+			if (mState == State.PASSWORD_RESET_REQUIRED) {
+				GlobalApp.setSessionTicket(resetPasswordMsg.Ticket);
+			}
+			launchSessionActivity();
 		// Receives ErrorMsg
 		} else if (msg.msgCalssID == ClassID.Error.ValueOf()) {
 			stopLoadingScreen();
 			ErrorMsg errorMsg = (ErrorMsg) msg;
 			switch (errorMsg.Err) {
 			case ErrorMsg.ERROR_PASSWORD_CHANGE_FAILURE:
-				DialogLauncher.launchServerErrorTwoButtonsDialog(ResetPasswordActivity.this,
-						errorMsg.Description,
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								if (which == DialogInterface.BUTTON_NEGATIVE) {
-									finish();
-								}
+				if (mState == State.PASSWORD_RESET_REQUIRED) {
+					DialogLauncher.launchServerErrorTwoButtonsDialog(ResetPasswordActivity.this,
+							errorMsg.Description,
+							new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							if (which == DialogInterface.BUTTON_NEGATIVE) {
+								finish();
 							}
-						});
+						}
+					});
+				} else if (mState == State.PASSWORD_RESET_OPTIONAL) {
+					DialogLauncher.launchServerErrorTwoButtonsDialog(ResetPasswordActivity.this,
+							errorMsg.Description,
+							R.string.dialog_server_error_positive_text,
+							R.string.dialog_server_error_negative_text_2,
+							new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							if (which == DialogInterface.BUTTON_NEGATIVE) {
+								launchSessionActivity();
+							}
+						}
+					});
+				}
 				break;
 			case ErrorMsg.ERROR_UNEXPECTED:
 				DialogLauncher.launchServerErrorTwoButtonsDialog(ResetPasswordActivity.this,
@@ -256,6 +260,13 @@ public class ResetPasswordActivity extends HeaderActivity implements IMessageSub
 				break;
 			}
 		}
+	}
+
+	private void launchSessionActivity() {
+		Intent intent = new Intent(ResetPasswordActivity.this, SessionActivity.class);
+		intent.putExtra(Config.Extras.EXTRA_CONNECTION, mConnection);
+		startActivity(intent);
+		finish();
 	}
 
 	@Override
@@ -275,4 +286,29 @@ public class ResetPasswordActivity extends HeaderActivity implements IMessageSub
 		}
 	}
 
+	private void resetPassword() {
+		Log.d(TAG, TAG + "#resetPassword(...) ENTER");
+		
+		startLoadingScreen();
+		
+		String oldPassword = mOldPasswordInput.getText().toString().trim();
+		String newPassword = mNewPasswordInput.getText().toString().trim();
+		String userName = mConnection.getUserName();
+		String domain = mConnection.getDomain();
+		
+		// TODO: save the new password to connection
+		sendResetPasswordMsg(oldPassword, newPassword, userName, domain);
+	}
+	
+	private void sendResetPasswordMsg(String oldPassword, String newPassword, String userName, String domain) {
+		Log.d(TAG, TAG + "#sendResetPasswordMsg(...) ENTER");
+		
+		ResetPasswordMsg resetPasswordMsg = new ResetPasswordMsg();
+		resetPasswordMsg.OldPassword = oldPassword;
+		resetPasswordMsg.NewPassword = newPassword;
+		resetPasswordMsg.Name = userName;
+		resetPasswordMsg.Domain = domain;
+		mClientChannel.SendAsync(resetPasswordMsg);
+	}
+	
 }
