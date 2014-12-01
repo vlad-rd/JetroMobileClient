@@ -1,5 +1,6 @@
 package com.jetro.mobileclient.ui.activities.base;
 
+import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
@@ -157,7 +158,7 @@ public abstract class HeaderActivity extends Activity {
 		}
 		
 		View view = getLayoutInflater().inflate(layoutResourceId, null);
-		mBaseConteiner.addView(view);
+		mBaseConteiner.addView(view, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 		return view;
 	}
 

@@ -18,8 +18,7 @@
             android:id="@+id/progress_loading"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            layout="@layout/progress_loading"
-            android:background="#FF0000" />
+            layout="@layout/progress_loading" />
 
         <!-- App Icon Image -->
 

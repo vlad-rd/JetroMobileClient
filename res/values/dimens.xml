@@ -3,13 +3,14 @@
     
     <!-- activity -->
     <dimen name="activity_padding">8dp</dimen>
+    <dimen name="list_padding">8dp</dimen>
     
     <!-- buttons -->
     <dimen name="button_label_text_size">16sp</dimen>
     
     <!-- listview items -->
     <dimen name="list_item_margin">8dp</dimen>
-    <dimen name="list_item_padding">4dp</dimen>
+    <dimen name="list_item_padding">8dp</dimen>
 
     <!-- header activity -->
     <dimen name="header_text_size">28sp</dimen>

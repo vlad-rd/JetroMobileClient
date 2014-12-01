@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white"
+    android:orientation="vertical"
     android:padding="10dp" >
 
     <!-- Connection Form - Wrapper -->
@@ -10,8 +11,8 @@
     <ScrollView
         android:id="@+id/scroll"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/buttons_container" >
+        android:layout_height="0dp"
+        android:layout_weight="1" >
 
         <LinearLayout
             android:id="@+id/wrapper"
@@ -206,10 +207,8 @@
     <!-- Buttons -->
 
     <LinearLayout
-        android:id="@+id/buttons_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:orientation="horizontal" >
 
         <!-- Cancel - Button -->
@@ -244,4 +243,4 @@
             android:textSize="@dimen/button_label_text_size" />
     </LinearLayout>
 
-</RelativeLayout>
+</LinearLayout>
