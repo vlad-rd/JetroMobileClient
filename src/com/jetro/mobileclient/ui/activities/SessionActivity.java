@@ -247,6 +247,8 @@ public class SessionActivity extends Activity
 			// Persist zoom change to the current active window
 			float zoomFactor = sessionView.getZoom();
 			mActiveTask.ZoomFactor = zoomFactor;
+			// Sends WindowChangedMsg
+			sendWindowChangedMsg(mActiveTask);
 		}
 	}
 
@@ -1395,6 +1397,8 @@ public class SessionActivity extends Activity
 			mActiveTask.ScrollX = scrollView.getScrollX();
 			mActiveTask.ScrollY = scrollView.getScrollY();
 		}
+		// Sends WindowChangedMsg
+		sendWindowChangedMsg(mActiveTask);
 	}
 
 	// ****************************************************************************
@@ -1766,6 +1770,18 @@ public class SessionActivity extends Activity
 		showWindowMsg.PID = pId;
 		showWindowMsg.HWND = hwnd;
 		mClientChannel.SendAsync(showWindowMsg);
+	}
+	
+	private void sendWindowChangedMsg(Window activeTask) {
+		Log.d(TAG, TAG + "#sendWindowChangedMsg(...) ENTER");
+		
+		WindowChangedMsg windowChangedMsg = new WindowChangedMsg();
+		windowChangedMsg.HWND = activeTask.HWND;
+		windowChangedMsg.Title = activeTask.Title;
+		windowChangedMsg.Zoom = activeTask.ZoomFactor;
+		windowChangedMsg.ScrlX = activeTask.ScrollX;
+		windowChangedMsg.ScrlY = activeTask.ScrollY;
+		mClientChannel.SendAsync(windowChangedMsg);
 	}
 	
 	private void sendWindowCloseMsg(int hwnd) {
