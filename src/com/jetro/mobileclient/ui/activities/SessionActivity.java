@@ -246,8 +246,7 @@ public class SessionActivity extends Activity
 			scrollView.setScrollEnabled(true);
 			// Persist zoom change to the current active window
 			float zoomFactor = sessionView.getZoom();
-			Window activeTask = getActiveTask();
-			activeTask.ZoomFactor = zoomFactor;
+			mActiveTask.ZoomFactor = zoomFactor;
 		}
 	}
 
@@ -486,6 +485,7 @@ public class SessionActivity extends Activity
 	private DrawerLayout mDrawerLayout;
 	private ViewGroup mDrawerLeft;
 	private int mActiveHWND;
+	private Window mActiveTask;
 	private ActiveTasks mActiveTasks;
 	private ApplicationsGridAdapter mAppsAdapter;
 	private GridView mAppsGrid;
@@ -1391,10 +1391,9 @@ public class SessionActivity extends Activity
 			zoomControls.show();
 		resetZoomControlsAutoHideTimeout();
 		// Persist scroll change to the current active window
-		Window activeTask = getActiveTask();
-		if (activeTask != null) {
-			activeTask.ScrollX = scrollView.getScrollX();
-			activeTask.ScrollY = scrollView.getScrollY();
+		if (mActiveTask != null) {
+			mActiveTask.ScrollX = scrollView.getScrollX();
+			mActiveTask.ScrollY = scrollView.getScrollY();
 		}
 	}
 
@@ -1580,7 +1579,6 @@ public class SessionActivity extends Activity
 		} else if (msg.msgCalssID == ClassID.WindowCreatedMsg.ValueOf()) {
 			WindowCreatedMsg windowCreatedMsg = (WindowCreatedMsg) msg;
 			Window task = windowCreatedMsg.Task;
-			Log.i(TAG, TAG + "#ProcessMsg(...) AppID = " + task.AppID);
 			// Update Tasks adapter
 			mTasksAdapter.add(task);
 			mTasksAdapter.notifyDataSetChanged();
@@ -1588,16 +1586,15 @@ public class SessionActivity extends Activity
 			updateActiveTask(task);
 		} else if (msg.msgCalssID == ClassID.ShowWindowMsg.ValueOf()) {
 			ShowWindowMsg showWindowMsg = (ShowWindowMsg) msg;
-			Window activeTask = new Window();
-			activeTask.HWND = mActiveHWND = showWindowMsg.HWND;
-			int activeTaskPosition = mTasksAdapter.getPosition(activeTask);
-			if (activeTaskPosition != TasksAdapter.POSITION_NOT_FOUND) {
-				activeTask = mTasksAdapter.getItem(activeTaskPosition);
+			mActiveHWND = showWindowMsg.HWND;
+			mActiveTask = getTask(mActiveHWND);
+			if (mActiveTask != null) {
 				// Highlights the active task at the tasks drawer
+				int activeTaskPosition = mTasksAdapter.getPosition(mActiveTask);
 				mTasksList.setItemChecked(activeTaskPosition, true);
 				// Restore zoom and scroll
-				sessionView.setZoom(activeTask.ZoomFactor);
-				scrollView.scrollTo(activeTask.ScrollX, activeTask.ScrollY);
+				sessionView.setZoom(mActiveTask.ZoomFactor);
+				scrollView.scrollTo(mActiveTask.ScrollX, mActiveTask.ScrollY);
 				// Shows the task window
 				activityRootView.setVisibility(View.VISIBLE);
 				// Shows the home button at the tasks drawer
@@ -1712,9 +1709,9 @@ public class SessionActivity extends Activity
 		}
 	}
 	
-	private Window getActiveTask() {
+	private Window getTask(int hwnd) {
 		Window task = new Window();
-		task.HWND = mActiveHWND;
+		task.HWND = hwnd;
 		int position = mTasksAdapter.getPosition(task);
 		if (position != TasksAdapter.POSITION_NOT_FOUND) {
 			return mTasksAdapter.getItem(position);
