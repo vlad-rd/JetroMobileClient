@@ -229,7 +229,7 @@ public class SessionActivity extends Activity
 				float transOriginX = scrollView.getScrollX() * detector.getScaleFactor();
 				float transOriginY = scrollView.getScrollY() * detector.getScaleFactor();
 				
-				// transform center point to the zoomed space  
+				// transform center point to the zoomed space
 				float transCenterX = (scrollView.getScrollX() + detector.getFocusX()) * detector.getScaleFactor();
 				float transCenterY = (scrollView.getScrollY() + detector.getFocusY()) * detector.getScaleFactor();
 				
@@ -243,7 +243,11 @@ public class SessionActivity extends Activity
 		@Override
 		public void onScaleEnd(ScaleGestureDetector de)
 		{
-			scrollView.setScrollEnabled(true);		
+			scrollView.setScrollEnabled(true);
+			// Persist zoom change to the current active window
+			float zoomFactor = sessionView.getZoom();
+			Window activeTask = getActiveTask();
+			activeTask.ZoomFactor = zoomFactor;
 		}
 	}
 
@@ -481,6 +485,7 @@ public class SessionActivity extends Activity
 	private Connection mConnection;
 	private DrawerLayout mDrawerLayout;
 	private ViewGroup mDrawerLeft;
+	private int mActiveHWND;
 	private ActiveTasks mActiveTasks;
 	private ApplicationsGridAdapter mAppsAdapter;
 	private GridView mAppsGrid;
@@ -1274,7 +1279,7 @@ public class SessionActivity extends Activity
 		uiHandler.sendEmptyMessage(UIHandler.GRAPHICS_CHANGED);
 	}
 	
-	private boolean callbackDialogResult; 
+	private boolean callbackDialogResult;
 	
 //	@Override
 //	public boolean OnAuthenticate(StringBuilder username, StringBuilder domain, StringBuilder password) {
@@ -1385,6 +1390,12 @@ public class SessionActivity extends Activity
 		if(!GlobalSettings.getHideZoomControls() && zoomControls.getVisibility() != View.VISIBLE)
 			zoomControls.show();
 		resetZoomControlsAutoHideTimeout();
+		// Persist scroll change to the current active window
+		Window activeTask = getActiveTask();
+		if (activeTask != null) {
+			activeTask.ScrollX = scrollView.getScrollX();
+			activeTask.ScrollY = scrollView.getScrollY();
+		}
 	}
 
 	// ****************************************************************************
@@ -1552,8 +1563,8 @@ public class SessionActivity extends Activity
 		} else if (msg.msgCalssID == ClassID.ShowTaskListMsg.ValueOf()) {
 			ShowTaskListMsg showTaskListMsg = (ShowTaskListMsg) msg;
 			// If none active tasks, hide window and home button
-			int activeHWND = showTaskListMsg.ActiveHWND;
-			if (activeHWND == 0) {
+			mActiveHWND = showTaskListMsg.ActiveHWND;
+			if (mActiveHWND == 0) {
 				activityRootView.setVisibility(View.INVISIBLE);
     			mHomeButton.setVisibility(View.INVISIBLE);
     			mDrawerLayout.closeDrawer(mDrawerLeft);
@@ -1577,18 +1588,22 @@ public class SessionActivity extends Activity
 			updateActiveTask(task);
 		} else if (msg.msgCalssID == ClassID.ShowWindowMsg.ValueOf()) {
 			ShowWindowMsg showWindowMsg = (ShowWindowMsg) msg;
-			// Highlights the active task at the tasks drawer
 			Window activeTask = new Window();
-			activeTask.HWND = showWindowMsg.HWND;
+			activeTask.HWND = mActiveHWND = showWindowMsg.HWND;
 			int activeTaskPosition = mTasksAdapter.getPosition(activeTask);
 			if (activeTaskPosition != TasksAdapter.POSITION_NOT_FOUND) {
+				activeTask = mTasksAdapter.getItem(activeTaskPosition);
+				// Highlights the active task at the tasks drawer
 				mTasksList.setItemChecked(activeTaskPosition, true);
+				// Restore zoom and scroll
+				sessionView.setZoom(activeTask.ZoomFactor);
+				scrollView.scrollTo(activeTask.ScrollX, activeTask.ScrollY);
+				// Shows the task window
+				activityRootView.setVisibility(View.VISIBLE);
+				// Shows the home button at the tasks drawer
+				mHomeButton.setVisibility(View.VISIBLE);
+				sessionView.requestFocus();
 			}
-			// Shows the task window
-			activityRootView.setVisibility(View.VISIBLE);
-			// Shows the home button at the tasks drawer
-			mHomeButton.setVisibility(View.VISIBLE);
-			sessionView.requestFocus();
 		} else if (msg.msgCalssID == ClassID.WindowDestroyedMsg.ValueOf()) {
 			WindowDestroyedMsg windowDestroyedMsg = (WindowDestroyedMsg) msg;
 			Window task = new Window();
@@ -1694,6 +1709,17 @@ public class SessionActivity extends Activity
 				activeApp.IsActive = true;
 				mAppsAdapter.notifyDataSetChanged();
 			}
+		}
+	}
+	
+	private Window getActiveTask() {
+		Window task = new Window();
+		task.HWND = mActiveHWND;
+		int position = mTasksAdapter.getPosition(task);
+		if (position != TasksAdapter.POSITION_NOT_FOUND) {
+			return mTasksAdapter.getItem(position);
+		} else {
+			return null;
 		}
 	}
 	
