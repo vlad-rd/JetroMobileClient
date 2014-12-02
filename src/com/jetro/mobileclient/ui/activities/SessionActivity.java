@@ -624,7 +624,6 @@ public class SessionActivity extends Activity
 			@Override
 			public void onClick(View v) {
 				sendMyApplicationsMsg(GlobalApp.getSessionTicket());
-				sendShowTaskListMsg();
 			}
 		});
         
@@ -789,7 +788,7 @@ public class SessionActivity extends Activity
 		
 		stopClientChannel();
 	}
-		
+	
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		Log.d(TAG, TAG + "#onConfigurationChanged(...) ENTER");
@@ -826,7 +825,7 @@ public class SessionActivity extends Activity
 			if(bookmark != null)			
 				connect(bookmark);	
 			else
-				closeSessionActivity(RESULT_CANCELED);			
+				closeSessionActivity(RESULT_CANCELED);
 		}
 		else if(bundle.containsKey(PARAM_CONNECTION_REFERENCE))
 		{
@@ -1525,10 +1524,8 @@ public class SessionActivity extends Activity
 			mAppsGrid.setAdapter(mAppsAdapter);
 			mAppsGrid.setOnItemClickListener(new OnItemClickListener() {
 				@Override
-				public void onItemClick(AdapterView<?> parent, View view,
-						int position, long id) {
-					Application selectedApp = (Application) mAppsAdapter
-							.getItem(position);
+				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+					Application selectedApp = (Application) mAppsAdapter.getItem(position);
 					mSelectedAppId = selectedApp.ID;
 					Log.w(TAG, "Selected App Name: " + selectedApp.Name);
 					Log.w(TAG, "Selected App Id: " + mSelectedAppId);
@@ -1541,7 +1538,12 @@ public class SessionActivity extends Activity
 			});
 			// Fetches async applications icons
 			for (Application app : myApplicationsMsg.Applications) {
-				sendApplicationIconMsg(app.ID);
+				String appId = app.ID;
+				if (mActiveTasks.isAppHasTasks(appId)) {
+					Application activeApp = mAppsAdapter.getItem(appId);
+					activeApp.IsActive = true;
+				}
+				sendApplicationIconMsg(appId);
 			}
 		} else if (msg.msgCalssID == ClassID.ApplicationIconMsg.ValueOf()) {
 			ApplicationIconMsg applicationIconMsg = (ApplicationIconMsg) msg;
@@ -1572,12 +1574,6 @@ public class SessionActivity extends Activity
     			mHomeButton.setVisibility(View.INVISIBLE);
     			mDrawerLayout.closeDrawer(mDrawerLeft);
 			}
-			// Update active tasks
-			Window[] tasks = showTaskListMsg.Tasks;
-			mActiveTasks.clear();
-			for (Window activeTask : tasks) {
-				updateActiveTask(activeTask);
-			}
 		} else if (msg.msgCalssID == ClassID.StartApplicationMsg.ValueOf()) {
 			StartApplicationMsg startApplicationMsg = (StartApplicationMsg) msg;
 		} else if (msg.msgCalssID == ClassID.WindowCreatedMsg.ValueOf()) {
@@ -1586,8 +1582,16 @@ public class SessionActivity extends Activity
 			// Update Tasks adapter
 			mTasksAdapter.add(task);
 			mTasksAdapter.notifyDataSetChanged();
-			// Updates active task
-			updateActiveTask(task);
+			// Update active Tasks
+			boolean isAppGotActive = mActiveTasks.add(task);
+			// Update Apps adapter
+			if (isAppGotActive) {
+				Application activeApp = mAppsAdapter.getItem(task.AppID);
+				if (activeApp != null) {
+					activeApp.IsActive = true;
+					mAppsAdapter.notifyDataSetChanged();
+				}
+			}
 		} else if (msg.msgCalssID == ClassID.ShowWindowMsg.ValueOf()) {
 			ShowWindowMsg showWindowMsg = (ShowWindowMsg) msg;
 			mActiveHWND = showWindowMsg.HWND;
@@ -1598,12 +1602,14 @@ public class SessionActivity extends Activity
 				mTasksList.setItemChecked(activeTaskPosition, true);
 				// Restore zoom and scroll
 				sessionView.setZoom(mActiveTask.ZoomFactor);
+				sessionView.requestLayout();
+				sessionView.requestFocus();
 				scrollView.scrollTo(mActiveTask.ScrollX, mActiveTask.ScrollY);
+				scrollView.requestLayout();
 				// Shows the task window
 				activityRootView.setVisibility(View.VISIBLE);
 				// Shows the home button at the tasks drawer
 				mHomeButton.setVisibility(View.VISIBLE);
-				sessionView.requestFocus();
 			}
 		} else if (msg.msgCalssID == ClassID.WindowDestroyedMsg.ValueOf()) {
 			WindowDestroyedMsg windowDestroyedMsg = (WindowDestroyedMsg) msg;
@@ -1700,19 +1706,6 @@ public class SessionActivity extends Activity
 		}
 	}
 	
-	private void updateActiveTask(Window activeTask) {
-		// Update active Tasks
-		boolean isAppGotActive = mActiveTasks.add(activeTask);
-		// Update Apps adapter
-		if (isAppGotActive) {
-			Application activeApp = mAppsAdapter.getItem(activeTask.AppID);
-			if (activeApp != null) {
-				activeApp.IsActive = true;
-				mAppsAdapter.notifyDataSetChanged();
-			}
-		}
-	}
-	
 	private Window getTask(int hwnd) {
 		Window task = new Window();
 		task.HWND = hwnd;
@@ -1738,13 +1731,6 @@ public class SessionActivity extends Activity
 		ApplicationIconMsg applicationIconMsg = new ApplicationIconMsg();
 		applicationIconMsg.ID = appId;
 		mClientChannel.SendAsync(applicationIconMsg);
-	}
-	
-	private void sendShowTaskListMsg() {
-		Log.d(TAG, TAG + "#sendShowTaskListMsg(...) ENTER");
-		
-		ShowTaskListMsg showTaskListMsg = new ShowTaskListMsg();
-		mClientChannel.SendAsync(showTaskListMsg);
 	}
 
 	private void sendGetTsMsg(String ticket) {
