@@ -47,6 +47,6 @@
     <dimen name="list_item_task_icon_margin">8dp</dimen>
     <dimen name="list_item_task_title_margin">8dp</dimen>
     <dimen name="list_item_task_delete_button_image_margin">8dp</dimen>
-    <dimen name="list_item_task_delete_button_width">32dp</dimen>
+    <dimen name="list_item_task_delete_button_width">48dp</dimen>
 
 </resources>
