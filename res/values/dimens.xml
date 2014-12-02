@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    
+
     <!-- activity -->
     <dimen name="activity_padding">8dp</dimen>
     <dimen name="list_padding">8dp</dimen>
     <dimen name="button_icon_size">64dp</dimen>
     <dimen name="button_icon_padding">12dp</dimen>
-    
+
     <!-- buttons -->
     <dimen name="button_label_text_size">16sp</dimen>
-    
+
     <!-- listview items -->
     <dimen name="list_item_margin">8dp</dimen>
     <dimen name="list_item_padding">8dp</dimen>
@@ -20,13 +20,15 @@
 
     <!-- connection activity -->
     <dimen name="edit_text_label_text_size">20sp</dimen>
-    
+
     <!-- connection list activtiy -->
     <dimen name="button_add_new_aconnection_text_size">22sp</dimen>
     <dimen name="list_item_connection_padding">10dp</dimen>
+    <dimen name="list_item_connection_title_margin">10dp</dimen>
     <dimen name="list_item_connection_name_text_size">22sp</dimen>
     <dimen name="list_item_connection_delete_button_width">60dp</dimen>
-    
+    <dimen name="list_item_connection_delete_icon_margin">10dp</dimen>
+
     <!-- desktop activity -->
     <dimen name="tasks_drawer_width">320dp</dimen>
     <dimen name="grid_apps_padding">16dp</dimen>
@@ -37,12 +39,14 @@
     <dimen name="input_controlls_menu_icon_size">48dp</dimen>
     <dimen name="input_controlls_menu_icon_margin">20dp</dimen>
     <dimen name="input_controlls_menu_icon_padding">8dp</dimen>
-    
+
     <!-- tasks drawer -->
     <dimen name="list_tasks_divider_height">4dp</dimen>
     <dimen name="list_tasks_padding">8dp</dimen>
     <dimen name="list_item_task_icon_size">48dp</dimen>
+    <dimen name="list_item_task_icon_margin">8dp</dimen>
+    <dimen name="list_item_task_title_margin">8dp</dimen>
     <dimen name="list_item_task_delete_button_image_margin">8dp</dimen>
-    <dimen name="list_item_task_delete_button_width">48dp</dimen>
+    <dimen name="list_item_task_delete_button_width">32dp</dimen>
 
 </resources>

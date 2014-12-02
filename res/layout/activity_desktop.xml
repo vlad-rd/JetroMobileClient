@@ -240,7 +240,8 @@
             android:choiceMode="singleChoice"
             android:divider="@android:color/transparent"
             android:dividerHeight="@dimen/list_tasks_divider_height"
-            android:padding="@dimen/list_tasks_padding" />
+            android:padding="@dimen/list_tasks_padding"
+            android:scrollbarStyle="outsideOverlay" />
     </RelativeLayout>
 
 </android.support.v4.widget.DrawerLayout>

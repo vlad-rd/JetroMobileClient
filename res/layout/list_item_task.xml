@@ -3,8 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/item_selector_1"
-    android:descendantFocusability="blocksDescendants"
-    android:padding="@dimen/list_item_padding" >
+    android:descendantFocusability="blocksDescendants" >
 
     <!-- List Item - Task Icon -->
 
@@ -12,6 +11,7 @@
         android:id="@+id/task_icon"
         android:layout_width="@dimen/list_item_task_icon_size"
         android:layout_height="@dimen/list_item_task_icon_size"
+        android:layout_margin="@dimen/list_item_task_icon_margin"
         android:contentDescription="Task icon" />
 
     <!-- List Item - Task Title -->
@@ -21,7 +21,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_margin="8dp"
+        android:layout_marginEnd="@dimen/list_item_task_title_margin"
+        android:layout_marginRight="@dimen/list_item_task_title_margin"
         android:layout_toEndOf="@id/task_icon"
         android:layout_toRightOf="@id/task_icon"
         android:ellipsize="end"
@@ -29,25 +30,25 @@
         android:singleLine="true"
         android:textSize="18sp" />
 
-    <!-- List Item - Delete Button Drawable -->
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_margin="@dimen/list_item_task_delete_button_image_margin"
-        android:background="@drawable/delete" />
-
     <!-- List Item - Delete Button -->
 
     <Button
         android:id="@+id/delete_button"
         android:layout_width="@dimen/list_item_task_delete_button_width"
-        android:layout_height="match_parent"
+        android:layout_height="@dimen/list_item_task_delete_button_width"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:background="@android:color/transparent" />
+
+    <!-- List Item - Delete Button Drawable -->
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_margin="@dimen/list_item_task_delete_button_image_margin"
+        android:background="@android:color/transparent"
+        android:src="@drawable/delete" />
 
 </RelativeLayout>
