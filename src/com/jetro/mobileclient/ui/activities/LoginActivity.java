@@ -388,11 +388,15 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		// Gets device info
 		String deviceModel = Build.MODEL;
 		String deviceId = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
+		// Gets the user credentials from the login form
+		String username = mUsernameInput.getText().toString();
+		String password = mPasswordInput.getText().toString();
+		String domain = mDomainInput.getText().toString();
 		// Sends LoginMsg
 		LoginMsg loginMsg = new LoginMsg();
-		loginMsg.name = mConnection.getUserName();
-		loginMsg.password = mConnection.getPassword();
-		loginMsg.domain = mConnection.getDomain();
+		loginMsg.name = username;
+		loginMsg.password = password;
+		loginMsg.domain = domain;
 		loginMsg.deviceModel = deviceModel;
 		loginMsg.deviceId = deviceId;
 		
