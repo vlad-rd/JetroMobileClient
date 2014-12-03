@@ -154,6 +154,8 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		mLoginButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				// Disables the login button
+				mLoginButton.setEnabled(false);
 				makeLogin();
 			}
 		});
@@ -182,7 +184,7 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 			}
 			
 			Bitmap loginImage = FilesUtils.readImage(mConnection.getLoginImageName());
-			if (loginImage != null) {				
+			if (loginImage != null) {
 				mLoginImage.setImageBitmap(loginImage);
 				mLoginImage.setVisibility(View.VISIBLE);
 			}
@@ -245,7 +247,6 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		Log.d(TAG, TAG + "#makeLogin(...) ENTER");
 		
 		startLoadingScreen();
-		
 		sendLoginMsg();
 	}
 
@@ -269,6 +270,7 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 			}
 			case LoginMsg.LOGIN_OPTIONAL_CHANGE_PASSWORD: {
 				stopLoadingScreen();
+				
 				GlobalApp.setSessionTicket(loginMsg.Ticket);
 				saveUserCredentials();
 				DialogLauncher.launchOptionalChangePassword(
@@ -277,6 +279,8 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 						new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
+						// Enables the login button
+						mLoginButton.setEnabled(true);
 						if (which == DialogInterface.BUTTON_POSITIVE) {
 							launchResetPasswordActivity(State.PASSWORD_RESET_OPTIONAL);
 						} else if (which == DialogInterface.BUTTON_NEGATIVE) {
@@ -293,6 +297,7 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		// Receives ErrorMsg
 		} else if (msg.msgCalssID == ClassID.Error.ValueOf()) {
 			stopLoadingScreen();
+			
 			ErrorMsg errorMsg = (ErrorMsg) msg;
 			switch (errorMsg.Err) {
 			case ErrorMsg.ERROR_INVALID_USER_CREDENTIALS:
@@ -335,6 +340,9 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 						});
 				break;
 			}
+			
+			// Enables the login button
+			mLoginButton.setEnabled(true);
 		}
 	}
 
@@ -379,7 +387,6 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		intent.putExtra(Config.Extras.EXTRA_RESET_PASSWORD_ACTIVITY_STATE, activityState);
 		intent.putExtra(Config.Extras.EXTRA_CONNECTION, mConnection);
 		startActivity(intent);
-		finish();
 	}
 	
 	private void sendLoginMsg() {
@@ -416,7 +423,7 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 			if (mClientChannel == null) {
 				Log.i(TAG, TAG + "#sendLoginMsg(...) mClientChannel = " + mClientChannel);
 				stopLoadingScreen();
-				DialogLauncher.launchNetworkConnectionIssueDialog(LoginActivity.this, null);
+				launchConnectionIssueDialog();
 				return;
 			}
 			mClientChannel.AddListener(LoginActivity.this);
@@ -426,9 +433,18 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 			ConnectionsDB.getInstance(getApplicationContext()).saveConnection(mConnection);
 		} else {
 			stopLoadingScreen();
-			DialogLauncher.launchNetworkConnectionIssueDialog(LoginActivity.this, null);
+			launchConnectionIssueDialog();
 		}
-		
+	}
+	
+	private void launchConnectionIssueDialog() {
+		DialogLauncher.launchNetworkConnectionIssueDialog(LoginActivity.this, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// Enables the login button
+				mLoginButton.setEnabled(true);
+			}
+		});
 	}
 	
 }
