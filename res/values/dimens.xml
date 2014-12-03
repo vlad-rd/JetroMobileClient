@@ -15,7 +15,7 @@
     <dimen name="list_item_padding">8dp</dimen>
 
     <!-- header activity -->
-    <dimen name="header_text_size">28sp</dimen>
+    <dimen name="header_text_size">22sp</dimen>
     <dimen name="star_icon_size">5dp</dimen>
 
     <!-- connection activity -->

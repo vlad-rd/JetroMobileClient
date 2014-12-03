@@ -494,7 +494,7 @@ public class SessionActivity extends Activity
 	private ImageView mRefreshButton;
 	private ImageView mControllsButton;
 	private ImageView mHomeButton;
-	private ImageView mDissconnectSessionButton;
+	private ImageView mDisconnectSessionButton;
 	private String mSelectedAppId;
 	
 	// Tasks drawer
@@ -632,6 +632,9 @@ public class SessionActivity extends Activity
         mControllsButton.setOnClickListener(new OnClickListener() {
         	@Override
         	public void onClick(View v) {
+        		// Notice: don't delete, this is a workaround to fix error:
+        		// Failed to show system keyboard: SessionView is not the active view!
+        		sessionView.setActivated(true);
         		PopupMenu inputControllsPopup = new PopupMenu(SessionActivity.this, v);
         		inputControllsPopup.getMenuInflater().inflate(R.menu.session_menu, inputControllsPopup.getMenu());
         		inputControllsPopup.setOnMenuItemClickListener(new OnMenuItemClickListener() {
@@ -664,8 +667,8 @@ public class SessionActivity extends Activity
 						}
 						else if (itemId == R.id.session_disconnect)
 						{
-							showKeyboard(false, false);
-							LibFreeRDP.disconnect(session.getInstance());
+							sendLogoutMsg(GlobalApp.getSessionTicket());
+							finish();
 						}
 						
 						return true;
@@ -688,10 +691,12 @@ public class SessionActivity extends Activity
         		}
         	}
         });
-        mDissconnectSessionButton = (ImageView) findViewById(R.id.disconnect_button);
-		mDissconnectSessionButton.setOnClickListener(new OnClickListener() {
+        mDisconnectSessionButton = (ImageView) findViewById(R.id.disconnect_button);
+		mDisconnectSessionButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				sendLogoutMsg(GlobalApp.getSessionTicket());
+				showKeyboard(false, false);
 				finish();
 			}
 		});
@@ -770,16 +775,23 @@ public class SessionActivity extends Activity
 		// Cancel running disconnect timers.
 		GlobalApp.cancelDisconnectTimer();
 
+		// Hides the keyboard
+		showKeyboard(false, false);
+		
 		// Disconnect all remaining sessions.
 		Collection<SessionState> sessions = GlobalApp.getSessions();
-		for (SessionState session : sessions)
+		for (SessionState session : sessions) {
 			LibFreeRDP.disconnect(session.getInstance());
+		}
 
 		// unregister freerdp events broadcast receiver
 		unregisterReceiver(libFreeRDPBroadcastReceiver);
 
-		// remove clipboard listener		
+		// remove clipboard listener
 		mClipboardManager.removeClipboardboardChangedListener(this);
+		
+		// remove all the active tasks
+		mActiveTasks.clear();
 
 		// free session
 		if (session != null) {
@@ -1082,48 +1094,6 @@ public class SessionActivity extends Activity
 
 	private void cancelDelayedMoveEvent() {
 		uiHandler.removeMessages(UIHandler.SEND_MOVE_EVENT);
-	}
-		
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.session_menu, menu);
-		return true;
-	}
-	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// refer to http://tools.android.com/tips/non-constant-fields why we can't use switch/case here ..
-		int itemId = item.getItemId();
-		
-		if (itemId == R.id.session_touch_pointer)
-		{
-			// toggle touch pointer
-			if(touchPointerView.getVisibility() == View.VISIBLE)
-			{
-				touchPointerView.setVisibility(View.INVISIBLE);
-				sessionView.setTouchPointerPadding(0, 0);
-			}
-			else
-			{
-				touchPointerView.setVisibility(View.VISIBLE);				
-				sessionView.setTouchPointerPadding(touchPointerView.getPointerWidth(), touchPointerView.getPointerHeight());
-			}
-		}
-		else if (itemId == R.id.session_sys_keyboard)
-		{
-			showKeyboard(!sysKeyboardVisible, false);
-		}
-		else if (itemId == R.id.session_ext_keyboard)
-		{
-			showKeyboard(false, !extKeyboardVisible);
-		}
-		else if (itemId == R.id.session_disconnect)
-		{
-			showKeyboard(false, false);
-			LibFreeRDP.disconnect(session.getInstance());
-		}
-
-		return true;
 	}
 	
 	@Override
@@ -1645,8 +1615,6 @@ public class SessionActivity extends Activity
 			} else {
 				showKeyboard(false, false);
 			}
-		} else if (msg.msgCalssID == ClassID.LogoutMsg.ValueOf()) {
-			LogoutMsg logoutMsg = (LogoutMsg) msg;
 		// Receives ErrorMsg
 		} else if (msg.msgCalssID == ClassID.Error.ValueOf()) {
 			ErrorMsg errorMsg = (ErrorMsg) msg;
@@ -1720,6 +1688,11 @@ public class SessionActivity extends Activity
 	
 	private void sendMyApplicationsMsg(String ticket) {
 		Log.d(TAG, TAG + "#sendMyApplicationsMsg(...) ENTER");
+		
+		// Validates client channel
+		if (mClientChannel == null) {
+			return;
+		}
 
 		MyApplicationsMsg myApplicationsMsg = new MyApplicationsMsg();
 		myApplicationsMsg.Ticket = ticket;
@@ -1728,6 +1701,11 @@ public class SessionActivity extends Activity
 	
 	private void sendApplicationIconMsg(String appId) {
 		Log.d(TAG, TAG + "#sendApplicationIconMsg(...) ENTER");
+		
+		// Validates client channel
+		if (mClientChannel == null) {
+			return;
+		}
 		
 		ApplicationIconMsg applicationIconMsg = new ApplicationIconMsg();
 		applicationIconMsg.ID = appId;
@@ -1745,6 +1723,11 @@ public class SessionActivity extends Activity
 	private void sendStartApplicationMsg(String appToStartId) {
 		Log.d(TAG, TAG + "#sendStartApplicationMsg(...) ENTER");
 		
+		// Validates client channel
+		if (mClientChannel == null) {
+			return;
+		}
+		
 		StartApplicationMsg startApplicationMsg = new StartApplicationMsg();
 		startApplicationMsg.ID = appToStartId;
 		mClientChannel.SendAsync(startApplicationMsg);
@@ -1752,6 +1735,11 @@ public class SessionActivity extends Activity
 	
 	private void sendShowWindowMsg(int pId, int hwnd) {
 		Log.d(TAG, TAG + "#sendShowWindowMsg(...) ENTER");
+		
+		// Validates client channel
+		if (mClientChannel == null) {
+			return;
+		}
 		
 		ShowWindowMsg showWindowMsg = new ShowWindowMsg();
 		showWindowMsg.PID = pId;
@@ -1761,6 +1749,11 @@ public class SessionActivity extends Activity
 	
 	private void sendWindowChangedMsg(Window activeTask) {
 		Log.d(TAG, TAG + "#sendWindowChangedMsg(...) ENTER");
+		
+		// Validates client channel
+		if (mClientChannel == null) {
+			return;
+		}
 		
 		WindowChangedMsg windowChangedMsg = new WindowChangedMsg();
 		windowChangedMsg.HWND = activeTask.HWND;
@@ -1774,8 +1767,25 @@ public class SessionActivity extends Activity
 	private void sendWindowCloseMsg(int hwnd) {
 		Log.d(TAG, TAG + "#sendWindowCloseMsg(...) ENTER");
 		
+		// Validates client channel
+		if (mClientChannel == null) {
+			return;
+		}
+		
 		WindowCloseMsg windowCloseMsg = new WindowCloseMsg();
 		windowCloseMsg.HWND = hwnd;
 		mClientChannel.SendAsync(windowCloseMsg);
+	}
+	
+	private void sendLogoutMsg(String ticket) {
+		Log.d(TAG, TAG + "#sendLogoutMsg(...) ENTER");
+		
+		// Validates client channel
+		if (mClientChannel == null) {
+			return;
+		}
+				
+		LogoutMsg logoutMsg = new LogoutMsg();
+		mClientChannel.SendAsync(logoutMsg);
 	}
 }

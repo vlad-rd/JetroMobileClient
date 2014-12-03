@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     
+    <!-- header activity -->
+    <dimen name="header_text_size">28sp</dimen>
+    
     <!-- desktop activity -->
     <dimen name="grid_item_app_size">110dp</dimen>
     <dimen name="grid_item_app_icon_size">90dp</dimen>
