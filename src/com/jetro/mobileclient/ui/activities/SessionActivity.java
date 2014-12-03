@@ -40,10 +40,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.DrawerLayout.DrawerListener;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -617,6 +617,23 @@ public class SessionActivity extends Activity
         
         // initialize the Desktop widgets
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerLayout.setDrawerListener(new DrawerListener() {
+			@Override
+			public void onDrawerStateChanged(int newState) {
+			}
+			@Override
+			public void onDrawerSlide(View drawerView, float slideOffset) {
+			}
+			@Override
+			public void onDrawerOpened(View drawerView) {
+				if(sysKeyboardVisible || extKeyboardVisible) {
+					showKeyboard(false, false);
+				}
+			}
+			@Override
+			public void onDrawerClosed(View drawerView) {
+			}
+		});
         mDrawerLeft = (ViewGroup) findViewById(R.id.left_drawer);
         mAppsGrid = (GridView) findViewById(R.id.desktop_applications_grid);
         mRefreshButton = (ImageView) findViewById(R.id.desktop_header_refresh_button);
@@ -634,7 +651,7 @@ public class SessionActivity extends Activity
         	public void onClick(View v) {
         		// Notice: don't delete, this is a workaround to fix error:
         		// Failed to show system keyboard: SessionView is not the active view!
-        		sessionView.setActivated(true);
+        		sessionView.requestFocus();
         		PopupMenu inputControllsPopup = new PopupMenu(SessionActivity.this, v);
         		inputControllsPopup.getMenuInflater().inflate(R.menu.session_menu, inputControllsPopup.getMenu());
         		inputControllsPopup.setOnMenuItemClickListener(new OnMenuItemClickListener() {
@@ -1002,6 +1019,7 @@ public class SessionActivity extends Activity
 
 			// show system keyboard
 			mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+			sessionView.requestFocus();
 			if(!mgr.isActive(sessionView))
 				Log.e(TAG, "Failed to show system keyboard: SessionView is not the active view!");
 			mgr.showSoftInput(sessionView, 0);
