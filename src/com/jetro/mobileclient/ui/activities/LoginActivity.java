@@ -246,17 +246,6 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		
 		startLoadingScreen();
 		
-		// Gets the user credentials from the login form
-		String username = mUsernameInput.getText().toString();
-		String password = mPasswordInput.getText().toString();
-		String domain = mDomainInput.getText().toString();
-		
-		// Saves user credentials to connection
-		mConnection.setUserName(username);
-		mConnection.setPassword(password);
-		mConnection.setDomain(domain);
-		ConnectionsDB.getInstance(getApplicationContext()).saveConnection(mConnection);
-		
 		sendLoginMsg();
 	}
 
@@ -270,6 +259,7 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 			switch (loginMsg.returnCode) {
 			case LoginMsg.LOGIN_SUCCESS: {
 				GlobalApp.setSessionTicket(loginMsg.Ticket);
+				saveUserCredentials();
 				launchSessionActivity();
 				break;
 			}
@@ -280,6 +270,7 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 			case LoginMsg.LOGIN_OPTIONAL_CHANGE_PASSWORD: {
 				stopLoadingScreen();
 				GlobalApp.setSessionTicket(loginMsg.Ticket);
+				saveUserCredentials();
 				DialogLauncher.launchOptionalChangePassword(
 						LoginActivity.this,
 						loginMsg.daysBeforePasswordExpiration,
@@ -361,6 +352,19 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 			mClientChannel.Stop();
 			mClientChannel = null;
 		}
+	}
+	
+	private void saveUserCredentials() {
+		// Gets the user credentials from the login form
+		String username = mUsernameInput.getText().toString();
+		String password = mPasswordInput.getText().toString();
+		String domain = mDomainInput.getText().toString();
+		
+		// Saves user credentials to connection
+		mConnection.setUserName(username);
+		mConnection.setPassword(password);
+		mConnection.setDomain(domain);
+		ConnectionsDB.getInstance(getApplicationContext()).saveConnection(mConnection);
 	}
 	
 	private void launchSessionActivity() {

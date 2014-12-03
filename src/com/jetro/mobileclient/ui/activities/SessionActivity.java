@@ -710,6 +710,7 @@ public class SessionActivity extends Activity
 		mTasksList.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				mDrawerLayout.closeDrawer(mDrawerLeft);
 				Window task = mTasksAdapter.getItem(position);
 				sendShowWindowMsg(task.PID, task.HWND);
 			}
