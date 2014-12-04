@@ -139,9 +139,9 @@ public class ResetPasswordActivity extends HeaderActivity implements IMessageSub
 		if (mConnection != null) {
 			mOldPasswordInput.setText(mConnection.getPassword());
 			// TODO: delete after test
-			String NEW_PASSWORD = "Welcome2!";
-			mNewPasswordInput.setText(NEW_PASSWORD);
-			mConfirmPasswordInput.setText(NEW_PASSWORD);
+//			String NEW_PASSWORD = "Welcome2!";
+//			mNewPasswordInput.setText(NEW_PASSWORD);
+//			mConfirmPasswordInput.setText(NEW_PASSWORD);
 		}
 	}
 	

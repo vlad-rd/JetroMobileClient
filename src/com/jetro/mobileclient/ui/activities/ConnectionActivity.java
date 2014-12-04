@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
@@ -137,6 +138,14 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 		mBaseContentLayout = setBaseContentView(R.layout.activity_new_connection);
 		mConnectionNameInput = (EditText) mBaseContentLayout.findViewById(R.id.connection_name_input);
 		mConnectionNameInput.addTextChangedListener(mInputTextWatcher);
+		mConnectionNameInput.setOnFocusChangeListener(new OnFocusChangeListener() {
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				if (!hasFocus) {
+					
+				}
+			}
+		});
 		mHostIpInput = (EditText) mBaseContentLayout.findViewById(R.id.host_ip_input);
 		mHostIpInput.addTextChangedListener(mInputTextWatcher);
 		mHostPortInput = (EditText) mBaseContentLayout.findViewById(R.id.host_port_input);
@@ -192,9 +201,9 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 			mDividerHorizontal.setVisibility(View.GONE);
 			
 			// TODO: remove this after debug
-			mConnectionNameInput.setText("Test environment");
-			mHostIpInput.setText("212.199.106.213");
-			mHostPortInput.setText("13000");
+//			mConnectionNameInput.setText("Test environment");
+//			mHostIpInput.setText("212.199.106.213");
+//			mHostPortInput.setText("13000");
 			break;
 		case VIEW_CONNECTION:
 			// Sets the header appName

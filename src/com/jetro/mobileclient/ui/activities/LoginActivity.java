@@ -167,21 +167,21 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 			String domain = mConnection.getDomain();
 			
 			// TODO: refactor this after test
-			if (!TextUtils.isEmpty(userName)) {
+//			if (!TextUtils.isEmpty(userName)) {
 				mUsernameInput.setText(userName);
-			} else {
-				mUsernameInput.setText("android_user");
-			}
-			if (!TextUtils.isEmpty(password)) {
+//			} else {
+//				mUsernameInput.setText("android_user");
+//			}
+//			if (!TextUtils.isEmpty(password)) {
 				mPasswordInput.setText(password);
-			} else {
-				mPasswordInput.setText("Welcome3!");
-			}
-			if (!TextUtils.isEmpty(domain)) {
+//			} else {
+//				mPasswordInput.setText("Welcome3!");
+//			}
+//			if (!TextUtils.isEmpty(domain)) {
 				mDomainInput.setText(domain);
-			} else {
-				mDomainInput.setText("jp");
-			}
+//			} else {
+//				mDomainInput.setText("jp");
+//			}
 			
 			Bitmap loginImage = FilesUtils.readImage(mConnection.getLoginImageName());
 			if (loginImage != null) {

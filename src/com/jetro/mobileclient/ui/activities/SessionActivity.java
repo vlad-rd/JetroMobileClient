@@ -685,6 +685,8 @@ public class SessionActivity extends Activity
 						else if (itemId == R.id.session_disconnect)
 						{
 							sendLogoutMsg(GlobalApp.getSessionTicket());
+							// remove all the active tasks
+							mActiveTasks.clear();
 							finish();
 						}
 						
@@ -713,7 +715,8 @@ public class SessionActivity extends Activity
 			@Override
 			public void onClick(View v) {
 				sendLogoutMsg(GlobalApp.getSessionTicket());
-				showKeyboard(false, false);
+				// remove all the active tasks
+				mActiveTasks.clear();
 				finish();
 			}
 		});
@@ -806,9 +809,6 @@ public class SessionActivity extends Activity
 
 		// remove clipboard listener
 		mClipboardManager.removeClipboardboardChangedListener(this);
-		
-		// remove all the active tasks
-		mActiveTasks.clear();
 
 		// free session
 		if (session != null) {
