@@ -684,10 +684,7 @@ public class SessionActivity extends Activity
 						}
 						else if (itemId == R.id.session_disconnect)
 						{
-							sendLogoutMsg(GlobalApp.getSessionTicket());
-							// remove all the active tasks
-							mActiveTasks.clear();
-							finish();
+							disconnectSession();
 						}
 						
 						return true;
@@ -714,10 +711,7 @@ public class SessionActivity extends Activity
 		mDisconnectSessionButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				sendLogoutMsg(GlobalApp.getSessionTicket());
-				// remove all the active tasks
-				mActiveTasks.clear();
-				finish();
+				disconnectSession();
 			}
 		});
 		mTasksAdapter = new TasksAdapter(
@@ -747,13 +741,19 @@ public class SessionActivity extends Activity
 		Log.d(TAG, TAG + "#onStart(...) ENTER");
 		super.onStart();
 	}
-
+	
 	@Override
 	protected void onRestart() {
 		Log.d(TAG, TAG + "#onRestart(...) ENTER");
 		super.onRestart();
+		
+		mClientChannel = ClientChannel.getInstance();
+		if (mClientChannel != null) {
+			mClientChannel.AddListener(SessionActivity.this);
+			sendMyApplicationsMsg(GlobalApp.getSessionTicket());
+		}
 	}
-
+	
 	@Override
 	protected void onResume() {
 		Log.d(TAG, TAG + "#onResume(...) ENTER");
@@ -762,9 +762,8 @@ public class SessionActivity extends Activity
 		mClientChannel = ClientChannel.getInstance();
 		if (mClientChannel != null) {
 			mClientChannel.AddListener(SessionActivity.this);
+			sendMyApplicationsMsg(GlobalApp.getSessionTicket());
 		}
-		
-		sendMyApplicationsMsg(GlobalApp.getSessionTicket());
 	}
 
 	@Override
@@ -818,8 +817,6 @@ public class SessionActivity extends Activity
 			GlobalApp.freeSession(session.getInstance());
 			session = null;
 		}
-		
-		stopClientChannel();
 	}
 	
 	@Override
@@ -1684,6 +1681,17 @@ public class SessionActivity extends Activity
 		Log.d(TAG, TAG + "#ConnectionIsBroken(...) ENTER");
 		
 		stopClientChannel();
+		finish();
+	}
+	
+	/**
+	 * Destroy all the open tasks, then logout session.
+	 */
+	private void disconnectSession() {
+		sendLogoutMsg(GlobalApp.getSessionTicket());
+		stopClientChannel();
+		// remove all the active tasks
+		mActiveTasks.clear();
 		finish();
 	}
 	
