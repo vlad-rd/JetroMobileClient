@@ -25,6 +25,7 @@ import com.jetro.mobileclient.model.beans.Connection;
 import com.jetro.mobileclient.repository.ConnectionsDB;
 import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
 import com.jetro.mobileclient.ui.dialogs.DialogLauncher;
+import com.jetro.mobileclient.utils.KeyboardUtils;
 import com.jetro.protocol.Core.BaseMsg;
 import com.jetro.protocol.Core.ClassID;
 import com.jetro.protocol.Core.IMessageSubscriber;
@@ -121,6 +122,7 @@ public class ResetPasswordActivity extends HeaderActivity implements IMessageSub
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_GO) {
+					KeyboardUtils.hide(ResetPasswordActivity.this, mConfirmPasswordInput, 0);
 					resetPassword();
 					return true;
 				}
@@ -135,18 +137,19 @@ public class ResetPasswordActivity extends HeaderActivity implements IMessageSub
 			}
 		});
 		
+		// TODO: delete after test
 		// Loads old password from host
-		if (mConnection != null) {
-			mOldPasswordInput.setText(mConnection.getPassword());
-			// TODO: delete after test
+//		if (mConnection != null) {
+//			mOldPasswordInput.setText(mConnection.getPassword());
 //			String NEW_PASSWORD = "Welcome2!";
 //			mNewPasswordInput.setText(NEW_PASSWORD);
 //			mConfirmPasswordInput.setText(NEW_PASSWORD);
-		}
+//		}
 	}
 	
 	@Override
 	protected void onResume() {
+		Log.d(TAG, TAG + "#onResume(...) ENTER");
 		super.onResume();
 		
 		mClientChannel = ClientChannel.getInstance();
@@ -157,12 +160,21 @@ public class ResetPasswordActivity extends HeaderActivity implements IMessageSub
 
 	@Override
 	protected void onPause() {
+		Log.d(TAG, TAG + "#onPause(...) ENTER");
 		super.onPause();
 		
 		mClientChannel = ClientChannel.getInstance();
 		if (mClientChannel != null) {
 			mClientChannel.RemoveListener(ResetPasswordActivity.this);
 		}
+	}
+
+	@Override
+	protected void onStop() {
+		Log.d(TAG, TAG + "#onStop(...) ENTER");
+		super.onStop();
+		
+		mOldPasswordInput.setText("");
 	}
 
 	@Override

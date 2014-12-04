@@ -31,6 +31,7 @@ import com.jetro.mobileclient.ui.activities.ResetPasswordActivity.State;
 import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
 import com.jetro.mobileclient.ui.dialogs.DialogLauncher;
 import com.jetro.mobileclient.utils.FilesUtils;
+import com.jetro.mobileclient.utils.KeyboardUtils;
 import com.jetro.protocol.Core.BaseMsg;
 import com.jetro.protocol.Core.ClassID;
 import com.jetro.protocol.Core.IMessageSubscriber;
@@ -78,12 +79,6 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 	};
 
 	@Override
-	protected void onNewIntent(Intent intent) {
-		Log.d(TAG, TAG + "#onNewIntent(...) ENTER");
-		super.onNewIntent(intent);
-	}
-
-	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		Log.d(TAG, TAG + "#onSaveInstanceState(...) ENTER");
 		
@@ -125,6 +120,7 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_GO) {
+					KeyboardUtils.hide(LoginActivity.this, mDomainInput, 0);
 					makeLogin();
 					return true;
 				}
@@ -193,6 +189,7 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 
 	@Override
 	protected void onResume() {
+		Log.d(TAG, TAG + "#onResume(...) ENTER");
 		super.onResume();
 		
 		mClientChannel = ClientChannel.getInstance();
@@ -203,12 +200,21 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 
 	@Override
 	protected void onPause() {
+		Log.d(TAG, TAG + "#onPause(...) ENTER");
 		super.onPause();
 		
 		mClientChannel = ClientChannel.getInstance();
 		if (mClientChannel != null) {
 			mClientChannel.RemoveListener(LoginActivity.this);
 		}
+	}
+
+	@Override
+	protected void onStart() {
+		Log.d(TAG, TAG + "#onStart(...) ENTER");
+		super.onStart();
+		
+		mPasswordInput.setText("");
 	}
 
 	@Override
@@ -427,7 +433,7 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 				return;
 			}
 			mClientChannel.AddListener(LoginActivity.this);
-			mClientChannel.SendReceiveAsync(loginMsg);
+			mClientChannel.SendAsyncTimeout(loginMsg, ClientChannel.TIME_OUT);
 			// Saves this connection point as last used one
 			mConnection.setLastConnectionPoint(connectionPoint);
 			ConnectionsDB.getInstance(getApplicationContext()).saveConnection(mConnection);

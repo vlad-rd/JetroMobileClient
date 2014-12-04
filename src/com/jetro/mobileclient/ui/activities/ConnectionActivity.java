@@ -148,6 +148,7 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_GO) {
+					KeyboardUtils.hide(ConnectionActivity.this, mHostPortInput, 0);
 					openSocket();
 					return true;
 				}
@@ -321,7 +322,7 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 			mClientChannel.AddListener(ConnectionActivity.this);
 			// Sends CockpitSiteInfoMsg
 			CockpitSiteInfoMsg msgCSI = new CockpitSiteInfoMsg();
-	    	mClientChannel.SendAsync(msgCSI);
+	    	mClientChannel.SendAsyncTimeout(msgCSI, ClientChannel.TIME_OUT);
 	    	startLoadingScreen();
 		}
 	}

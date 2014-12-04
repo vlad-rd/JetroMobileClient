@@ -526,7 +526,7 @@ public class SessionActivity extends Activity
 			Intent intent = getIntent();
 			mConnection = (Connection) intent.getSerializableExtra(Config.Extras.EXTRA_CONNECTION);
 		}
-
+		
 		// show status bar or make fullscreen?
 		if(GlobalSettings.getHideStatusBar())
 			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -784,6 +784,8 @@ public class SessionActivity extends Activity
 	protected void onStop() {
 		Log.d(TAG, TAG + "#onStop(...) ENTER");
 		super.onStop();
+		
+		finish();
 	}
 
 	@Override
@@ -791,8 +793,10 @@ public class SessionActivity extends Activity
 		Log.d(TAG, TAG + "#onDestroy(...) ENTER");
 		super.onDestroy();
 
+		// TODO:
+		// Notice this disconnect timer isn't used by the JetroMobileClient app
 		// Cancel running disconnect timers.
-		GlobalApp.cancelDisconnectTimer();
+//		GlobalApp.cancelDisconnectTimer();
 
 		// Hides the keyboard
 		showKeyboard(false, false);
@@ -805,9 +809,6 @@ public class SessionActivity extends Activity
 
 		// unregister freerdp events broadcast receiver
 		unregisterReceiver(libFreeRDPBroadcastReceiver);
-		
-		// remove all the active tasks
-		mActiveTasks.clear();
 
 		// remove clipboard listener
 		mClipboardManager.removeClipboardboardChangedListener(this);
@@ -817,6 +818,11 @@ public class SessionActivity extends Activity
 			GlobalApp.freeSession(session.getInstance());
 			session = null;
 		}
+		
+		// remove all the active tasks
+		mActiveTasks.clear();
+		
+		stopClientChannel();
 	}
 	
 	@Override
@@ -1689,9 +1695,6 @@ public class SessionActivity extends Activity
 	 */
 	private void disconnectSession() {
 		sendLogoutMsg(GlobalApp.getSessionTicket());
-		stopClientChannel();
-		// remove all the active tasks
-		mActiveTasks.clear();
 		finish();
 	}
 	
