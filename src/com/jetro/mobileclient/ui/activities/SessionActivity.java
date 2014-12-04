@@ -806,6 +806,9 @@ public class SessionActivity extends Activity
 
 		// unregister freerdp events broadcast receiver
 		unregisterReceiver(libFreeRDPBroadcastReceiver);
+		
+		// remove all the active tasks
+		mActiveTasks.clear();
 
 		// remove clipboard listener
 		mClipboardManager.removeClipboardboardChangedListener(this);
@@ -909,9 +912,9 @@ public class SessionActivity extends Activity
 				// small screen device i.e. phone:
 				// Automatic uses the largest side length of the screen and makes a 16:10 resolution setting out of it 				
 				int screenMax = (screen_width > screen_height) ? screen_width : screen_height;			
-				screenSettings.setHeight(screenMax);				
+				screenSettings.setHeight(screenMax);
 				screenSettings.setWidth((int)((float)screenMax * 1.6f));
-			}			
+			}
 		}
 		if (screenSettings.isFitScreen()) {
 			screenSettings.setHeight(screen_height);				

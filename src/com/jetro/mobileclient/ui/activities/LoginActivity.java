@@ -173,7 +173,7 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 //				mUsernameInput.setText("android_user");
 //			}
 //			if (!TextUtils.isEmpty(password)) {
-				mPasswordInput.setText(password);
+//				mPasswordInput.setText(password);
 //			} else {
 //				mPasswordInput.setText("Welcome3!");
 //			}
@@ -364,9 +364,9 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 	
 	private void saveUserCredentials() {
 		// Gets the user credentials from the login form
-		String username = mUsernameInput.getText().toString();
-		String password = mPasswordInput.getText().toString();
-		String domain = mDomainInput.getText().toString();
+		String username = mUsernameInput.getText().toString().trim();
+		String password = mPasswordInput.getText().toString().trim();
+		String domain = mDomainInput.getText().toString().trim();
 		
 		// Saves user credentials to connection
 		mConnection.setUserName(username);

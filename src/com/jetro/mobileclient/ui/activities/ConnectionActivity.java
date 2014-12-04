@@ -15,9 +15,10 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnFocusChangeListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
@@ -34,6 +35,7 @@ import com.jetro.mobileclient.repository.ConnectionsDB;
 import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
 import com.jetro.mobileclient.ui.dialogs.DialogLauncher;
 import com.jetro.mobileclient.utils.FilesUtils;
+import com.jetro.mobileclient.utils.KeyboardUtils;
 import com.jetro.protocol.Core.BaseMsg;
 import com.jetro.protocol.Core.ClassID;
 import com.jetro.protocol.Core.IMessageSubscriber;
@@ -138,14 +140,6 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 		mBaseContentLayout = setBaseContentView(R.layout.activity_new_connection);
 		mConnectionNameInput = (EditText) mBaseContentLayout.findViewById(R.id.connection_name_input);
 		mConnectionNameInput.addTextChangedListener(mInputTextWatcher);
-		mConnectionNameInput.setOnFocusChangeListener(new OnFocusChangeListener() {
-			@Override
-			public void onFocusChange(View v, boolean hasFocus) {
-				if (!hasFocus) {
-					
-				}
-			}
-		});
 		mHostIpInput = (EditText) mBaseContentLayout.findViewById(R.id.host_ip_input);
 		mHostIpInput.addTextChangedListener(mInputTextWatcher);
 		mHostPortInput = (EditText) mBaseContentLayout.findViewById(R.id.host_port_input);
@@ -183,6 +177,13 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 			}
 			
 			mConnectionModeSpinner = (Spinner) mBaseContentLayout.findViewById(R.id.connection_mode_spinner);
+			mConnectionModeSpinner.setOnTouchListener(new OnTouchListener() {
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					KeyboardUtils.hide(ConnectionActivity.this, v, 0);
+					return false;
+				}
+			});
 			mConnectionModeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 						@Override
 						public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -337,7 +338,7 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 			// Gets the login screen image
 			String loginImageName = FilesUtils.getFileName(cockpitSiteInfoMsg.LoginScreenImage, "\\");
 			// Gets the connection name from the input
-			String connectionName = mConnectionNameInput.getText().toString();
+			String connectionName = mConnectionNameInput.getText().toString().trim();
 			// Creates a new host
 			mConnection = new Connection();
 			mConnection.setName(connectionName);
