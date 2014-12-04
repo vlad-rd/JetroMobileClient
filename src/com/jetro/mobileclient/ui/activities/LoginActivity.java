@@ -396,9 +396,9 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		String deviceModel = Build.MODEL;
 		String deviceId = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
 		// Gets the user credentials from the login form
-		String username = mUsernameInput.getText().toString();
-		String password = mPasswordInput.getText().toString();
-		String domain = mDomainInput.getText().toString();
+		String username = mUsernameInput.getText().toString().trim();
+		String password = mPasswordInput.getText().toString().trim();
+		String domain = mDomainInput.getText().toString().trim();
 		// Sends LoginMsg
 		LoginMsg loginMsg = new LoginMsg();
 		loginMsg.name = username;
