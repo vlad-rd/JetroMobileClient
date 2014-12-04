@@ -30,6 +30,7 @@ public class DialogLauncher {
 					intent.addCategory(Intent.CATEGORY_HOME);
 					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 					activity.startActivity(intent);
+					activity.finish();
 				}
 			})
 			.setNegativeButton(R.string.dialog_app_exit_negative_text, null)
