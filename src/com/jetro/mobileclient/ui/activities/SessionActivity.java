@@ -247,6 +247,7 @@ public class SessionActivity extends Activity
 			// Persist zoom change to the current active window
 			float zoomFactor = sessionView.getZoom();
 			mActiveTask.ZoomFactor = zoomFactor;
+			Log.i(TAG, TAG + "#onScaleEnd(...) mActiveTask.ZoomFactor = " + mActiveTask.ZoomFactor);
 			// Sends WindowChangedMsg
 			sendWindowChangedMsg(mActiveTask);
 		}
@@ -1390,6 +1391,7 @@ public class SessionActivity extends Activity
 		if (mActiveTask != null) {
 			mActiveTask.ScrollX = scrollView.getScrollX();
 			mActiveTask.ScrollY = scrollView.getScrollY();
+			Log.i(TAG, TAG + "#onScrollChanged(...) mActiveTask.Scroll = [" + mActiveTask.ScrollX + ", " + mActiveTask.ScrollY + "]");
 		}
 		// Sends WindowChangedMsg
 		sendWindowChangedMsg(mActiveTask);
@@ -1400,7 +1402,7 @@ public class SessionActivity extends Activity
 	@Override
 	public void onSessionViewBeginTouch()
 	{
-		scrollView.setScrollEnabled(false);		
+		scrollView.setScrollEnabled(false);
 	}
 
 	@Override
@@ -1596,11 +1598,11 @@ public class SessionActivity extends Activity
 				int activeTaskPosition = mTasksAdapter.getPosition(mActiveTask);
 				mTasksList.setItemChecked(activeTaskPosition, true);
 				// Restore zoom and scroll
+				scrollView.smoothScrollTo(mActiveTask.ScrollX, mActiveTask.ScrollY);
 				sessionView.setZoom(mActiveTask.ZoomFactor);
-				sessionView.requestLayout();
 				sessionView.requestFocus();
-				scrollView.scrollTo(mActiveTask.ScrollX, mActiveTask.ScrollY);
-				scrollView.requestLayout();
+				Log.i(TAG, "Restore ZOOM & SCROLL \"" + mActiveTask.Title + "\"");
+				Log.i(TAG, "[" + mActiveTask.ZoomFactor + ", " + mActiveTask.ScrollX + ", " + mActiveTask.ScrollY + "]");
 				// Shows the task window
 				activityRootView.setVisibility(View.VISIBLE);
 				// Shows the home button at the tasks drawer
@@ -1697,7 +1699,7 @@ public class SessionActivity extends Activity
 	
 	private void disconnectSession() {
 		// If there aren't any open tasks, logout session
-		if (mTasksAdapter.isEmpty()) {
+		if (mTasksAdapter == null || mTasksAdapter.isEmpty()) {
 			logoutSession();
 		// If there is at least one open task, launch logout session dialog
 		} else {
