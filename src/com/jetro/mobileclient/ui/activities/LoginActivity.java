@@ -272,6 +272,10 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 				break;
 			}
 			case LoginMsg.LOGIN_RESET_PASSWORD: {
+				stopLoadingScreen();
+				// Enables the login button
+				mLoginButton.setEnabled(true);
+				
 				launchResetPasswordActivity(State.PASSWORD_RESET_REQUIRED);
 				break;
 			}
