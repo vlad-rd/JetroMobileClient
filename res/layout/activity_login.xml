@@ -58,7 +58,7 @@
                 android:background="@drawable/black_border_square"
                 android:cursorVisible="true"
                 android:hint="@string/user_name_hint"
-                android:inputType="text"
+                android:inputType="text|textNoSuggestions|textVisiblePassword"
                 android:singleLine="true"
                 android:textCursorDrawable="@null"
                 android:textSize="@dimen/edit_text_label_text_size" />
@@ -145,7 +145,7 @@
                 android:cursorVisible="true"
                 android:hint="@string/domain_hint"
                 android:imeOptions="actionGo"
-                android:inputType="text"
+                android:inputType="text|textNoSuggestions|textVisiblePassword"
                 android:singleLine="true"
                 android:textCursorDrawable="@null"
                 android:textSize="@dimen/edit_text_label_text_size" />

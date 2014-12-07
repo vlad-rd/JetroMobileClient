@@ -187,12 +187,14 @@ public class ConnectionsListActivity extends HeaderActivity {
 								intent.putExtra(Config.Extras.EXTRA_IS_WAN, false);
 								intent.putExtra(Config.Extras.EXTRA_CONNECTION, connection);
 								startActivity(intent);
+								dialog.dismiss();
 							// Connection type WAN
 							} else if (which == DialogInterface.BUTTON_NEGATIVE) {
 								Intent intent = new Intent(ConnectionsListActivity.this, LoginActivity.class);
 								intent.putExtra(Config.Extras.EXTRA_IS_WAN, true);
 								intent.putExtra(Config.Extras.EXTRA_CONNECTION, connection);
 								startActivity(intent);
+								dialog.dismiss();
 							}
 						}
 					});
@@ -246,6 +248,7 @@ public class ConnectionsListActivity extends HeaderActivity {
 									Intent intent = new Intent(ConnectionsListActivity.this, ConnectionActivity.class);
 									intent.putExtra(Config.Extras.EXTRA_CONNECTION_ACTIVITY_STATE, ConnectionActivity.State.ADD_CONNECTION);
 									startActivity(intent);
+									dialog.dismiss();
 									finish();
 								} else {
 									notifyDataSetChanged();
