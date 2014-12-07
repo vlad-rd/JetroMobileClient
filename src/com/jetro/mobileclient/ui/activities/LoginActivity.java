@@ -30,6 +30,7 @@ import com.jetro.mobileclient.repository.ConnectionsDB;
 import com.jetro.mobileclient.ui.activities.ResetPasswordActivity.State;
 import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
 import com.jetro.mobileclient.ui.dialogs.DialogLauncher;
+import com.jetro.mobileclient.utils.ClientChannelUtils;
 import com.jetro.mobileclient.utils.FilesUtils;
 import com.jetro.mobileclient.utils.KeyboardUtils;
 import com.jetro.protocol.Core.BaseMsg;
@@ -51,7 +52,6 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 	private ClientChannel mClientChannel;
 	
 	private Connection mConnection;
-	private boolean mIsWAN;
 	
 	private View mBaseContentLayout;
 	private EditText mUsernameInput;
@@ -98,12 +98,10 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		if (savedInstanceState != null) {
 			// Restore value of members from saved state
 			mConnection = (Connection) savedInstanceState.getSerializable(Config.Extras.EXTRA_CONNECTION);
-			mIsWAN = savedInstanceState.getBoolean(Config.Extras.EXTRA_IS_WAN);
 		} else {
 			// Probably initialize members with default values for a new instance
 			Intent intent = getIntent();
 			mConnection = (Connection) intent.getSerializableExtra(Config.Extras.EXTRA_CONNECTION);
-			mIsWAN = intent.getBooleanExtra(Config.Extras.EXTRA_IS_WAN, true);
 		}
 		
 		setHeaderTitleText(R.string.header_title_login);
@@ -163,21 +161,21 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 			String domain = mConnection.getDomain();
 			
 			// TODO: refactor this after test
-//			if (!TextUtils.isEmpty(userName)) {
+			if (!TextUtils.isEmpty(userName)) {
 				mUsernameInput.setText(userName);
-//			} else {
-//				mUsernameInput.setText("android_user");
-//			}
-//			if (!TextUtils.isEmpty(password)) {
-//				mPasswordInput.setText(password);
-//			} else {
-//				mPasswordInput.setText("Welcome3!");
-//			}
-//			if (!TextUtils.isEmpty(domain)) {
+			} else {
+				mUsernameInput.setText("android_user");
+			}
+			if (!TextUtils.isEmpty(password)) {
+				mPasswordInput.setText(password);
+			} else {
+				mPasswordInput.setText("Welcome3!");
+			}
+			if (!TextUtils.isEmpty(domain)) {
 				mDomainInput.setText(domain);
-//			} else {
-//				mDomainInput.setText("jp");
-//			}
+			} else {
+				mDomainInput.setText("jp");
+			}
 			
 			Bitmap loginImage = FilesUtils.readImage(mConnection.getLoginImageName());
 			if (loginImage != null) {
@@ -356,16 +354,7 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 	public void ConnectionIsBroken() {
 		Log.d(TAG, TAG + "#ConnectionIsBroken(...) ENTER");
 		
-		stopClientChannel();
-	}
-	
-	private void stopClientChannel() {
-		// free client channel
-		if (mClientChannel != null) {
-			mClientChannel.RemoveListener(LoginActivity.this);
-			mClientChannel.Stop();
-			mClientChannel = null;
-		}
+		ClientChannelUtils.stopClientChannel(LoginActivity.this, mClientChannel);
 	}
 	
 	private void saveUserCredentials() {
@@ -415,14 +404,27 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		
 		// TODO: client channel connection to host fallback logic
 		ConnectionPoint connectionPoint = null;
-		if (mIsWAN) {
+		switch (mConnection.getPreferedConnectionMode()) {
+		case SSL:
 			connectionPoint = mConnection.getWANs().iterator().next();
-		} else {
+			break;
+		case DIRECT:
 			connectionPoint = mConnection.getLANs().iterator().next();
+			break;
+		default:
+			throw new IllegalStateException(
+					"Invalid connection.getPreferedConnectionMode() = "
+							+ mConnection.getPreferedConnectionMode());
 		}
+		
 		Log.i(TAG, TAG + "#sendLoginMsg(...) Connecting to HOST IP: " + connectionPoint.IP);
 		Log.i(TAG, TAG + "#sendLoginMsg(...) Connecting to HOST PORT: " + connectionPoint.Port);
-		boolean isCreated = ClientChannel.Create(connectionPoint.IP, connectionPoint.Port, ClientChannel.TIME_OUT);
+		Log.i(TAG, TAG + "#sendLoginMsg(...) Connecting to CONNECTION MODE: " + connectionPoint.ConnectionMode);
+		
+		boolean isCreated = ClientChannelUtils.createClientChannel(
+				connectionPoint.IP,
+				connectionPoint.Port,
+				connectionPoint.ConnectionMode);
 		Log.i(TAG, TAG + "#sendLoginMsg(...) ClientChannel isCreated = " + isCreated);
 		if (isCreated) {
 			mClientChannel = ClientChannel.getInstance();

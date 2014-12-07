@@ -25,6 +25,7 @@ import com.jetro.mobileclient.model.beans.Connection;
 import com.jetro.mobileclient.repository.ConnectionsDB;
 import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
 import com.jetro.mobileclient.ui.dialogs.DialogLauncher;
+import com.jetro.mobileclient.utils.ClientChannelUtils;
 import com.jetro.mobileclient.utils.KeyboardUtils;
 import com.jetro.protocol.Core.BaseMsg;
 import com.jetro.protocol.Core.ClassID;
@@ -285,19 +286,10 @@ public class ResetPasswordActivity extends HeaderActivity implements IMessageSub
 	public void ConnectionIsBroken() {
 		Log.d(TAG, TAG + "#ConnectionIsBroken(...) ENTER");
 		
-		stopClientChannel();
+		ClientChannelUtils.stopClientChannel(ResetPasswordActivity.this, mClientChannel);
 		finish();
 	}
 	
-	private void stopClientChannel() {
-		// free client channel
-		if (mClientChannel != null) {
-			mClientChannel.RemoveListener(ResetPasswordActivity.this);
-			mClientChannel.Stop();
-			mClientChannel = null;
-		}
-	}
-
 	private void resetPassword() {
 		Log.d(TAG, TAG + "#resetPassword(...) ENTER");
 		

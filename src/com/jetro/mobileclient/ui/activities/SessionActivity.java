@@ -85,6 +85,7 @@ import com.jetro.mobileclient.model.beans.Connection;
 import com.jetro.mobileclient.ui.adapters.TasksAdapter;
 import com.jetro.mobileclient.ui.dialogs.DialogLauncher;
 import com.jetro.mobileclient.ui.widgets.SessionView;
+import com.jetro.mobileclient.utils.ClientChannelUtils;
 import com.jetro.protocol.Core.BaseMsg;
 import com.jetro.protocol.Core.ClassID;
 import com.jetro.protocol.Core.IMessageSubscriber;
@@ -823,7 +824,7 @@ public class SessionActivity extends Activity
 		// remove all the active tasks
 		mActiveTasks.clear();
 		
-		stopClientChannel();
+		ClientChannelUtils.stopClientChannel(SessionActivity.this, mClientChannel);
 	}
 	
 	@Override
@@ -1688,7 +1689,7 @@ public class SessionActivity extends Activity
 	public void ConnectionIsBroken() {
 		Log.d(TAG, TAG + "#ConnectionIsBroken(...) ENTER");
 		
-		stopClientChannel();
+		ClientChannelUtils.stopClientChannel(SessionActivity.this, mClientChannel);
 		finish();
 	}
 	
@@ -1720,15 +1721,6 @@ public class SessionActivity extends Activity
 					}
 				}
 			});
-		}
-	}
-	
-	private void stopClientChannel() {
-		// free client channel
-		if (mClientChannel != null) {
-			mClientChannel.RemoveListener(SessionActivity.this);
-			mClientChannel.Stop();
-			mClientChannel = null;
 		}
 	}
 	

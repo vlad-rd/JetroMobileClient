@@ -3,8 +3,6 @@
  */
 package com.jetro.mobileclient.ui.activities;
 
-import java.util.Iterator;
-
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -34,6 +32,7 @@ import com.jetro.mobileclient.model.beans.Connection;
 import com.jetro.mobileclient.repository.ConnectionsDB;
 import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
 import com.jetro.mobileclient.ui.dialogs.DialogLauncher;
+import com.jetro.mobileclient.utils.ClientChannelUtils;
 import com.jetro.mobileclient.utils.FilesUtils;
 import com.jetro.mobileclient.utils.KeyboardUtils;
 import com.jetro.protocol.Core.BaseMsg;
@@ -42,6 +41,7 @@ import com.jetro.protocol.Core.IMessageSubscriber;
 import com.jetro.protocol.Core.Net.ClientChannel;
 import com.jetro.protocol.Protocols.Controller.CockpitSiteInfoMsg;
 import com.jetro.protocol.Protocols.Controller.ConnectionPoint;
+import com.jetro.protocol.Protocols.Controller.ConnectionPoint.ConnectionModeType;
 import com.jetro.protocol.Protocols.Controller.LoginScreenImageMsg;
 import com.jetro.protocol.Protocols.Generic.ErrorMsg;
 
@@ -162,6 +162,8 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 		mConnectButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				// Disables the login button
+				mConnectButton.setEnabled(false);
 				openSocket();
 			}
 		});
@@ -203,9 +205,9 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 			mDividerHorizontal.setVisibility(View.GONE);
 			
 			// TODO: remove this after debug
-//			mConnectionNameInput.setText("Test environment");
-//			mHostIpInput.setText("212.199.106.213");
-//			mHostPortInput.setText("13000");
+			mConnectionNameInput.setText("Test environment");
+			mHostIpInput.setText("212.199.106.213");
+			mHostPortInput.setText("13000");
 			break;
 		case VIEW_CONNECTION:
 			// Sets the header appName
@@ -238,13 +240,11 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 			
 			// Fills the input fields
 			mConnectionNameInput.setText(mConnection.getName());
-			Iterator<ConnectionPoint> iterator = mConnection.getConnectionPoints().iterator();
-			if (iterator.hasNext()) {
-				ConnectionPoint lastConnectionPoint = iterator.next();
+			ConnectionPoint lastConnectionPoint = mConnection.getLastConnectionPoint();
+			if (lastConnectionPoint != null) {
 				mHostIpInput.setText(lastConnectionPoint.IP);
 				mHostPortInput.setText(String.valueOf(lastConnectionPoint.Port));
-				String connectionModeText = (lastConnectionPoint.SSL) ? mConnectionsModes[1] : mConnectionsModes[0];
-				mConnectionModeInput.setText(connectionModeText);
+				mConnectionModeInput.setText(lastConnectionPoint.ConnectionMode.toString());
 			}
 			
 			break;
@@ -303,29 +303,6 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 
 		return areInputFieldsValid;
 	}
-	
-	/**
-	 * Connects to the Cockpit server by open socket.
-	 */
-	private void openSocket() {
-		Log.d(TAG, TAG + "#openSocket(...) ENTER");
-		
-		String hostIp = mHostIpInput.getText().toString();
-		int hostPort = Integer.valueOf(mHostPortInput.getText().toString());
-		
-		Log.i(TAG, "ConnectionActivity#openSocket(...) host: " + hostIp);
-		Log.i(TAG, "ConnectionActivity#openSocket(...) port: " + hostPort);
-		
-		boolean isCreated = ClientChannel.Create(hostIp, hostPort, ClientChannel.TIME_OUT);
-		if (isCreated) {
-			mClientChannel = ClientChannel.getInstance();
-			mClientChannel.AddListener(ConnectionActivity.this);
-			// Sends CockpitSiteInfoMsg
-			CockpitSiteInfoMsg msgCSI = new CockpitSiteInfoMsg();
-	    	mClientChannel.SendAsyncTimeout(msgCSI, ClientChannel.TIME_OUT);
-	    	startLoadingScreen();
-		}
-	}
 
 	@Override
 	public void ProcessMsg(BaseMsg msg) {
@@ -338,11 +315,14 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 			ConnectionPoint[] connectionPoints = cockpitSiteInfoMsg.ConnectionPoints;
 			// Gets the login screen image
 			String loginImageName = FilesUtils.getFileName(cockpitSiteInfoMsg.LoginScreenImage, "\\");
-			// Gets the connection name from the input
+			// Gets the connection details from the input fields
 			String connectionName = mConnectionNameInput.getText().toString().trim();
-			// Creates a new host
+			String connectionModeText = getConnectionModeText();
+			ConnectionModeType connectionMode = ConnectionModeType.valueOf(connectionModeText);
+			// Creates a new connection
 			mConnection = new Connection();
 			mConnection.setName(connectionName);
+			mConnection.setPreferedConnectionMode(connectionMode);
 			mConnection.setLoginImageName(loginImageName);
 			for (ConnectionPoint cp : connectionPoints) {
 				mConnection.addConnectionPoint(cp);
@@ -387,21 +367,30 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 						});
 				break;
 			}
+			
+			// Enables the connect button
+			mConnectButton.setEnabled(true);
 		}
 	}
 	
 	@Override
 	public void ConnectionIsBroken() {
-		// Do nothing
+		Log.d(TAG, TAG + "#ConnectionIsBroken(...) ENTER");
+		
+		ClientChannelUtils.stopClientChannel(ConnectionActivity.this, mClientChannel);
 	}
 	
-	private void stopClientChannel() {
-		// free client channel
-		if (mClientChannel != null) {
-			mClientChannel.RemoveListener(ConnectionActivity.this);
-			mClientChannel.Stop();
-			mClientChannel = null;
+	private String getConnectionModeText() {
+		String connectionModeText = "";
+		switch (mState) {
+		case ADD_CONNECTION:
+			connectionModeText = (String) mConnectionModeSpinner.getSelectedItem();
+			break;
+		case VIEW_CONNECTION:
+			connectionModeText = mConnectionModeInput.getText().toString();
+			break;
 		}
+		return connectionModeText;
 	}
 	
 	private void launchLoginActivity() {
@@ -413,6 +402,53 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 			finish();
 		}
 		stopLoadingScreen();
+	}
+	
+	/**
+	 * Connects to the Cockpit server by open socket.
+	 */
+	private void openSocket() {
+		Log.d(TAG, TAG + "#openSocket(...) ENTER");
+		
+		startLoadingScreen();
+		
+		String hostIp = mHostIpInput.getText().toString();
+		int hostPort = Integer.valueOf(mHostPortInput.getText().toString());
+		String connectionModeText = getConnectionModeText();
+		ConnectionModeType connectionMode = ConnectionModeType.valueOf(connectionModeText);
+		
+		Log.i(TAG, TAG + "#openSocket(...) Connecting to HOST IP: " + hostIp);
+		Log.i(TAG, TAG + "#openSocket(...) Connecting to HOST PORT: " + hostPort);
+		Log.i(TAG, TAG + "#openSocket(...) Connecting to CONNECTION MODE: " + connectionMode);
+		
+		boolean isCreated = ClientChannelUtils.createClientChannel(hostIp, hostPort, connectionMode);
+		Log.i(TAG, TAG + "#openSocket(...) ClientChannel isCreated = " + isCreated);
+		if (isCreated) {
+			mClientChannel = ClientChannel.getInstance();
+			if (mClientChannel == null) {
+				Log.i(TAG, TAG + "#openSocket(...) mClientChannel = " + mClientChannel);
+				stopLoadingScreen();
+				launchConnectionIssueDialog();
+				return;
+			}
+			mClientChannel.AddListener(ConnectionActivity.this);
+			// Sends CockpitSiteInfoMsg
+			CockpitSiteInfoMsg msgCSI = new CockpitSiteInfoMsg();
+	    	mClientChannel.SendAsyncTimeout(msgCSI, ClientChannel.TIME_OUT);
+		} else {
+			stopLoadingScreen();
+			launchConnectionIssueDialog();
+		}
+	}
+	
+	private void launchConnectionIssueDialog() {
+		DialogLauncher.launchNetworkConnectionIssueDialog(ConnectionActivity.this, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// Enables the login button
+				mConnectButton.setEnabled(true);
+			}
+		});
 	}
 
 }

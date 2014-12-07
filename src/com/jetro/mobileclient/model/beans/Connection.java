@@ -4,12 +4,14 @@
 package com.jetro.mobileclient.model.beans;
 
 import java.io.Serializable;
+import java.security.InvalidParameterException;
 import java.util.HashSet;
 import java.util.Set;
 
 import com.google.gson.Gson;
 import com.jetro.mobileclient.model.helpers.GsonHelper;
 import com.jetro.protocol.Protocols.Controller.ConnectionPoint;
+import com.jetro.protocol.Protocols.Controller.ConnectionPoint.ConnectionModeType;
 
 /**
  * @author ran.h
@@ -26,6 +28,8 @@ public class Connection implements Serializable {
 	private String password;
 	
 	private String domain;
+	
+	private ConnectionModeType preferedConnectionMode;
 	
 	private String loginImageName;
 	
@@ -71,6 +75,14 @@ public class Connection implements Serializable {
 		this.domain = domain;
 	}
 
+	public ConnectionModeType getPreferedConnectionMode() {
+		return preferedConnectionMode;
+	}
+
+	public void setPreferedConnectionMode(ConnectionModeType preferedConnectionMode) {
+		this.preferedConnectionMode = preferedConnectionMode;
+	}
+
 	public String getLoginImageName() {
 		return loginImageName;
 	}
@@ -111,20 +123,28 @@ public class Connection implements Serializable {
 	}
 	
 	public boolean addConnectionPoint(ConnectionPoint connectionPoint) {
-		boolean isWan = connectionPoint.WAN;
-		if (isWan) {
+		switch (connectionPoint.ConnectionMode) {
+		case SSL:
 			return WANs.add(connectionPoint);
-		} else {
+		case DIRECT:
 			return LANs.add(connectionPoint);
+		default:
+			throw new InvalidParameterException(
+					"Invalid parameter connectionPoint.ConnectionMode = "
+							+ connectionPoint.ConnectionMode);
 		}
 	}
 	
 	public boolean removeConnectionPoint(ConnectionPoint connectionPoint) {
-		boolean isWan = connectionPoint.WAN;
-		if (isWan) {
+		switch (connectionPoint.ConnectionMode) {
+		case SSL:
 			return WANs.remove(connectionPoint);
-		} else {
+		case DIRECT:
 			return LANs.remove(connectionPoint);
+		default:
+			throw new InvalidParameterException(
+					"Invalid parameter connectionPoint.ConnectionMode = "
+							+ connectionPoint.ConnectionMode);
 		}
 	}
 

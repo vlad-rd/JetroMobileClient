@@ -71,8 +71,8 @@
     
     <!-- Arrays -->
     <string-array name="connection_mode_options">
-        <item>Direct</item>
         <item>SSL</item>
+        <item>DIRECT</item>
     </string-array>
     <string-array name="connection_actions_options">
         <item>Connect</item>
