@@ -97,6 +97,17 @@ public class DialogLauncher {
 				.show();
 	}
 	
+	public static void launchRDPSessionLogoutDialog(Activity activity,
+			String message,
+			DialogInterface.OnClickListener buttonClickListener) {
+		new AlertDialog.Builder(activity)
+				.setCancelable(false)
+				.setMessage(message)
+				.setPositiveButton(R.string.dialog_rdp_session_logout_positive_text, buttonClickListener)
+				.setNegativeButton(R.string.dialog_rdp_session_logout_negative_text, buttonClickListener)
+				.show();
+	}
+	
 	public static void launchServerErrorTwoButtonsDialog(Activity activity,
 			String message,
 			int positiveTextResId,

@@ -1690,12 +1690,35 @@ public class SessionActivity extends Activity
 		finish();
 	}
 	
-	/**
-	 * Destroy all the open tasks, then logout session.
-	 */
-	private void disconnectSession() {
+	private void logoutSession() {
 		sendLogoutMsg(GlobalApp.getSessionTicket());
 		finish();
+	}
+	
+	private void disconnectSession() {
+		// If there aren't any open tasks, logout session
+		if (mTasksAdapter.isEmpty()) {
+			logoutSession();
+		// If there is at least one open task, launch logout session dialog
+		} else {
+			int runningAppsCount = mTasksAdapter.getCount();
+			StringBuilder sb = new StringBuilder(); 
+			for (int i=0; i < runningAppsCount; ++i) {
+				Window task = mTasksAdapter.getItem(i);
+				sb.append(i+1).append(". ").append(task.Title).append("\n");
+			}
+			String runningAppsList = sb.toString();
+			String message = getString(R.string.dialog_rdp_session_logout_message);
+			message = String.format(message, runningAppsCount, runningAppsList);
+			DialogLauncher.launchRDPSessionLogoutDialog(SessionActivity.this, message, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					if (which == DialogInterface.BUTTON_POSITIVE) {
+						logoutSession();
+					}
+				}
+			});
+		}
 	}
 	
 	private void stopClientChannel() {
