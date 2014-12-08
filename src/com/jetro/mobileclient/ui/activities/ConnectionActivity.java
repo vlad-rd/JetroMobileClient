@@ -37,6 +37,7 @@ import com.jetro.mobileclient.utils.FilesUtils;
 import com.jetro.mobileclient.utils.KeyboardUtils;
 import com.jetro.protocol.Core.BaseMsg;
 import com.jetro.protocol.Core.ClassID;
+import com.jetro.protocol.Core.IConnectionCreationSubscriber;
 import com.jetro.protocol.Core.IMessageSubscriber;
 import com.jetro.protocol.Core.Net.ClientChannel;
 import com.jetro.protocol.Protocols.Controller.CockpitSiteInfoMsg;
@@ -49,7 +50,7 @@ import com.jetro.protocol.Protocols.Generic.ErrorMsg;
  * @author ran.h
  *
  */
-public class ConnectionActivity extends HeaderActivity implements IMessageSubscriber {
+public class ConnectionActivity extends HeaderActivity implements IConnectionCreationSubscriber, IMessageSubscriber {
 	
 	private static final String TAG = ConnectionActivity.class.getSimpleName();
 	
@@ -305,6 +306,18 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 	}
 
 	@Override
+	public void ConnectionCreated(boolean result, final String message) {
+		Log.d(TAG, TAG + "#ConnectionCreated(...) ENTER");
+		
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				DialogLauncher.launchServerErrorOneButtonDialog(ConnectionActivity.this, message, null);
+			}
+		});
+	}
+	
+	@Override
 	public void ProcessMsg(BaseMsg msg) {
 		Log.i(TAG, TAG + "#ProcessMsg(...)\n" + msg.getClass().getSimpleName() + "\n" + msg.serializeJson());
 		
@@ -389,7 +402,7 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 	public void ConnectionIsBroken() {
 		Log.d(TAG, TAG + "#ConnectionIsBroken(...) ENTER");
 		
-		ClientChannelUtils.stopClientChannel(ConnectionActivity.this, mClientChannel);
+		ClientChannelUtils.stopClientChannel(mClientChannel, ConnectionActivity.this);
 	}
 	
 	private String getConnectionModeText() {
@@ -433,7 +446,8 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 		Log.i(TAG, TAG + "#openSocket(...) Connecting to HOST PORT: " + hostPort);
 		Log.i(TAG, TAG + "#openSocket(...) Connecting to CONNECTION MODE: " + connectionMode);
 		
-		boolean isCreated = ClientChannelUtils.createClientChannel(hostIp, hostPort, connectionMode);
+		boolean isCreated = ClientChannelUtils.createClientChannel(
+				hostIp, hostPort, connectionMode, ConnectionActivity.this);
 		Log.i(TAG, TAG + "#openSocket(...) ClientChannel isCreated = " + isCreated);
 		if (isCreated) {
 			mClientChannel = ClientChannel.getInstance();

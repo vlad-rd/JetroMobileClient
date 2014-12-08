@@ -824,7 +824,7 @@ public class SessionActivity extends Activity
 		// remove all the active tasks
 		mActiveTasks.clear();
 		
-		ClientChannelUtils.stopClientChannel(SessionActivity.this, mClientChannel);
+		ClientChannelUtils.stopClientChannel(mClientChannel, SessionActivity.this);
 	}
 	
 	@Override
@@ -1691,7 +1691,7 @@ public class SessionActivity extends Activity
 	public void ConnectionIsBroken() {
 		Log.d(TAG, TAG + "#ConnectionIsBroken(...) ENTER");
 		
-		ClientChannelUtils.stopClientChannel(SessionActivity.this, mClientChannel);
+		ClientChannelUtils.stopClientChannel(mClientChannel, SessionActivity.this);
 		finish();
 	}
 	

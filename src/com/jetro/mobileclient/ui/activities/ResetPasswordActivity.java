@@ -289,7 +289,7 @@ public class ResetPasswordActivity extends HeaderActivity implements IMessageSub
 	public void ConnectionIsBroken() {
 		Log.d(TAG, TAG + "#ConnectionIsBroken(...) ENTER");
 		
-		ClientChannelUtils.stopClientChannel(ResetPasswordActivity.this, mClientChannel);
+		ClientChannelUtils.stopClientChannel(mClientChannel, ResetPasswordActivity.this);
 		finish();
 	}
 	

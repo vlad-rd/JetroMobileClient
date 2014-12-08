@@ -35,6 +35,7 @@ import com.jetro.mobileclient.utils.FilesUtils;
 import com.jetro.mobileclient.utils.KeyboardUtils;
 import com.jetro.protocol.Core.BaseMsg;
 import com.jetro.protocol.Core.ClassID;
+import com.jetro.protocol.Core.IConnectionCreationSubscriber;
 import com.jetro.protocol.Core.IMessageSubscriber;
 import com.jetro.protocol.Core.Net.ClientChannel;
 import com.jetro.protocol.Protocols.Controller.ConnectionPoint;
@@ -45,7 +46,7 @@ import com.jetro.protocol.Protocols.Generic.ErrorMsg;
  * @author ran.h
  *
  */
-public class LoginActivity extends HeaderActivity implements IMessageSubscriber {
+public class LoginActivity extends HeaderActivity implements IConnectionCreationSubscriber, IMessageSubscriber {
 	
 	private static final String TAG = LoginActivity.class.getSimpleName();
 	
@@ -254,7 +255,19 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		startLoadingScreen();
 		sendLoginMsg();
 	}
-
+	
+	@Override
+	public void ConnectionCreated(boolean result, final String message) {
+		Log.d(TAG, TAG + "#ConnectionCreated(...) ENTER");
+	
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				DialogLauncher.launchServerErrorOneButtonDialog(LoginActivity.this, message, null);
+			}
+		});
+	}
+	
 	@Override
 	public void ProcessMsg(BaseMsg msg) {
 		Log.i(TAG, TAG + "#ProcessMsg(...)\n" + msg.getClass().getSimpleName() + "\n" + msg.serializeJson());
@@ -365,7 +378,7 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 	public void ConnectionIsBroken() {
 		Log.d(TAG, TAG + "#ConnectionIsBroken(...) ENTER");
 		
-		ClientChannelUtils.stopClientChannel(LoginActivity.this, mClientChannel);
+		ClientChannelUtils.stopClientChannel(mClientChannel, LoginActivity.this);
 	}
 	
 	private void saveUserCredentials() {
@@ -435,7 +448,8 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 		boolean isCreated = ClientChannelUtils.createClientChannel(
 				connectionPoint.IP,
 				connectionPoint.Port,
-				connectionPoint.ConnectionMode);
+				connectionPoint.ConnectionMode,
+				LoginActivity.this);
 		Log.i(TAG, TAG + "#sendLoginMsg(...) ClientChannel isCreated = " + isCreated);
 		if (isCreated) {
 			mClientChannel = ClientChannel.getInstance();
