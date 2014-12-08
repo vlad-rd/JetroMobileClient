@@ -207,7 +207,7 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 			// TODO: remove this after debug
 			mConnectionNameInput.setText("Test environment");
 			mHostIpInput.setText("212.199.106.213");
-			mHostPortInput.setText("13000");
+			mHostPortInput.setText("443");
 			break;
 		case VIEW_CONNECTION:
 			// Sets the header appName
@@ -355,6 +355,17 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 			stopLoadingScreen();
 			ErrorMsg errorMsg = (ErrorMsg) msg;
 			switch (errorMsg.Err) {
+			case ErrorMsg.ERROR_TIMEOUT:
+				DialogLauncher.launchServerErrorOneButtonDialog(ConnectionActivity.this,
+						errorMsg.Description, new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								// Enables the login button
+								mConnectButton.setEnabled(true);
+								dialog.dismiss();
+							}
+						});
+				break;
 			case ErrorMsg.ERROR_UNEXPECTED:
 				DialogLauncher.launchServerErrorTwoButtonsDialog(ConnectionActivity.this,
 						errorMsg.Description, new DialogInterface.OnClickListener() {
