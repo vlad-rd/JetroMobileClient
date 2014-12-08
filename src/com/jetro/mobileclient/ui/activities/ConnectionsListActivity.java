@@ -148,7 +148,6 @@ public class ConnectionsListActivity extends HeaderActivity {
 					new OnClickListener() {
 						@Override
 						public void onClick(View v) {
-//							launchConnectionTypesDialog(connection);
 							Intent intent = new Intent(ConnectionsListActivity.this, LoginActivity.class);
 							intent.putExtra(Config.Extras.EXTRA_CONNECTION, connection);
 							startActivity(intent);
@@ -176,28 +175,6 @@ public class ConnectionsListActivity extends HeaderActivity {
 			
 			return convertView;
 		}
-		
-//		private void launchConnectionTypesDialog(final Connection connection) {
-//			Log.d(TAG, TAG + "#launchConnectionTypesDialog(...) ENTER");
-//			
-//			DialogLauncher.launchConnectionTypesDialog(
-//					ConnectionsListActivity.this,
-//					new DialogInterface.OnClickListener() {
-//						public void onClick(DialogInterface dialog, int which) {
-//							// Connection type LAN
-//							if (which == DialogInterface.BUTTON_POSITIVE) {
-//								Intent intent = new Intent(ConnectionsListActivity.this, LoginActivity.class);
-//								intent.putExtra(Config.Extras.EXTRA_CONNECTION, connection);
-//								startActivity(intent);
-//							// Connection type WAN
-//							} else if (which == DialogInterface.BUTTON_NEGATIVE) {
-//								Intent intent = new Intent(ConnectionsListActivity.this, LoginActivity.class);
-//								intent.putExtra(Config.Extras.EXTRA_CONNECTION, connection);
-//								startActivity(intent);
-//							}
-//						}
-//					});
-//		}
 		
 		private void launchConnectionActionsDialog(final Connection host) {
 			Log.d(TAG, TAG + "#launchConnectionActionsDialog(...) ENTER");
@@ -247,6 +224,7 @@ public class ConnectionsListActivity extends HeaderActivity {
 									Intent intent = new Intent(ConnectionsListActivity.this, ConnectionActivity.class);
 									intent.putExtra(Config.Extras.EXTRA_CONNECTION_ACTIVITY_STATE, ConnectionActivity.State.ADD_CONNECTION);
 									startActivity(intent);
+									dialog.dismiss();
 									finish();
 								} else {
 									notifyDataSetChanged();

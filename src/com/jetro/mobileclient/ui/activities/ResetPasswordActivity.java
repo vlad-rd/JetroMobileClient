@@ -241,6 +241,7 @@ public class ResetPasswordActivity extends HeaderActivity implements IMessageSub
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							if (which == DialogInterface.BUTTON_NEGATIVE) {
+								dialog.dismiss();
 								finish();
 							}
 						}
@@ -254,6 +255,7 @@ public class ResetPasswordActivity extends HeaderActivity implements IMessageSub
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							if (which == DialogInterface.BUTTON_NEGATIVE) {
+								dialog.dismiss();
 								launchSessionActivity();
 							}
 						}
@@ -266,6 +268,7 @@ public class ResetPasswordActivity extends HeaderActivity implements IMessageSub
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
 								if (which == DialogInterface.BUTTON_NEGATIVE) {
+									dialog.dismiss();
 									finish();
 								}
 							}

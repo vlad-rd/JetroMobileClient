@@ -61,9 +61,18 @@
     <string name="dialog_cancel_login_negative_text">NO</string>
     <string name="dialog_network_connection_issue_message">Please check your network connection?</string>
     <string name="dialog_network_connection_issue_positive_text">OK</string>
-    <string name="dialog_rdp_session_logout_message">You have %1$d running applications,\nOn exit unsaved data will be lost.\nRunning Applications:\n%2$s</string>
+    <string name="dialog_rdp_session_logout_message">You have %1$d running %2$s:\n%3$s\n\nOn exit, unsaved data will be lost.</string>
+    <plurals
+        name="plural_applications">
+        <item quantity="zero">application</item>
+        <item quantity="one">application</item>
+        <item quantity="two">applications</item>
+        <item quantity="few">applications</item>
+        <item quantity="many">applications</item>
+        <item quantity="other">applications</item>
+    </plurals>
     <string name="dialog_rdp_session_logout_positive_text">EXIT</string>
-    <string name="dialog_rdp_session_logout_negative_text">STAY</string>
+    <string name="dialog_rdp_session_logout_negative_text">CANCEL</string>
     <string name="dialog_server_error_normal_text">OK</string>
     <string name="dialog_server_error_positive_text">RETRY</string>
     <string name="dialog_server_error_negative_text_1">CANCEL</string>

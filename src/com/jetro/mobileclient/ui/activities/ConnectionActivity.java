@@ -361,6 +361,7 @@ public class ConnectionActivity extends HeaderActivity implements IMessageSubscr
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
 								if (which == DialogInterface.BUTTON_NEGATIVE) {
+									dialog.dismiss();
 									finish();
 								}
 							}

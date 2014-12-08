@@ -1666,6 +1666,7 @@ public class SessionActivity extends Activity
 						errorMsg.Description, new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
 								finish();
 							}
 						});
@@ -1676,6 +1677,7 @@ public class SessionActivity extends Activity
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
 								if (which == DialogInterface.BUTTON_NEGATIVE) {
+									dialog.dismiss();
 									finish();
 								}
 							}
@@ -1705,6 +1707,7 @@ public class SessionActivity extends Activity
 		// If there is at least one open task, launch logout session dialog
 		} else {
 			int runningAppsCount = mTasksAdapter.getCount();
+			String applicationsPlurals = getResources().getQuantityString(R.plurals.plural_applications, runningAppsCount);
 			StringBuilder sb = new StringBuilder(); 
 			for (int i=0; i < runningAppsCount; ++i) {
 				Window task = mTasksAdapter.getItem(i);
@@ -1712,11 +1715,12 @@ public class SessionActivity extends Activity
 			}
 			String runningAppsList = sb.toString();
 			String message = getString(R.string.dialog_rdp_session_logout_message);
-			message = String.format(message, runningAppsCount, runningAppsList);
+			message = String.format(message, runningAppsCount, applicationsPlurals, runningAppsList);
 			DialogLauncher.launchRDPSessionLogoutDialog(SessionActivity.this, message, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					if (which == DialogInterface.BUTTON_POSITIVE) {
+						dialog.dismiss();
 						logoutSession();
 					}
 				}

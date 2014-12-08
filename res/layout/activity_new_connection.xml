@@ -56,7 +56,7 @@
                 android:layout_height="wrap_content"
                 android:cursorVisible="true"
                 android:hint="@string/connection_name_hint"
-                android:inputType="text"
+                android:inputType="text|textNoSuggestions|textVisiblePassword"
                 android:singleLine="true"
                 android:textCursorDrawable="@null"
                 android:textSize="@dimen/edit_text_label_text_size" />
@@ -199,7 +199,7 @@
                 android:layout_height="wrap_content"
                 android:cursorVisible="true"
                 android:hint="@string/connection_mode_hint"
-                android:inputType="date"
+                android:inputType="text"
                 android:singleLine="true"
                 android:textCursorDrawable="@null"
                 android:textSize="@dimen/edit_text_label_text_size" />

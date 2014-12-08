@@ -138,6 +138,7 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 									Intent intent = new Intent(LoginActivity.this,
 											ConnectionsListActivity.class);
 									startActivity(intent);
+									dialog.dismiss();
 									finish();
 								}
 							}
@@ -269,6 +270,10 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 				break;
 			}
 			case LoginMsg.LOGIN_RESET_PASSWORD: {
+				stopLoadingScreen();
+				// Enables the login button
+				mLoginButton.setEnabled(true);
+				
 				launchResetPasswordActivity(State.PASSWORD_RESET_REQUIRED);
 				break;
 			}
@@ -286,8 +291,10 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 						// Enables the login button
 						mLoginButton.setEnabled(true);
 						if (which == DialogInterface.BUTTON_POSITIVE) {
+							dialog.dismiss();
 							launchResetPasswordActivity(State.PASSWORD_RESET_OPTIONAL);
 						} else if (which == DialogInterface.BUTTON_NEGATIVE) {
+							dialog.dismiss();
 							launchSessionActivity();
 						}
 					}
@@ -311,6 +318,7 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
 								if (which == DialogInterface.BUTTON_NEGATIVE) {
+									dialog.dismiss();
 									finish();
 								}
 							}
@@ -324,9 +332,11 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 							public void onClick(DialogInterface dialog, int which) {
 								// Retry
 								if (which == DialogInterface.BUTTON_POSITIVE) {
+									dialog.dismiss();
 									sendLoginMsg();
 								// Cancel
 								} else if (which == DialogInterface.BUTTON_NEGATIVE) {
+									dialog.dismiss();
 									finish();
 								}
 							}
@@ -338,6 +348,7 @@ public class LoginActivity extends HeaderActivity implements IMessageSubscriber 
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
 								if (which == DialogInterface.BUTTON_NEGATIVE) {
+									dialog.dismiss();
 									finish();
 								}
 							}
