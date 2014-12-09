@@ -62,7 +62,7 @@ public class Config {
 		
 		public static final String EXTRA_RESET_PASSWORD_ACTIVITY_STATE = APP_PACKAGE + ".EXTRA_RESET_PASSWORD_ACTIVITY_STATE";
 		
-		public static final String EXTRA_CONNECTION = APP_PACKAGE + ".EXTRA_HOST";
+		public static final String EXTRA_CONNECTION = APP_PACKAGE + ".EXTRA_CONNECTION";
 		
 		public static final String EXTRA_IS_WAN = APP_PACKAGE + ".EXTRA_CONNECTION_MODE";
 		

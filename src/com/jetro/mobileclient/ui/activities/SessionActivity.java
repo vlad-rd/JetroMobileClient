@@ -744,18 +744,6 @@ public class SessionActivity extends Activity
 	}
 	
 	@Override
-	protected void onRestart() {
-		Log.d(TAG, TAG + "#onRestart(...) ENTER");
-		super.onRestart();
-		
-		mClientChannel = ClientChannel.getInstance();
-		if (mClientChannel != null) {
-			mClientChannel.AddListener(SessionActivity.this);
-			sendMyApplicationsMsg(GlobalApp.getSessionTicket());
-		}
-	}
-	
-	@Override
 	protected void onResume() {
 		Log.d(TAG, TAG + "#onResume(...) ENTER");
 		super.onResume();
@@ -764,7 +752,6 @@ public class SessionActivity extends Activity
 		if (mClientChannel != null) {
 			mClientChannel.AddListener(SessionActivity.this);
 			sendMyApplicationsMsg(GlobalApp.getSessionTicket());
-			sendShowTaskListMsg();
 		}
 	}
 
