@@ -745,18 +745,6 @@ public class SessionActivity extends Activity
 	}
 	
 	@Override
-	protected void onRestart() {
-		Log.d(TAG, TAG + "#onRestart(...) ENTER");
-		super.onRestart();
-		
-		mClientChannel = ClientChannel.getInstance();
-		if (mClientChannel != null) {
-			mClientChannel.AddListener(SessionActivity.this);
-			sendMyApplicationsMsg(GlobalApp.getSessionTicket());
-		}
-	}
-	
-	@Override
 	protected void onResume() {
 		Log.d(TAG, TAG + "#onResume(...) ENTER");
 		super.onResume();
@@ -786,8 +774,6 @@ public class SessionActivity extends Activity
 	protected void onStop() {
 		Log.d(TAG, TAG + "#onStop(...) ENTER");
 		super.onStop();
-		
-		finish();
 	}
 
 	@Override
@@ -820,11 +806,6 @@ public class SessionActivity extends Activity
 			GlobalApp.freeSession(session.getInstance());
 			session = null;
 		}
-		
-		// remove all the active tasks
-		mActiveTasks.clear();
-		
-		ClientChannelUtils.stopClientChannel(mClientChannel, SessionActivity.this);
 	}
 	
 	@Override
@@ -1572,6 +1553,11 @@ public class SessionActivity extends Activity
     			mHomeButton.setVisibility(View.INVISIBLE);
     			mDrawerLayout.closeDrawer(mDrawerLeft);
 			}
+			// Refresh all the active tasks
+			mActiveTasks.clear();
+			for (Window task : showTaskListMsg.Tasks) {
+				mActiveTasks.add(task);
+			}
 		} else if (msg.msgCalssID == ClassID.StartApplicationMsg.ValueOf()) {
 			StartApplicationMsg startApplicationMsg = (StartApplicationMsg) msg;
 		} else if (msg.msgCalssID == ClassID.WindowCreatedMsg.ValueOf()) {
@@ -1581,9 +1567,9 @@ public class SessionActivity extends Activity
 			mTasksAdapter.add(task);
 			mTasksAdapter.notifyDataSetChanged();
 			// Update active Tasks
-			boolean isAppGotActive = mActiveTasks.add(task);
+			mActiveTasks.add(task);
 			// Update Apps adapter
-			if (isAppGotActive) {
+			if (mActiveTasks.isAppHasTasks(task.AppID)) {
 				Application activeApp = mAppsAdapter.getItem(task.AppID);
 				if (activeApp != null) {
 					activeApp.IsActive = true;
@@ -1618,9 +1604,9 @@ public class SessionActivity extends Activity
 			mTasksAdapter.remove(task);
 			mTasksAdapter.notifyDataSetChanged();
 			// Update active Tasks
-			boolean isAppGotInactive = mActiveTasks.remove(task);
+			mActiveTasks.remove(task);
 			// Update Apps adapter
-			if (isAppGotInactive) {
+			if (!mActiveTasks.isAppHasTasks(task.AppID)) {
 				Application activeApp = mAppsAdapter.getItem(task.AppID);
 				if (activeApp != null) {
 					activeApp.IsActive = false;
@@ -1696,6 +1682,8 @@ public class SessionActivity extends Activity
 	}
 	
 	private void logoutSession() {
+		Log.d(TAG, TAG + "#logoutSession(...) ENTER");
+		
 		sendLogoutMsg(GlobalApp.getSessionTicket());
 		finish();
 	}
@@ -1750,6 +1738,18 @@ public class SessionActivity extends Activity
 		MyApplicationsMsg myApplicationsMsg = new MyApplicationsMsg();
 		myApplicationsMsg.Ticket = ticket;
 		mClientChannel.SendAsync(myApplicationsMsg);
+	}
+	
+	private void sendShowTaskListMsg() {
+		Log.d(TAG, TAG + "#sendShowTaskListMsg(...) ENTER");
+		
+		// Validates client channel
+		if (mClientChannel == null) {
+			return;
+		}
+
+		ShowTaskListMsg showTaskListMsg = new ShowTaskListMsg();
+		mClientChannel.SendAsync(showTaskListMsg);
 	}
 	
 	private void sendApplicationIconMsg(String appId) {
