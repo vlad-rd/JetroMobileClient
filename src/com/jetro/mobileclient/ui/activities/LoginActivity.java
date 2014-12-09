@@ -260,12 +260,12 @@ public class LoginActivity extends HeaderActivity implements IConnectionCreation
 	public void ConnectionCreated(boolean result, final String message) {
 		Log.d(TAG, TAG + "#ConnectionCreated(...) ENTER");
 	
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				DialogLauncher.launchServerErrorOneButtonDialog(LoginActivity.this, message, null);
-			}
-		});
+//		runOnUiThread(new Runnable() {
+//			@Override
+//			public void run() {
+//				DialogLauncher.launchServerErrorOneButtonDialog(LoginActivity.this, message, null);
+//			}
+//		});
 	}
 	
 	@Override

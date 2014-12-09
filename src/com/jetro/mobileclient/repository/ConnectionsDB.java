@@ -8,6 +8,7 @@ import java.util.Set;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -41,6 +42,19 @@ public class ConnectionsDB {
 
 		return instance;
 	}
+	
+	public boolean isDBEmpty() {
+		Log.d(TAG, "ConnectionsDB#isDBEmpty(...) ENTER");
+		
+		return instance != null && connections != null
+				&& getConnectionsNames().size() == 0;		
+	}
+	
+	public boolean hasConnections() {
+		Log.d(TAG, TAG + "#hasConnections(...) ENTER");
+		
+		return !getConnectionsNames().isEmpty();
+	}
 
 	public void saveConnection(Connection connection) {
 		Log.d(TAG, TAG + "#saveConnection(...) ENTER");
@@ -49,11 +63,30 @@ public class ConnectionsDB {
 		String connectionName = connection.getName();
 		
 		Editor edit = connections.edit();
-		// Savesthe connection as JSON
+		// Saves the connection as JSON
 		edit.putString(connectionName, connection.toString());
 		// Saves the connection name
 		Set<String> connectionsNames = getConnectionsNames();
 		connectionsNames.add(connectionName);
+		edit.putStringSet(CONNECTIONS_NAMES, connectionsNames);
+		edit.commit();
+	}
+	
+	public void deleteConnection(String connectionName) {
+		Log.d(TAG, TAG + "#deleteConnection(...) ENTER");
+		
+		// Validates parameter
+		if (TextUtils.isEmpty(connectionName)) {
+			return;
+		}
+		
+		// Deletes connection name from connections names
+		Set<String> connectionsNames = getConnectionsNames();
+		connectionsNames.remove(connectionName);
+		
+		// Deletes connection from connections
+		Editor edit = connections.edit();
+		edit.remove(connectionName);
 		edit.putStringSet(CONNECTIONS_NAMES, connectionsNames);
 		edit.commit();
 	}
@@ -71,12 +104,6 @@ public class ConnectionsDB {
 		return null;
 	}
 	
-	public boolean hasConnections() {
-		Log.d(TAG, TAG + "#hasConnections(...) ENTER");
-		
-		return !getConnectionsNames().isEmpty();
-	}
-	
 	public List<Connection> getAllConnections() {
 		Log.d(TAG, TAG + "#getAllConnections(...) ENTER");
 		
@@ -89,27 +116,6 @@ public class ConnectionsDB {
 		}
 		
 		return connections;
-	}
-
-	public void deleteConnection(String connectionName) {
-		Log.d(TAG, TAG + "#deleteConnection(...) ENTER");
-		
-		// Deletes connection from connections
-		Editor edit = connections.edit();
-		edit.remove(connectionName);
-		edit.commit();
-		// Deletes connection name from connections names
-		Set<String> connections = getConnectionsNames();
-		connections.remove(connectionName);
-		edit.putStringSet(CONNECTIONS_NAMES, connections);
-		edit.commit();
-	}
-
-	public boolean isDBEmpty() {
-		Log.d(TAG, "ConnectionsDB#isDBEmpty(...) ENTER");
-		
-		return instance != null && connections != null
-				&& getConnectionsNames().size() == 0;		
 	}
 	
 	private Set<String> getConnectionsNames() {
