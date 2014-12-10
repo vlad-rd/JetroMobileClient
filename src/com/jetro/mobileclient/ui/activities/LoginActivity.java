@@ -171,7 +171,7 @@ public class LoginActivity extends HeaderActivity implements IConnectionCreation
 			if (!TextUtils.isEmpty(password)) {
 				mPasswordInput.setText(password);
 			} else {
-				mPasswordInput.setText("Welcome3!");
+				mPasswordInput.setText("Welcome");
 			}
 			if (!TextUtils.isEmpty(domain)) {
 				mDomainInput.setText(domain);

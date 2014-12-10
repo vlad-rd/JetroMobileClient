@@ -14,18 +14,18 @@ import com.jetro.protocol.Protocols.TsSession.Window;
  * @author ran.h
  *
  */
-public class ActiveTasks {
+public class OpenTasks {
 	
 	private final Map<String, Set<Window>> activeTasksMap = new HashMap<String, Set<Window>>();
 	
-	private ActiveTasks() {
+	private OpenTasks() {
 	}
 	
 	private static final class SingletonHolder {
-		private static final ActiveTasks INSTANCE = new ActiveTasks();
+		private static final OpenTasks INSTANCE = new OpenTasks();
 	}
 	
-	public static ActiveTasks getInstance() {
+	public static OpenTasks getInstance() {
 		return SingletonHolder.INSTANCE;
 	}
 	

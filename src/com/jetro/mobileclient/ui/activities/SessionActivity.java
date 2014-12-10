@@ -79,7 +79,7 @@ import com.freerdp.freerdpcore.utils.ClipboardManagerProxy;
 import com.freerdp.freerdpcore.utils.KeyboardMapper;
 import com.freerdp.freerdpcore.utils.Mouse;
 import com.jetro.mobileclient.R;
-import com.jetro.mobileclient.application.ActiveTasks;
+import com.jetro.mobileclient.application.OpenTasks;
 import com.jetro.mobileclient.config.Config;
 import com.jetro.mobileclient.model.beans.Connection;
 import com.jetro.mobileclient.ui.adapters.TasksAdapter;
@@ -490,7 +490,7 @@ public class SessionActivity extends Activity
 	private ViewGroup mDrawerLeft;
 	private int mActiveHWND;
 	private Window mActiveTask;
-	private ActiveTasks mActiveTasks;
+	private OpenTasks mOpenTasks;
 	private ApplicationsGridAdapter mAppsAdapter;
 	private GridView mAppsGrid;
 	private ImageView mRefreshButton;
@@ -615,7 +615,7 @@ public class SessionActivity extends Activity
 		mClipboardManager = ClipboardManagerProxy.getClipboardManager(this);
         mClipboardManager.addClipboardChangedListener(this);
         
-        mActiveTasks = ActiveTasks.getInstance();
+        mOpenTasks = OpenTasks.getInstance();
         
         // initialize the Desktop widgets
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -789,23 +789,13 @@ public class SessionActivity extends Activity
 		// Hides the keyboard
 		showKeyboard(false, false);
 		
-		// Disconnect all remaining sessions.
-		Collection<SessionState> sessions = GlobalApp.getSessions();
-		for (SessionState session : sessions) {
-			LibFreeRDP.disconnect(session.getInstance());
-		}
-
 		// unregister freerdp events broadcast receiver
 		unregisterReceiver(libFreeRDPBroadcastReceiver);
 
 		// remove clipboard listener
 		mClipboardManager.removeClipboardboardChangedListener(this);
-
-		// free session
-		if (session != null) {
-			GlobalApp.freeSession(session.getInstance());
-			session = null;
-		}
+		
+		clearCockpitSessionView();
 	}
 	
 	@Override
@@ -1518,18 +1508,26 @@ public class SessionActivity extends Activity
 			// Fetches async applications icons
 			for (Application app : myApplicationsMsg.Applications) {
 				String appId = app.ID;
-				if (mActiveTasks.isAppHasTasks(appId)) {
+				if (mOpenTasks.isAppHasTasks(appId)) {
 					Application activeApp = mAppsAdapter.getItem(appId);
 					activeApp.IsActive = true;
 				}
 				sendApplicationIconMsg(appId);
 			}
+			// If there is RDP session, Sends ShowTaskListMsg,
+			// Refreshes session view open tasks and open apps
+			Collection<SessionState> sessions = GlobalApp.getSessions();
+			if (sessions != null && !sessions.isEmpty()) {
+				sendShowTaskListMsg();
+			}
 		} else if (msg.msgCalssID == ClassID.ApplicationIconMsg.ValueOf()) {
 			ApplicationIconMsg applicationIconMsg = (ApplicationIconMsg) msg;
-			Application foundApp = mAppsAdapter.getItem(applicationIconMsg.ID);
-			if (foundApp != null) {
-				foundApp.Icon = applicationIconMsg.Icon;
-				mAppsAdapter.notifyDataSetChanged();
+			if (mAppsAdapter != null) {
+				Application foundApp = mAppsAdapter.getItem(applicationIconMsg.ID);
+				if (foundApp != null) {
+					foundApp.Icon = applicationIconMsg.Icon;
+					mAppsAdapter.notifyDataSetChanged();
+				}
 			}
 		} else if (msg.msgCalssID == ClassID.GetTsMsg.ValueOf()) {
 			GetTsMsg getTsMsg = (GetTsMsg) msg;
@@ -1546,18 +1544,7 @@ public class SessionActivity extends Activity
 			sendStartApplicationMsg(mSelectedAppId);
 		} else if (msg.msgCalssID == ClassID.ShowTaskListMsg.ValueOf()) {
 			ShowTaskListMsg showTaskListMsg = (ShowTaskListMsg) msg;
-			// If none active tasks, hide window and home button
-			mActiveHWND = showTaskListMsg.ActiveHWND;
-			if (mActiveHWND == 0) {
-				activityRootView.setVisibility(View.INVISIBLE);
-    			mHomeButton.setVisibility(View.INVISIBLE);
-    			mDrawerLayout.closeDrawer(mDrawerLeft);
-			}
-			// Refresh all the active tasks
-			mActiveTasks.clear();
-			for (Window task : showTaskListMsg.Tasks) {
-				mActiveTasks.add(task);
-			}
+			refreshCockpitSessionView(showTaskListMsg);
 		} else if (msg.msgCalssID == ClassID.StartApplicationMsg.ValueOf()) {
 			StartApplicationMsg startApplicationMsg = (StartApplicationMsg) msg;
 		} else if (msg.msgCalssID == ClassID.WindowCreatedMsg.ValueOf()) {
@@ -1566,10 +1553,10 @@ public class SessionActivity extends Activity
 			// Update Tasks adapter
 			mTasksAdapter.add(task);
 			mTasksAdapter.notifyDataSetChanged();
-			// Update active Tasks
-			mActiveTasks.add(task);
+			// Update open Tasks
+			mOpenTasks.add(task);
 			// Update Apps adapter
-			if (mActiveTasks.isAppHasTasks(task.AppID)) {
+			if (mOpenTasks.isAppHasTasks(task.AppID)) {
 				Application activeApp = mAppsAdapter.getItem(task.AppID);
 				if (activeApp != null) {
 					activeApp.IsActive = true;
@@ -1603,10 +1590,10 @@ public class SessionActivity extends Activity
 			// Update Tasks adapter
 			mTasksAdapter.remove(task);
 			mTasksAdapter.notifyDataSetChanged();
-			// Update active Tasks
-			mActiveTasks.remove(task);
+			// Update open Tasks
+			mOpenTasks.remove(task);
 			// Update Apps adapter
-			if (!mActiveTasks.isAppHasTasks(task.AppID)) {
+			if (!mOpenTasks.isAppHasTasks(task.AppID)) {
 				Application activeApp = mAppsAdapter.getItem(task.AppID);
 				if (activeApp != null) {
 					activeApp.IsActive = false;
@@ -1681,10 +1668,62 @@ public class SessionActivity extends Activity
 		finish();
 	}
 	
+	private void refreshCockpitSessionView(ShowTaskListMsg showTaskListMsg) {
+		Log.d(TAG, TAG + "#refreshCockpitSessionView(...) ENTER");
+		
+		// If none active tasks, hide window and home button
+		mActiveHWND = showTaskListMsg.ActiveHWND;
+		if (mActiveHWND == 0) {
+			activityRootView.setVisibility(View.INVISIBLE);
+			mHomeButton.setVisibility(View.INVISIBLE);
+			mDrawerLayout.closeDrawer(mDrawerLeft);
+		}
+		// Refresh open tasks and open apps
+		clearCockpitSessionView();
+		loadCockpitSessionView(showTaskListMsg.Tasks);
+	}
+
+	private void loadCockpitSessionView(Window[] openTasks) {
+		Log.d(TAG, TAG + "#loadCockpitSessionView(...) ENTER");
+		
+		for (Window task : openTasks) {
+			mOpenTasks.add(task);
+			mTasksAdapter.addAll(task);
+			// Update Apps adapter
+			if (mOpenTasks.isAppHasTasks(task.AppID)) {
+				Application activeApp = mAppsAdapter.getItem(task.AppID);
+				if (activeApp != null) {
+					activeApp.IsActive = true;
+					mAppsAdapter.notifyDataSetChanged();
+				}
+			}
+		}
+		mTasksAdapter.notifyDataSetChanged();
+	}
+	
+	private void clearCockpitSessionView() {
+		Log.d(TAG, TAG + "#clearCockpitSessionView(...) ENTER");
+		
+		mOpenTasks.clear();
+		mTasksAdapter.clear();
+	}
+	
 	private void logoutSession() {
 		Log.d(TAG, TAG + "#logoutSession(...) ENTER");
 		
 		sendLogoutMsg(GlobalApp.getSessionTicket());
+		
+		// Disconnect all remaining sessions
+		Collection<SessionState> sessions = GlobalApp.getSessions();
+		for (SessionState session : sessions) {
+			LibFreeRDP.disconnect(session.getInstance());
+		}
+		// free session
+		if (session != null) {
+			GlobalApp.freeSession(session.getInstance());
+			session = null;
+		}
+		
 		finish();
 	}
 	
