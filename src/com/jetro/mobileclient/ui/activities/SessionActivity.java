@@ -1668,25 +1668,21 @@ public class SessionActivity extends Activity
 		finish();
 	}
 	
+	private void clearCockpitSessionView() {
+		Log.d(TAG, TAG + "#clearCockpitSessionView(...) ENTER");
+		
+		mOpenTasks.clear();
+		mTasksAdapter.clear();
+		mTasksAdapter.notifyDataSetChanged();
+	}
+	
 	private void refreshCockpitSessionView(ShowTaskListMsg showTaskListMsg) {
 		Log.d(TAG, TAG + "#refreshCockpitSessionView(...) ENTER");
 		
-		// If none active tasks, hide window and home button
-		mActiveHWND = showTaskListMsg.ActiveHWND;
-		if (mActiveHWND == 0) {
-			activityRootView.setVisibility(View.INVISIBLE);
-			mHomeButton.setVisibility(View.INVISIBLE);
-			mDrawerLayout.closeDrawer(mDrawerLeft);
-		}
-		// Refresh open tasks and open apps
 		clearCockpitSessionView();
-		loadCockpitSessionView(showTaskListMsg.Tasks);
-	}
 
-	private void loadCockpitSessionView(Window[] openTasks) {
-		Log.d(TAG, TAG + "#loadCockpitSessionView(...) ENTER");
-		
-		for (Window task : openTasks) {
+		// Updates all the open tasks and open apps
+		for (Window task : showTaskListMsg.Tasks) {
 			mOpenTasks.add(task);
 			mTasksAdapter.addAll(task);
 			// Update Apps adapter
@@ -1699,13 +1695,18 @@ public class SessionActivity extends Activity
 			}
 		}
 		mTasksAdapter.notifyDataSetChanged();
-	}
-	
-	private void clearCockpitSessionView() {
-		Log.d(TAG, TAG + "#clearCockpitSessionView(...) ENTER");
 		
-		mOpenTasks.clear();
-		mTasksAdapter.clear();
+		// If none active tasks
+		mActiveHWND = showTaskListMsg.ActiveHWND;
+		if (mActiveHWND == 0) {
+			mActiveTask = null;
+			activityRootView.setVisibility(View.INVISIBLE);
+			mHomeButton.setVisibility(View.INVISIBLE);
+			mDrawerLayout.closeDrawer(mDrawerLeft);
+		// If there is an active task, get it
+		} else {
+			mActiveTask = getTask(showTaskListMsg.ActiveHWND);
+		}
 	}
 	
 	private void logoutSession() {

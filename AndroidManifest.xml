@@ -60,7 +60,7 @@
         </activity>
         <activity
             android:name=".ui.activities.SessionActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="adjustNothing|stateHidden" >
         </activity>
