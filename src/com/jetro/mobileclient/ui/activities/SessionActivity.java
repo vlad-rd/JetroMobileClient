@@ -96,6 +96,7 @@ import com.jetro.protocol.Protocols.Controller.GetTsMsg;
 import com.jetro.protocol.Protocols.Controller.LogoutMsg;
 import com.jetro.protocol.Protocols.Controller.MyApplicationsMsg;
 import com.jetro.protocol.Protocols.Generic.ErrorMsg;
+import com.jetro.protocol.Protocols.TsSession.SessionEndMsg;
 import com.jetro.protocol.Protocols.TsSession.SessionReadyMsg;
 import com.jetro.protocol.Protocols.TsSession.ShowKeyBoardMsg;
 import com.jetro.protocol.Protocols.TsSession.ShowTaskListMsg;
@@ -1617,6 +1618,15 @@ public class SessionActivity extends Activity
 			} else {
 				showKeyboard(false, false);
 			}
+		} else if (msg.msgCalssID == ClassID.SessionEndMsg.ValueOf()) {
+			SessionEndMsg sessionEndMsg = (SessionEndMsg) msg;
+			Log.i(TAG, TAG + "#ProcessMsg(...) sessionEndMsg.Wait = " + sessionEndMsg.Wait);
+			if (sessionEndMsg.Wait) {
+				freeRDPSessions();
+				ClientChannelUtils.stopClientChannel(mClientChannel, SessionActivity.this);
+				Toast.makeText(SessionActivity.this, "Session logout", Toast.LENGTH_LONG).show();
+				finish();
+			}
 		// Receives ErrorMsg
 		} else if (msg.msgCalssID == ClassID.Error.ValueOf()) {
 			ErrorMsg errorMsg = (ErrorMsg) msg;
@@ -1711,11 +1721,7 @@ public class SessionActivity extends Activity
 		}
 	}
 	
-	private void logoutSession() {
-		Log.d(TAG, TAG + "#logoutSession(...) ENTER");
-		
-		sendLogoutMsg(GlobalApp.getSessionTicket());
-		
+	private void freeRDPSessions() {
 		// Disconnect all remaining sessions
 		Collection<SessionState> sessions = GlobalApp.getSessions();
 		for (SessionState session : sessions) {
@@ -1726,6 +1732,14 @@ public class SessionActivity extends Activity
 			GlobalApp.freeSession(session.getInstance());
 			session = null;
 		}
+	}
+	
+	private void logoutSession() {
+		Log.d(TAG, TAG + "#logoutSession(...) ENTER");
+		
+		sendLogoutMsg(GlobalApp.getSessionTicket());
+		
+		freeRDPSessions();
 		
 		finish();
 	}
