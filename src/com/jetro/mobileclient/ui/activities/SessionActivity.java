@@ -1541,7 +1541,9 @@ public class SessionActivity extends Activity
 			sessionRunning = true;
 		} else if (msg.msgCalssID == ClassID.SessionReadyMsg.ValueOf()) {
 			SessionReadyMsg sessionReadyMsg = (SessionReadyMsg) msg;
-			sendStartApplicationMsg(mSelectedAppId);
+			if (mSelectedAppId != null) {
+				sendStartApplicationMsg(mSelectedAppId);
+			}
 		} else if (msg.msgCalssID == ClassID.ShowTaskListMsg.ValueOf()) {
 			ShowTaskListMsg showTaskListMsg = (ShowTaskListMsg) msg;
 			refreshCockpitSessionView(showTaskListMsg);
