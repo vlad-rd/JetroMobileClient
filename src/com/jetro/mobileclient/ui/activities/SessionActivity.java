@@ -687,7 +687,7 @@ public class SessionActivity extends Activity
 						}
 						else if (itemId == R.id.session_disconnect)
 						{
-							disconnectSession();
+							disconnectJetroSession();
 						}
 						
 						return true;
@@ -714,7 +714,7 @@ public class SessionActivity extends Activity
 		mDisconnectSessionButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				disconnectSession();
+				disconnectJetroSession();
 			}
 		});
 		mTasksAdapter = new TasksAdapter(
@@ -796,7 +796,7 @@ public class SessionActivity extends Activity
 		// remove clipboard listener
 		mClipboardManager.removeClipboardboardChangedListener(this);
 		
-		clearCockpitSessionView();
+		clearJetroSessionView();
 	}
 	
 	@Override
@@ -1547,7 +1547,7 @@ public class SessionActivity extends Activity
 			}
 		} else if (msg.msgCalssID == ClassID.ShowTaskListMsg.ValueOf()) {
 			ShowTaskListMsg showTaskListMsg = (ShowTaskListMsg) msg;
-			refreshCockpitSessionView(showTaskListMsg);
+			refreshJetroSessionView(showTaskListMsg);
 		} else if (msg.msgCalssID == ClassID.StartApplicationMsg.ValueOf()) {
 			StartApplicationMsg startApplicationMsg = (StartApplicationMsg) msg;
 		} else if (msg.msgCalssID == ClassID.WindowCreatedMsg.ValueOf()) {
@@ -1624,7 +1624,7 @@ public class SessionActivity extends Activity
 			if (sessionEndMsg.Wait) {
 				freeRDPSessions();
 				ClientChannelUtils.stopClientChannel(mClientChannel, SessionActivity.this);
-				Toast.makeText(SessionActivity.this, "Session logout", Toast.LENGTH_LONG).show();
+				Toast.makeText(SessionActivity.this, "Jetro session end!", Toast.LENGTH_LONG).show();
 				finish();
 			}
 		// Receives ErrorMsg
@@ -1676,22 +1676,17 @@ public class SessionActivity extends Activity
 	public void ConnectionIsBroken() {
 		Log.d(TAG, TAG + "#ConnectionIsBroken(...) ENTER");
 		
+		freeRDPSessions();
+		
 		ClientChannelUtils.stopClientChannel(mClientChannel, SessionActivity.this);
+		
 		finish();
 	}
 	
-	private void clearCockpitSessionView() {
-		Log.d(TAG, TAG + "#clearCockpitSessionView(...) ENTER");
+	private void refreshJetroSessionView(ShowTaskListMsg showTaskListMsg) {
+		Log.d(TAG, TAG + "#refreshJetroSessionView(...) ENTER");
 		
-		mOpenTasks.clear();
-		mTasksAdapter.clear();
-		mTasksAdapter.notifyDataSetChanged();
-	}
-	
-	private void refreshCockpitSessionView(ShowTaskListMsg showTaskListMsg) {
-		Log.d(TAG, TAG + "#refreshCockpitSessionView(...) ENTER");
-		
-		clearCockpitSessionView();
+		clearJetroSessionView();
 
 		// Updates all the open tasks and open apps
 		for (Window task : showTaskListMsg.Tasks) {
@@ -1721,33 +1716,20 @@ public class SessionActivity extends Activity
 		}
 	}
 	
-	private void freeRDPSessions() {
-		// Disconnect all remaining sessions
-		Collection<SessionState> sessions = GlobalApp.getSessions();
-		for (SessionState session : sessions) {
-			LibFreeRDP.disconnect(session.getInstance());
-		}
-		// free session
-		if (session != null) {
-			GlobalApp.freeSession(session.getInstance());
-			session = null;
-		}
+	private void clearJetroSessionView() {
+		Log.d(TAG, TAG + "#clearJetroSessionView(...) ENTER");
+		
+		mOpenTasks.clear();
+		mTasksAdapter.clear();
+		mTasksAdapter.notifyDataSetChanged();
 	}
-	
-	private void logoutSession() {
-		Log.d(TAG, TAG + "#logoutSession(...) ENTER");
+
+	private void disconnectJetroSession() {
+		Log.d(TAG, TAG + "#disconnectJetroSession(...) ENTER");
 		
-		sendLogoutMsg(GlobalApp.getSessionTicket());
-		
-		freeRDPSessions();
-		
-		finish();
-	}
-	
-	private void disconnectSession() {
 		// If there aren't any open tasks, logout session
 		if (mTasksAdapter == null || mTasksAdapter.isEmpty()) {
-			logoutSession();
+			freeJetroSession();
 		// If there is at least one open task, launch logout session dialog
 		} else {
 			int runningAppsCount = mTasksAdapter.getCount();
@@ -1765,10 +1747,38 @@ public class SessionActivity extends Activity
 				public void onClick(DialogInterface dialog, int which) {
 					if (which == DialogInterface.BUTTON_POSITIVE) {
 						dialog.dismiss();
-						logoutSession();
+						freeJetroSession();
 					}
 				}
 			});
+		}
+	}
+	
+	private void freeJetroSession() {
+		Log.d(TAG, TAG + "#freeJetroSession(...) ENTER");
+		
+		sendSessionEndMsg();
+		sendLogoutMsg(GlobalApp.getSessionTicket());
+		
+		freeRDPSessions();
+		
+		ClientChannelUtils.stopClientChannel(mClientChannel, null);
+		
+		finish();
+	}
+	
+	private void freeRDPSessions() {
+		Log.d(TAG, TAG + "#freeRDPSessions(...) ENTER");
+		
+		// Disconnect all remaining sessions
+		Collection<SessionState> sessions = GlobalApp.getSessions();
+		for (SessionState session : sessions) {
+			LibFreeRDP.disconnect(session.getInstance());
+		}
+		// free session
+		if (session != null) {
+			GlobalApp.freeSession(session.getInstance());
+			session = null;
 		}
 	}
 	
@@ -1884,6 +1894,18 @@ public class SessionActivity extends Activity
 		WindowCloseMsg windowCloseMsg = new WindowCloseMsg();
 		windowCloseMsg.HWND = hwnd;
 		mClientChannel.SendAsync(windowCloseMsg);
+	}
+	
+	private void sendSessionEndMsg() {
+		Log.d(TAG, TAG + "#sendSessionEndMsg(...) ENTER");
+		
+		// Validates client channel
+		if (mClientChannel == null) {
+			return;
+		}
+		
+		SessionEndMsg sessionEndMsg = new SessionEndMsg();
+		mClientChannel.SendAsync(sessionEndMsg);
 	}
 	
 	private void sendLogoutMsg(String ticket) {

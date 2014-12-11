@@ -315,12 +315,15 @@ public class LoginActivity extends HeaderActivity implements IConnectionCreation
 				break;
 			}
 			case LoginMsg.LOGIN_FAILURE: {
+				ClientChannelUtils.stopClientChannel(mClientChannel, LoginActivity.this);
 				break;
 			}
 			}
 		// Receives ErrorMsg
 		} else if (msg.msgCalssID == ClassID.Error.ValueOf()) {
 			stopLoadingScreen();
+			
+			ClientChannelUtils.stopClientChannel(mClientChannel, LoginActivity.this);
 			
 			ErrorMsg errorMsg = (ErrorMsg) msg;
 			switch (errorMsg.Err) {
