@@ -217,7 +217,7 @@ public class ConnectionsListActivity extends HeaderActivity {
 		dialog.show();
 	}
 	
-	private void launchDeleteConnectionDialog(final Connection host, final int position) {
+	private void launchDeleteConnectionDialog(final Connection connection, final int position) {
 		Log.d(TAG, TAG + "#launchDeleteConnectionDialog(...) ENTER");
 		
 		DialogLauncher.launchDeleteConnectionDialog(
@@ -225,7 +225,7 @@ public class ConnectionsListActivity extends HeaderActivity {
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int which) {
 						if (which == DialogInterface.BUTTON_POSITIVE) {
-							mConnectionsDB.deleteConnection(host.getName());
+							mConnectionsDB.deleteConnection(connection.getName());
 							mConnections.remove(position);
 							if (mConnectionsDB.isDBEmpty()) {
 								Intent intent = new Intent(ConnectionsListActivity.this, ConnectionActivity.class);
