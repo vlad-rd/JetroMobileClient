@@ -94,7 +94,7 @@
     <string name="header_title_connections">CONNECTIONS</string>
     <string name="header_title_login">LOGIN</string>
     <string name="header_title_reset_password">RESET PASSWORD</string>
-    <string name="header_title_last_connection_details">LAST CONNECTION DETAILS</string>
+    <string name="header_title_last_connection_details">LAST CONNECTION</string>
     <string name="header_title_open_tasks">OPEN TASKS</string>
     <string name="header_title_about">ABOUT</string>
     <string name="header_title_help">HELP</string>
