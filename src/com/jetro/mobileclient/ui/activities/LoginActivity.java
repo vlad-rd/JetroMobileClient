@@ -449,15 +449,7 @@ public class LoginActivity extends HeaderActivity implements IConnectionCreation
 							+ mConnection.getPreferedConnectionMode());
 		}
 		
-		Log.i(TAG, TAG + "#sendLoginMsg(...) Connecting to HOST IP: " + connectionPoint.IP);
-		Log.i(TAG, TAG + "#sendLoginMsg(...) Connecting to HOST PORT: " + connectionPoint.Port);
-		Log.i(TAG, TAG + "#sendLoginMsg(...) Connecting to CONNECTION MODE: " + connectionPoint.ConnectionMode);
-		
-		boolean isCreated = ClientChannelUtils.createClientChannel(
-				connectionPoint.IP,
-				connectionPoint.Port,
-				connectionPoint.ConnectionMode,
-				LoginActivity.this);
+		boolean isCreated = ClientChannelUtils.connect(mConnection, mConnectionMode, ClientChannelUtils.TIMES_TO_TRY);
 		Log.i(TAG, TAG + "#sendLoginMsg(...) ClientChannel isCreated = " + isCreated);
 		if (isCreated) {
 			mClientChannel = ClientChannel.getInstance();
