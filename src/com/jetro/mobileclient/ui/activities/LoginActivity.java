@@ -40,6 +40,7 @@ import com.jetro.protocol.Core.IMessageSubscriber;
 import com.jetro.protocol.Core.Net.ClientChannel;
 import com.jetro.protocol.Protocols.Controller.ConnectionPoint;
 import com.jetro.protocol.Protocols.Controller.LoginMsg;
+import com.jetro.protocol.Protocols.Controller.ConnectionPoint.ConnectionModeType;
 import com.jetro.protocol.Protocols.Generic.ErrorMsg;
 
 /**
@@ -52,6 +53,7 @@ public class LoginActivity extends HeaderActivity implements IConnectionCreation
 	
 	private ClientChannel mClientChannel;
 	
+	private ConnectionModeType mConnectionMode;
 	private Connection mConnection;
 	
 	private View mBaseContentLayout;
@@ -84,6 +86,7 @@ public class LoginActivity extends HeaderActivity implements IConnectionCreation
 		Log.d(TAG, TAG + "#onSaveInstanceState(...) ENTER");
 		
 		// Save the user's current game state
+		outState.putSerializable(Config.Extras.EXTRA_CONNECTION_MODE, mConnectionMode);
 		outState.putSerializable(Config.Extras.EXTRA_CONNECTION, mConnection);
 		
 		// Always call the superclass so it can save the view hierarchy state
@@ -98,10 +101,12 @@ public class LoginActivity extends HeaderActivity implements IConnectionCreation
 		// Check whether we're recreating a previously destroyed instance
 		if (savedInstanceState != null) {
 			// Restore value of members from saved state
+			mConnectionMode = (ConnectionModeType) savedInstanceState.getSerializable(Config.Extras.EXTRA_CONNECTION_MODE);
 			mConnection = (Connection) savedInstanceState.getSerializable(Config.Extras.EXTRA_CONNECTION);
 		} else {
 			// Probably initialize members with default values for a new instance
 			Intent intent = getIntent();
+			mConnectionMode = (ConnectionModeType) intent.getSerializableExtra(Config.Extras.EXTRA_CONNECTION_MODE);
 			mConnection = (Connection) intent.getSerializableExtra(Config.Extras.EXTRA_CONNECTION);
 		}
 		
@@ -431,7 +436,7 @@ public class LoginActivity extends HeaderActivity implements IConnectionCreation
 		
 		// TODO: client channel connection to host fallback logic
 		ConnectionPoint connectionPoint = null;
-		switch (mConnection.getPreferedConnectionMode()) {
+		switch (mConnectionMode) {
 		case SSL:
 			connectionPoint = mConnection.getWANs().iterator().next();
 			break;

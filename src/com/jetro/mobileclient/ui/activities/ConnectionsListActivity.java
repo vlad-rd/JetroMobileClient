@@ -26,6 +26,7 @@ import com.jetro.mobileclient.model.beans.Connection;
 import com.jetro.mobileclient.repository.ConnectionsDB;
 import com.jetro.mobileclient.ui.activities.base.HeaderActivity;
 import com.jetro.mobileclient.ui.dialogs.DialogLauncher;
+import com.jetro.protocol.Protocols.Controller.ConnectionPoint.ConnectionModeType;
 
 /**
  * @author ran.h
@@ -43,7 +44,6 @@ public class ConnectionsListActivity extends HeaderActivity {
 	private View mAddNewConnectionButton;
 	private ConnectionsListAdapter mConnectionsAdapter;
 	private ListView mConnectionsList;
-
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -70,11 +70,22 @@ public class ConnectionsListActivity extends HeaderActivity {
 		mConnectionsList = (ListView) mBaseContentLayout.findViewById(R.id.connections_list);
 		mConnectionsList.setOnItemClickListener(new OnItemClickListener() {
 			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				Connection connection = mConnections.get(position);
-				Intent intent = new Intent(ConnectionsListActivity.this, LoginActivity.class);
-				intent.putExtra(Config.Extras.EXTRA_CONNECTION, connection);
-				startActivity(intent);
+			public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+				
+				DialogLauncher.launchConnectionTypesDialog(ConnectionsListActivity.this, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						Intent intent = new Intent(ConnectionsListActivity.this, LoginActivity.class);
+						if (which == DialogInterface.BUTTON_POSITIVE) {
+							intent.putExtra(Config.Extras.EXTRA_CONNECTION_MODE, ConnectionModeType.DIRECT);
+						} else {
+							intent.putExtra(Config.Extras.EXTRA_CONNECTION_MODE, ConnectionModeType.SSL);
+						}
+						Connection connection = mConnections.get(position);
+						intent.putExtra(Config.Extras.EXTRA_CONNECTION, connection);
+						startActivity(intent);
+					}
+				});
 			}
 		});
 		mConnectionsList.setOnItemLongClickListener(new OnItemLongClickListener() {

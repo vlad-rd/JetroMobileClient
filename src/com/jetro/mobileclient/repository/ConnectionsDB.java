@@ -16,6 +16,7 @@ import com.google.gson.JsonSyntaxException;
 import com.jetro.mobileclient.model.beans.Connection;
 import com.jetro.mobileclient.model.helpers.GsonHelper;
 
+// TODO: refactor this database from Preferences based to Sqlite based.
 public class ConnectionsDB {
 	
 	private static final String TAG = ConnectionsDB.class.getSimpleName();

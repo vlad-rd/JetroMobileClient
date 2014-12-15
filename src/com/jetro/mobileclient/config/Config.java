@@ -64,6 +64,8 @@ public class Config {
 		
 		public static final String EXTRA_CONNECTION = APP_PACKAGE + ".EXTRA_CONNECTION";
 		
+		public static final String EXTRA_CONNECTION_MODE = APP_PACKAGE + ".EXTRA_CONNECTION_MODE";
+		
 		public static final String EXTRA_TYPE = APP_PACKAGE + ".EXTRA_TYPE";
 		
 	}

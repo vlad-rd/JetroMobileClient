@@ -421,6 +421,7 @@ public class ConnectionActivity extends HeaderActivity implements IConnectionCre
 	private void launchLoginActivity() {
 		// Launches the login activity
 		Intent intent = new Intent(ConnectionActivity.this, LoginActivity.class);
+		intent.putExtra(Config.Extras.EXTRA_CONNECTION_MODE, mConnection.getPreferedConnectionMode());
 		intent.putExtra(Config.Extras.EXTRA_CONNECTION, mConnection);
 		startActivity(intent);
 		if (mState == State.ADD_CONNECTION) {
