@@ -207,9 +207,9 @@ public class ConnectionActivity extends HeaderActivity implements IConnectionCre
 			mDividerHorizontal.setVisibility(View.GONE);
 			
 			// TODO: remove this after debug
-			mConnectionNameInput.setText("Test environment");
-			mHostIpInput.setText("212.199.106.213");
-			mHostPortInput.setText("443");
+//			mConnectionNameInput.setText("Test environment");
+//			mHostIpInput.setText("212.199.106.213");
+//			mHostPortInput.setText("443");
 			break;
 		case VIEW_CONNECTION:
 			// Sets the header appName

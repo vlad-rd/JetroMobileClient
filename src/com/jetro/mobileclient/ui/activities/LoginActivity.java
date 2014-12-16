@@ -128,7 +128,6 @@ public class LoginActivity extends HeaderActivity implements IConnectionCreation
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_GO) {
-					KeyboardUtils.hide(LoginActivity.this, mEmailInput, 0);
 					new ConnectAsyncTask().execute();
 					return true;
 				}
@@ -439,6 +438,7 @@ public class LoginActivity extends HeaderActivity implements IConnectionCreation
 
 		@Override
 		protected void onPreExecute() {
+			KeyboardUtils.hide(LoginActivity.this, mEmailInput, 0);
 			startLoadingScreen();
 		}
 
