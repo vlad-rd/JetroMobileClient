@@ -15,8 +15,8 @@ public class ValidateUtils {
 	}
 	
 	public static boolean isEmailValid(String email) {
-		return !TextUtils.isEmpty(email)
-				&& !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+		return TextUtils.isEmpty(email)
+				|| android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
 	}
 	
 	public static boolean isIpValid(String ip) {

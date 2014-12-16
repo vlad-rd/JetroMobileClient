@@ -39,11 +39,15 @@ public class ClientChannelUtils {
 				for (ConnectionPoint lan : lans) {
 					int tries = 0;
 					do {
+						Log.i(TAG, TAG + "#connect(...) Connecting try #" + tries);
 						Log.i(TAG, TAG + "#connect(...) Connecting to HOST IP: " + lan.IP);
 						Log.i(TAG, TAG + "#connect(...) Connecting to HOST PORT: " + lan.Port);
 						Log.i(TAG, TAG + "#connect(...) Connecting to CONNECTION MODE: " + lan.ConnectionMode);
 						isCreated = ClientChannel.Create(lan.IP, lan.Port, ClientChannel.TIME_OUT, null);
 					} while(!isCreated && ++tries < timesToTry);
+					if (isCreated) {
+						break;
+					}
 				}
 				break;
 			case SSL:
@@ -51,11 +55,15 @@ public class ClientChannelUtils {
 				for (ConnectionPoint wan : wans) {
 					int tries = 0;
 					do {
+						Log.i(TAG, TAG + "#connect(...) Connecting try #" + tries);
 						Log.i(TAG, TAG + "#connect(...) Connecting to HOST IP: " + wan.IP);
 						Log.i(TAG, TAG + "#connect(...) Connecting to HOST PORT: " + wan.Port);
 						Log.i(TAG, TAG + "#connect(...) Connecting to CONNECTION MODE: " + wan.ConnectionMode);
 						isCreated = ClientChannel.CreateSSL(wan.IP, wan.Port, ClientChannel.TIME_OUT, null);
 					} while(!isCreated && ++tries < timesToTry);
+					if (isCreated) {
+						break;
+					}
 				}
 				break;
 			}

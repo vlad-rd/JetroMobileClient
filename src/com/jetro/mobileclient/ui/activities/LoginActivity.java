@@ -3,6 +3,8 @@
  */
 package com.jetro.mobileclient.ui.activities;
 
+import java.util.Collections;
+
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -270,8 +272,7 @@ public class LoginActivity extends HeaderActivity implements IConnectionCreation
 	
 	private void makeLogin() {
 		Log.d(TAG, TAG + "#makeLogin(...) ENTER");
-		
-		startLoadingScreen();
+
 		sendLoginMsg();
 	}
 	
@@ -434,6 +435,8 @@ public class LoginActivity extends HeaderActivity implements IConnectionCreation
 	
 	private void sendLoginMsg() {
 		Log.d(TAG, TAG + "#sendLoginMsg(...) ENTER");
+		
+		startLoadingScreen();
 		
 		// Gets device info
 		String deviceModel = Build.MODEL;
