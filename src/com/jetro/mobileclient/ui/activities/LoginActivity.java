@@ -123,7 +123,6 @@ public class LoginActivity extends HeaderActivity implements IConnectionCreation
 		mDomainInput = (EditText) mBaseContentLayout.findViewById(R.id.domain_input);
 		mDomainInput.addTextChangedListener(mInputTextWatcher);
 		mEmailInput = (EditText) mBaseContentLayout.findViewById(R.id.email_input);
-		mEmailInput.addTextChangedListener(mInputTextWatcher);
 		mEmailInput.setOnEditorActionListener(new OnEditorActionListener() {
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -254,12 +253,6 @@ public class LoginActivity extends HeaderActivity implements IConnectionCreation
 		}
 
 		if (TextUtils.isEmpty(mDomainInput.getText())) {
-			mDomainInput.setError(null);
-			return false;
-		}
-		
-		String email = mEmailInput.getText().toString();
-		if (!ValidateUtils.isEmailValid(email)) {
 			mDomainInput.setError(null);
 			return false;
 		}

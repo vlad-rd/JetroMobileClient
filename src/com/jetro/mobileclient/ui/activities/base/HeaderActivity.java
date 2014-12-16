@@ -163,6 +163,8 @@ public abstract class HeaderActivity extends Activity {
 	}
 
 	protected void startLoadingScreen() {
+		Log.e(TAG, TAG + "#startLoadingScreen(...) ENTER");
+		
 		mProgressBarContainer.setVisibility(View.VISIBLE);
 		progressAnimation = (AnimationDrawable) mProgressBarImage.getBackground();
 		progressAnimation.start();
