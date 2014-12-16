@@ -33,8 +33,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginRight="@dimen/star_icon_size"
                     android:layout_marginEnd="@dimen/star_icon_size"
+                    android:layout_marginRight="@dimen/star_icon_size"
                     android:layout_marginTop="1dp"
                     android:src="@drawable/star" />
 
@@ -75,8 +75,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginRight="@dimen/star_icon_size"
                     android:layout_marginEnd="@dimen/star_icon_size"
+                    android:layout_marginRight="@dimen/star_icon_size"
                     android:layout_marginTop="3dp"
                     android:background="@drawable/star" />
 
@@ -118,8 +118,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginRight="@dimen/star_icon_size"
                     android:layout_marginEnd="@dimen/star_icon_size"
+                    android:layout_marginRight="@dimen/star_icon_size"
                     android:layout_marginTop="3dp"
                     android:background="@drawable/star" />
 
@@ -144,8 +144,37 @@
                 android:background="@drawable/black_border_square"
                 android:cursorVisible="true"
                 android:hint="@string/domain_hint"
-                android:imeOptions="actionGo"
                 android:inputType="text|textNoSuggestions|textVisiblePassword"
+                android:singleLine="true"
+                android:textCursorDrawable="@null"
+                android:textSize="@dimen/edit_text_label_text_size" />
+
+            <!-- Email - Label -->
+
+            <TextView
+                android:id="@+id/email_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:gravity="center"
+                android:paddingLeft="14dp"
+                android:paddingStart="14dp"
+                android:text="@string/email_lbl"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/edit_text_label_text_size" />
+
+            <!-- Email - Edit Text -->
+
+            <EditText
+                android:id="@+id/email_input"
+                style="@style/GrayBorderEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/black_border_square"
+                android:cursorVisible="true"
+                android:hint="@string/email_hint"
+                android:imeOptions="actionGo"
+                android:inputType="textEmailAddress|textNoSuggestions|textVisiblePassword"
                 android:singleLine="true"
                 android:textCursorDrawable="@null"
                 android:textSize="@dimen/edit_text_label_text_size" />

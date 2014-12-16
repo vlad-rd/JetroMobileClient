@@ -33,6 +33,7 @@ import com.jetro.mobileclient.ui.dialogs.DialogLauncher;
 import com.jetro.mobileclient.utils.ClientChannelUtils;
 import com.jetro.mobileclient.utils.FilesUtils;
 import com.jetro.mobileclient.utils.KeyboardUtils;
+import com.jetro.mobileclient.utils.ValidateUtils;
 import com.jetro.protocol.Core.BaseMsg;
 import com.jetro.protocol.Core.ClassID;
 import com.jetro.protocol.Core.IConnectionCreationSubscriber;
@@ -60,6 +61,7 @@ public class LoginActivity extends HeaderActivity implements IConnectionCreation
 	private EditText mUsernameInput;
 	private EditText mPasswordInput;
 	private EditText mDomainInput;
+	private EditText mEmailInput;
 	private ImageView mLoginImage;
 	private TextView mCancelButton;
 	private TextView mLoginButton;
@@ -120,11 +122,13 @@ public class LoginActivity extends HeaderActivity implements IConnectionCreation
 		mPasswordInput.addTextChangedListener(mInputTextWatcher);
 		mDomainInput = (EditText) mBaseContentLayout.findViewById(R.id.domain_input);
 		mDomainInput.addTextChangedListener(mInputTextWatcher);
-		mDomainInput.setOnEditorActionListener(new OnEditorActionListener() {
+		mEmailInput = (EditText) mBaseContentLayout.findViewById(R.id.email_input);
+		mEmailInput.addTextChangedListener(mInputTextWatcher);
+		mEmailInput.setOnEditorActionListener(new OnEditorActionListener() {
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_GO) {
-					KeyboardUtils.hide(LoginActivity.this, mDomainInput, 0);
+					KeyboardUtils.hide(LoginActivity.this, mEmailInput, 0);
 					makeLogin();
 					return true;
 				}
@@ -166,6 +170,7 @@ public class LoginActivity extends HeaderActivity implements IConnectionCreation
 			String userName = mConnection.getUserName();
 			String password = mConnection.getPassword();
 			String domain = mConnection.getDomain();
+			String email = mConnection.getEmail();
 			
 			// TODO: refactor this after test
 			if (!TextUtils.isEmpty(userName)) {
@@ -182,6 +187,11 @@ public class LoginActivity extends HeaderActivity implements IConnectionCreation
 				mDomainInput.setText(domain);
 			} else {
 				mDomainInput.setText("jp");
+			}
+			if (!TextUtils.isEmpty(email)) {
+				mEmailInput.setText(email);
+			} else {
+				mEmailInput.setText("a@b.com");
 			}
 			
 			Bitmap loginImage = FilesUtils.readImage(mConnection.getLoginImageName());
@@ -234,24 +244,28 @@ public class LoginActivity extends HeaderActivity implements IConnectionCreation
 	private boolean areInputFieldsValid() {
 		Log.d(TAG, TAG + "#areInputFieldsValid(...) ENTER");
 		
-		boolean areInputFieldsValid = true;
-
 		if (TextUtils.isEmpty(mUsernameInput.getText())) {
 			mUsernameInput.setError(null);
-			areInputFieldsValid = false;
+			return false;
 		}
 
 		if (TextUtils.isEmpty(mPasswordInput.getText())) {
 			mPasswordInput.setError(null);
-			areInputFieldsValid = false;
+			return false;
 		}
 
 		if (TextUtils.isEmpty(mDomainInput.getText())) {
 			mDomainInput.setError(null);
-			areInputFieldsValid = false;
+			return false;
+		}
+		
+		String email = mEmailInput.getText().toString();
+		if (!ValidateUtils.isEmailValid(email)) {
+			mDomainInput.setError(null);
+			return false;
 		}
 
-		return areInputFieldsValid;
+		return true;
 	}
 	
 	private void makeLogin() {
@@ -394,11 +408,13 @@ public class LoginActivity extends HeaderActivity implements IConnectionCreation
 		String username = mUsernameInput.getText().toString().trim();
 		String password = mPasswordInput.getText().toString().trim();
 		String domain = mDomainInput.getText().toString().trim();
+		String email = mEmailInput.getText().toString().trim();
 		
 		// Saves user credentials to connection
 		mConnection.setUserName(username);
 		mConnection.setPassword(password);
 		mConnection.setDomain(domain);
+		mConnection.setEmail(email);
 		ConnectionsDB.getInstance(getApplicationContext()).saveConnection(mConnection);
 	}
 	
@@ -426,15 +442,16 @@ public class LoginActivity extends HeaderActivity implements IConnectionCreation
 		String username = mUsernameInput.getText().toString().trim();
 		String password = mPasswordInput.getText().toString().trim();
 		String domain = mDomainInput.getText().toString().trim();
+		String email = mEmailInput.getText().toString().trim();
 		// Sends LoginMsg
 		LoginMsg loginMsg = new LoginMsg();
 		loginMsg.name = username;
 		loginMsg.password = password;
 		loginMsg.domain = domain;
+		loginMsg.email = email;
 		loginMsg.deviceModel = deviceModel;
 		loginMsg.deviceId = deviceId;
 		
-		// TODO: client channel connection to host fallback logic
 		ConnectionPoint connectionPoint = null;
 		switch (mConnectionMode) {
 		case SSL:

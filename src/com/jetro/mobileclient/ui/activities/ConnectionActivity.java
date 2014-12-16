@@ -35,6 +35,7 @@ import com.jetro.mobileclient.ui.dialogs.DialogLauncher;
 import com.jetro.mobileclient.utils.ClientChannelUtils;
 import com.jetro.mobileclient.utils.FilesUtils;
 import com.jetro.mobileclient.utils.KeyboardUtils;
+import com.jetro.mobileclient.utils.ValidateUtils;
 import com.jetro.protocol.Core.BaseMsg;
 import com.jetro.protocol.Core.ClassID;
 import com.jetro.protocol.Core.IConnectionCreationSubscriber;
@@ -285,24 +286,25 @@ public class ConnectionActivity extends HeaderActivity implements IConnectionCre
 	private boolean areInputFieldsValid() {
 		Log.d(TAG, TAG + "#areInputFieldsValid(...) ENTER");
 		
-		boolean areInputFieldsValid = true;
-
-		if (TextUtils.isEmpty(mConnectionNameInput.getText())) {
+		Editable connectionName = mConnectionNameInput.getText();
+		if (TextUtils.isEmpty(connectionName)) {
 			mConnectionNameInput.setError(null);
-			areInputFieldsValid = false;
+			return false;
 		}
 
-		if (TextUtils.isEmpty(mHostIpInput.getText())) {
+		String hostIp = mHostIpInput.getText().toString();
+		if (!ValidateUtils.isIpValid(hostIp)) {
 			mHostIpInput.setError(null);
-			areInputFieldsValid = false;
+			return false;
 		}
 
-		if (TextUtils.isEmpty(mHostPortInput.getText())) {
+		String hostPort = mHostPortInput.getText().toString();
+		if (!ValidateUtils.isPortValid(hostPort)) {
 			mHostPortInput.setError(null);
-			areInputFieldsValid = false;
+			return false;
 		}
 
-		return areInputFieldsValid;
+		return true;
 	}
 
 	@Override

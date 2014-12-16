@@ -29,6 +29,8 @@ public class Connection implements Serializable {
 	
 	private String domain;
 	
+	private String email;
+	
 	private ConnectionModeType preferedConnectionMode;
 	
 	private String loginImageName;
@@ -73,6 +75,14 @@ public class Connection implements Serializable {
 
 	public void setDomain(String domain) {
 		this.domain = domain;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	public ConnectionModeType getPreferedConnectionMode() {
