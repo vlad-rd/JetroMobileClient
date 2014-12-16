@@ -145,6 +145,7 @@ public abstract class HeaderActivity extends Activity {
 	 * @return - the inflated view
 	 */
 	protected View setBaseContentView(int layoutResourceId) {
+		Log.d(TAG, TAG + "#setBaseContentView(...) ENTER");
 		
 		// Validates base content layout resource id
 		if (layoutResourceId == 0) {
@@ -163,7 +164,7 @@ public abstract class HeaderActivity extends Activity {
 	}
 
 	protected void startLoadingScreen() {
-		Log.e(TAG, TAG + "#startLoadingScreen(...) ENTER");
+		Log.d(TAG, TAG + "#startLoadingScreen(...) ENTER");
 		
 		mProgressBarContainer.setVisibility(View.VISIBLE);
 		progressAnimation = (AnimationDrawable) mProgressBarImage.getBackground();
@@ -171,6 +172,8 @@ public abstract class HeaderActivity extends Activity {
 	}
 
 	protected void stopLoadingScreen() {
+		Log.d(TAG, TAG + "#stopLoadingScreen(...) ENTER");
+		
 		new Handler().postDelayed(new Runnable() {
 			@Override
 			public void run() {

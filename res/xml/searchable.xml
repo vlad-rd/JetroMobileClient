@@ -16,7 +16,7 @@
     android:searchMode="queryRewriteFromText"
     android:imeOptions="actionGo"
 
-    android:searchSuggestAuthority="com.freerdp.afreerdp.services.freerdpsuggestionprovider"
+    android:searchSuggestAuthority="com.freerdp.afreerdp.services.freerdpsuggestionprovider.jetro"
     android:searchSuggestIntentAction="android.intent.action.VIEW"
     android:searchSuggestSelection=" ? "
 
