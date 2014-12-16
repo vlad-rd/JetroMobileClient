@@ -3,11 +3,10 @@
  */
 package com.jetro.mobileclient.ui.activities;
 
-import java.util.Collections;
-
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings.Secure;
@@ -41,9 +40,8 @@ import com.jetro.protocol.Core.ClassID;
 import com.jetro.protocol.Core.IConnectionCreationSubscriber;
 import com.jetro.protocol.Core.IMessageSubscriber;
 import com.jetro.protocol.Core.Net.ClientChannel;
-import com.jetro.protocol.Protocols.Controller.ConnectionPoint;
-import com.jetro.protocol.Protocols.Controller.LoginMsg;
 import com.jetro.protocol.Protocols.Controller.ConnectionPoint.ConnectionModeType;
+import com.jetro.protocol.Protocols.Controller.LoginMsg;
 import com.jetro.protocol.Protocols.Generic.ErrorMsg;
 
 /**
@@ -131,7 +129,7 @@ public class LoginActivity extends HeaderActivity implements IConnectionCreation
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_GO) {
 					KeyboardUtils.hide(LoginActivity.this, mEmailInput, 0);
-					makeLogin();
+					new ConnectAsyncTask().execute();
 					return true;
 				}
 				return false;
@@ -163,7 +161,7 @@ public class LoginActivity extends HeaderActivity implements IConnectionCreation
 			public void onClick(View v) {
 				// Disables the login button
 				mLoginButton.setEnabled(false);
-				makeLogin();
+				new ConnectAsyncTask().execute();
 			}
 		});
 		
@@ -270,20 +268,14 @@ public class LoginActivity extends HeaderActivity implements IConnectionCreation
 		return true;
 	}
 	
-	private void makeLogin() {
-		Log.d(TAG, TAG + "#makeLogin(...) ENTER");
-
-		sendLoginMsg();
-	}
-	
 	@Override
-	public void ConnectionCreated(boolean result, final String message) {
+	public void ConnectionCreated(final boolean result, final String message) {
 		Log.d(TAG, TAG + "#ConnectionCreated(...) ENTER");
 	
 //		runOnUiThread(new Runnable() {
 //			@Override
-//			public void run() {
-//				DialogLauncher.launchServerErrorOneButtonDialog(LoginActivity.this, message, null);
+//			public void run() {				
+//				
 //			}
 //		});
 	}
@@ -369,7 +361,7 @@ public class LoginActivity extends HeaderActivity implements IConnectionCreation
 								// Retry
 								if (which == DialogInterface.BUTTON_POSITIVE) {
 									dialog.dismiss();
-									sendLoginMsg();
+									new ConnectAsyncTask().execute();
 								// Cancel
 								} else if (which == DialogInterface.BUTTON_NEGATIVE) {
 									dialog.dismiss();
@@ -433,63 +425,6 @@ public class LoginActivity extends HeaderActivity implements IConnectionCreation
 		startActivity(intent);
 	}
 	
-	private void sendLoginMsg() {
-		Log.d(TAG, TAG + "#sendLoginMsg(...) ENTER");
-		
-		startLoadingScreen();
-		
-		// Gets device info
-		String deviceModel = Build.MODEL;
-		String deviceId = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
-		// Gets the user credentials from the login form
-		String username = mUsernameInput.getText().toString().trim();
-		String password = mPasswordInput.getText().toString().trim();
-		String domain = mDomainInput.getText().toString().trim();
-		String email = mEmailInput.getText().toString().trim();
-		// Sends LoginMsg
-		LoginMsg loginMsg = new LoginMsg();
-		loginMsg.name = username;
-		loginMsg.password = password;
-		loginMsg.domain = domain;
-		loginMsg.email = email;
-		loginMsg.deviceModel = deviceModel;
-		loginMsg.deviceId = deviceId;
-		
-		ConnectionPoint connectionPoint = null;
-		switch (mConnectionMode) {
-		case SSL:
-			connectionPoint = mConnection.getWANs().iterator().next();
-			break;
-		case DIRECT:
-			connectionPoint = mConnection.getLANs().iterator().next();
-			break;
-		default:
-			throw new IllegalStateException(
-					"Invalid connection.getPreferedConnectionMode() = "
-							+ mConnection.getPreferedConnectionMode());
-		}
-		
-		boolean isCreated = ClientChannelUtils.connect(mConnection, mConnectionMode, ClientChannelUtils.TIMES_TO_TRY);
-		Log.i(TAG, TAG + "#sendLoginMsg(...) ClientChannel isCreated = " + isCreated);
-		if (isCreated) {
-			mClientChannel = ClientChannel.getInstance();
-			if (mClientChannel == null) {
-				Log.i(TAG, TAG + "#sendLoginMsg(...) mClientChannel = " + mClientChannel);
-				stopLoadingScreen();
-				launchConnectionIssueDialog();
-				return;
-			}
-			mClientChannel.AddListener(LoginActivity.this);
-			mClientChannel.SendAsyncTimeout(loginMsg, ClientChannel.TIME_OUT);
-			// Saves this connection point as last used one
-			mConnection.setLastConnectionPoint(connectionPoint);
-			ConnectionsDB.getInstance(getApplicationContext()).saveConnection(mConnection);
-		} else {
-			stopLoadingScreen();
-			launchConnectionIssueDialog();
-		}
-	}
-	
 	private void launchConnectionIssueDialog() {
 		DialogLauncher.launchNetworkConnectionIssueDialog(LoginActivity.this, new DialogInterface.OnClickListener() {
 			@Override
@@ -498,6 +433,59 @@ public class LoginActivity extends HeaderActivity implements IConnectionCreation
 				mLoginButton.setEnabled(true);
 			}
 		});
+	}
+	
+	private class ConnectAsyncTask extends AsyncTask<Void, Void, Boolean> {
+
+		@Override
+		protected void onPreExecute() {
+			startLoadingScreen();
+		}
+
+		@Override
+		protected Boolean doInBackground(Void... params) {
+			boolean isCreated = ClientChannelUtils.connect(
+					LoginActivity.this, mConnection, mConnectionMode,
+					ClientChannelUtils.TIMES_TO_TRY);
+			Log.i(TAG, TAG + "#sendLoginMsg(...) ClientChannel isCreated = " + isCreated);
+			return isCreated;
+		}
+
+		@Override
+		protected void onPostExecute(Boolean result) {
+			if (result) {
+				// Gets device info
+				String deviceModel = Build.MODEL;
+				String deviceId = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
+				// Gets the user credentials from the login form
+				String username = mUsernameInput.getText().toString().trim();
+				String password = mPasswordInput.getText().toString().trim();
+				String domain = mDomainInput.getText().toString().trim();
+				String email = mEmailInput.getText().toString().trim();
+				// Sends LoginMsg
+				LoginMsg loginMsg = new LoginMsg();
+				loginMsg.name = username;
+				loginMsg.password = password;
+				loginMsg.domain = domain;
+				loginMsg.email = email;
+				loginMsg.deviceModel = deviceModel;
+				loginMsg.deviceId = deviceId;
+				
+				mClientChannel = ClientChannel.getInstance();
+				if (mClientChannel == null) {
+					Log.i(TAG, TAG + "#sendLoginMsg(...) mClientChannel = " + mClientChannel);
+					stopLoadingScreen();
+					launchConnectionIssueDialog();
+					return;
+				}
+				mClientChannel.AddListener(LoginActivity.this);
+				mClientChannel.SendAsyncTimeout(loginMsg, ClientChannel.TIME_OUT);
+			} else {
+				stopLoadingScreen();
+				launchConnectionIssueDialog();
+			}
+		}
+		
 	}
 	
 }

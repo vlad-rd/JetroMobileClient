@@ -3,11 +3,14 @@
  */
 package com.jetro.mobileclient.utils;
 
+import java.util.HashSet;
 import java.util.Set;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.jetro.mobileclient.model.beans.Connection;
+import com.jetro.mobileclient.repository.ConnectionsDB;
 import com.jetro.protocol.Core.IConnectionCreationSubscriber;
 import com.jetro.protocol.Core.IMessageSubscriber;
 import com.jetro.protocol.Core.Net.ClientChannel;
@@ -27,48 +30,48 @@ public class ClientChannelUtils {
 	private ClientChannelUtils() {
 	}
 	
-	public static boolean connect(Connection connection, ConnectionModeType connectionMode, int timesToTry) {
+	public static boolean connect(Context context, Connection connection,
+			ConnectionModeType connectionMode, int timesToTry) {
 		Log.d(TAG, TAG + "#connect(...) ENTER");
 		
 		boolean isCreated = false;
 		
-		try {
-			switch (connectionMode) {
-			case DIRECT:
-				Set<ConnectionPoint> lans = connection.getLANs();
-				for (ConnectionPoint lan : lans) {
-					int tries = 0;
-					do {
-						Log.i(TAG, TAG + "#connect(...) Connecting try #" + tries);
-						Log.i(TAG, TAG + "#connect(...) Connecting to HOST IP: " + lan.IP);
-						Log.i(TAG, TAG + "#connect(...) Connecting to HOST PORT: " + lan.Port);
-						Log.i(TAG, TAG + "#connect(...) Connecting to CONNECTION MODE: " + lan.ConnectionMode);
-						isCreated = ClientChannel.Create(lan.IP, lan.Port, ClientChannel.TIME_OUT, null);
-					} while(!isCreated && ++tries < timesToTry);
-					if (isCreated) {
+		Set<ConnectionPoint> connectionPoints = new HashSet<ConnectionPoint>();
+		switch (connectionMode) {
+		case DIRECT:
+			connectionPoints = connection.getLANs();
+			break;
+		case SSL:
+			connectionPoints = connection.getWANs();
+			break;
+		}
+		
+		for (ConnectionPoint cp : connectionPoints) {
+			int tries = 0;
+			do {
+				Log.i(TAG, TAG + "#connect(...) Connecting try #" + tries);
+				Log.i(TAG, TAG + "#connect(...) Connecting to HOST IP: " + cp.IP);
+				Log.i(TAG, TAG + "#connect(...) Connecting to HOST PORT: " + cp.Port);
+				Log.i(TAG, TAG + "#connect(...) Connecting to CONNECTION MODE: " + cp.ConnectionMode);
+				try {
+					switch (connectionMode) {
+					case DIRECT:					
+						isCreated = ClientChannel.Create(cp.IP, cp.Port, ClientChannel.TIME_OUT, null);
+						break;
+					case SSL:
+						isCreated = ClientChannel.CreateSSL(cp.IP, cp.Port, ClientChannel.TIME_OUT, null);
 						break;
 					}
+				} catch (Exception e) {
+					Log.e(TAG, "ERROR: ", e);
 				}
-				break;
-			case SSL:
-				Set<ConnectionPoint> wans = connection.getWANs();
-				for (ConnectionPoint wan : wans) {
-					int tries = 0;
-					do {
-						Log.i(TAG, TAG + "#connect(...) Connecting try #" + tries);
-						Log.i(TAG, TAG + "#connect(...) Connecting to HOST IP: " + wan.IP);
-						Log.i(TAG, TAG + "#connect(...) Connecting to HOST PORT: " + wan.Port);
-						Log.i(TAG, TAG + "#connect(...) Connecting to CONNECTION MODE: " + wan.ConnectionMode);
-						isCreated = ClientChannel.CreateSSL(wan.IP, wan.Port, ClientChannel.TIME_OUT, null);
-					} while(!isCreated && ++tries < timesToTry);
-					if (isCreated) {
-						break;
-					}
-				}
+			} while(!isCreated && ++tries < timesToTry);
+			if (isCreated) {
+				// Saves this connection point as last used one
+				connection.setLastConnectionPoint(cp);
+				ConnectionsDB.getInstance(context).saveConnection(connection);
 				break;
 			}
-		} catch (InterruptedException e) {
-			Log.e(TAG, "ERROR: ", e);
 		}
 		
 		return isCreated;
