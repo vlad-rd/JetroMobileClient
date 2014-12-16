@@ -1,5 +1,6 @@
 package com.jetro.mobileclient.ui.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -42,6 +43,30 @@ public class WebViewActivity extends HeaderActivity {
 	}
 
 	@Override
+	protected void onNewIntent(Intent intent) {
+		Log.d(TAG, TAG + "#onNewIntent(...) ENTER");
+		super.onNewIntent(intent);
+		
+		mType = (Type) intent.getSerializableExtra(Config.Extras.EXTRA_TYPE);
+		
+		// Check whether we're recreating a previously destroyed instance
+		switch (mType) {
+		case ABOUT:
+			setHeaderTitleText(R.string.header_title_about);
+			String aboutUrl = getString(R.string.link_about);
+			Log.i(TAG, TAG + "#onCreate(...) about url = " + aboutUrl);
+			mWebView.loadUrl(aboutUrl);
+			break;
+		case HELP:
+			setHeaderTitleText(R.string.header_title_help);
+			String helpUrl = getString(R.string.link_help);
+			Log.i(TAG, TAG + "#onCreate(...) help url = " + helpUrl);
+			mWebView.loadUrl(helpUrl);
+			break;
+		}
+	}
+
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		Log.d(TAG, TAG + "#onCreate(...) ENTER");
 		super.onCreate(savedInstanceState);
@@ -73,7 +98,6 @@ public class WebViewActivity extends HeaderActivity {
 			mWebView.loadUrl(helpUrl);
 			break;
 		}
-
 	}
 	
 	@Override

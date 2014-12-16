@@ -55,7 +55,7 @@ public class ClientChannelUtils {
 				Log.i(TAG, TAG + "#connect(...) Connecting to CONNECTION MODE: " + cp.ConnectionMode);
 				try {
 					switch (connectionMode) {
-					case DIRECT:					
+					case DIRECT:
 						isCreated = ClientChannel.Create(cp.IP, cp.Port, ClientChannel.TIME_OUT, null);
 						break;
 					case SSL:
